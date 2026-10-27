@@ -4,14 +4,14 @@ Research implementation of the **Dynamic Graph Cognitive Architecture — DCR**.
 
 ## Project status
 
-**I0 accepted. I1 — approved L01 remediation in progress against RC4.2.**
+**I0 accepted. I1-L01 — RC4.2 physical policy implemented; independent review required.**
 
 The foundation refers to two design-candidate specifications under `docs/specs/`:
 
 - `DGCA_CORE_RC4_2.md` — Core anatomy, dynamics, assemblies, contextual memory and bounded generation.
 - `DGCA_LLA_RC4_2.md` — local learning, evidence, consolidation and derived context witnesses.
 
-Both specifications are **RC4.2 / NOT FROZEN / NOT IMPLEMENTED / NOT EMPIRICALLY VERIFIED**. They are design contracts, not evidence of model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
+Both specifications are **RC4.2 / NOT FROZEN / NOT EMPIRICALLY VERIFIED**. Only the I0/I1 physical foundation is implemented. They are design contracts, not evidence of model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
 
 ## Implementation direction
 
@@ -34,7 +34,7 @@ chosen because it is the available local validation runtime; broader Python
 compatibility is untested. The package has no runtime dependencies. Development
 tools are pinned in `pyproject.toml`.
 
-Run from the repository root on `feature/i0-contract-foundation`:
+Run from the repository root on `feature/i1-graph-anatomy`:
 
 ```powershell
 git fetch origin main:refs/remotes/origin/main
@@ -54,7 +54,8 @@ git status --porcelain
 On Linux/macOS, substitute `.venv/bin/python` for the Windows interpreter path.
 Fetching `main` only updates the remote tracking ref; it does not switch branches
 or merge. Tests verify archival RC4.1 provenance at immutable commit fdcd3ea3c85b9c7484e89d043188a59d49907b71 and current RC4.2 bytes without network calls.
-For a shallow clone, fetch it explicitly before running tests. The dedicated
+For a shallow clone, also fetch the archival object explicitly with
+`git fetch origin fdcd3ea3c85b9c7484e89d043188a59d49907b71`. The dedicated
 `.pytest-tmp` directory is disposable: pytest clears it each run. After committing
 the implementation, the final status command must produce no output. Validation
 must leave scientific files and the manifest unchanged.
@@ -165,11 +166,12 @@ Geometry functions return inclusive, clipped Manhattan balls of radius 0, 1 or 2
 in row/column order within one region. They never select latent targets. Slot
 indexing is an administrative schema: 0–5 coactive intra, 6–11 fixed local,
 12–17 coactive inter, 18–23 fixed topographic. Cross groups allocate three slots
-to each other region in region-byte order. Empty positions stay empty until an
-explicit fixture target is injected. The fixture API rejects redundant targets
-within one owner's slots rather than choosing or normalizing the caller's input.
-This conservative construction convention does not resolve production selection
-or overlap handling under the missing inherited policy.
+to each other region in region-byte order. The approved RC4.2 selectors populate
+fixed LOCAL positions round-robin, fixed TOPOGRAPHIC positions with domain-separated
+SHA-256 and circular probing, and dynamic positions by canonical Q6 activity/direct
+support then physical ID. Every owner has distinct targets. Dynamic positions
+remain empty when the frozen candidate pool is insufficient. A fixed target can
+remain uncommitted; selecting it never materializes a Cell record or commits it.
 
 Structural eligibility is exactly the either-endpoint OR predicate. The reverse
 index records every occupied `(owner_id, slot_index)` reference. Distinct live
@@ -208,29 +210,84 @@ No fallible work follows the single published-state assignment. `debug_dump()`
 and `structural_hash` provide sorted diagnostics, including all bookkeeping and
 fixture wiring-log deltas; they are not persistence or save/load formats.
 
-**UNRESOLVED_LATENT_POLICY:** Core §1.3 names inherited highest-coactivity,
-local/inter/topographic target policies and an original confirmation window,
-without providing their complete executable procedure in either normative spec.
-`initialize_latent_neighborhoods()` and unprotected `recycle_slot()` therefore
-raise `UnresolvedLatentPolicy`. Protected recycling attempts return their more
-specific rejection diagnostics. Production auto-wiring, cross-category overlap
-selection and confirmation-window recycling need a separately reviewed rule.
-I1 cannot be declared fully complete while this policy boundary remains open.
+## Approved L01 physical policy
+
+The owner-approved policy is integrated into Core RC4.2 §1.3 and LLA RC4.2 §5.1.
+RC4.1 remains byte-reproducible at the immutable historical commits recorded in
+the source manifest. Only the two RC4.2 files are current scientific authorities.
+
+`initialize_layout()` is a pure explicit-input selector. The graph fixture API
+applies one simultaneous frozen co-birth snapshot with `initialize_cohort()`:
+
+```python
+from dgca_next.graph import (
+    FixtureBuilder, FixtureEventSnapshot, FixtureReceiver, SparseNetwork,
+)
+
+graph = SparseNetwork()
+snapshot = FixtureEventSnapshot(
+    exposure_id=1, event_id=1, event_order=0, completed_external_closes=0,
+    direct_receivers=(FixtureReceiver(8192, 500000), FixtureReceiver(9000, 500000)),
+    birth_ids=frozenset({8192, 9000}),
+)
+FixtureBuilder(graph).initialize_cohort(snapshot)
+assert graph.structurally_eligible(8192, 9000)
+assert graph.synapses() == ()  # Topology is not learned evidence.
+graph.validate_graph()
+```
+
+Snapshots, frontier/receiver records, assignments and novelty inputs are immutable
+and explicitly fixture-only. Frontier scores use exact binary64-rational Q6;
+new receiver scores use canonical direct-support millionths. Birth order does not
+affect availability or ranks. `fill_coactive()` fills only empty positions from
+a later frozen snapshot; it preserves fixed and already occupied positions.
+`initialize_context_cell()` accepts an explicit physical pin layout before fixed
+selection. It does not fabricate a sensory score or add z to a sensory cohort.
+Contextual role selection, owner admission and actual END execution remain later
+milestones. Policy metadata carries a required version; unversioned/mismatched
+initialized metadata is rejected. No persistence loader is claimed in I1.
+
+Fixture `recycle_slot(..., event=snapshot, novelty=FixtureLocalNovelty(...))`
+checks every present bilateral occurrence. Each must be dynamic, at least 100
+completed genuine external closes old, and free of either-direction live links,
+reservations, protection or pins. The fixture residual arithmetic uses the
+approved direct-support/pre-input-prediction formula and theta_R=.30, distinct
+from branch novelty. It is not genuine novelty detection. Every affected position
+must obtain a ranked compatible replacement excluding self, the evicted target
+and all still-selected targets. A missing replacement rejects the whole operation.
+Reverse references, age/event metadata and ordered RECYCLED log entries publish
+with one shadow commit; failure injection proves no partial publication.
+
+**Production automatic recycling is disabled.** `automatic_recycling_enabled`
+is read-only false. `SparseNetwork.recycle_slot()` rejects fixture witnesses,
+arbitrary scalars and caller assertions with `UNVERIFIED_NOVELTY`, after applicable
+protection checks. `VerifiedLocalNovelty` describes a future executor authority;
+I1 has no producer/verifier. Real event/root binding, pre-input temporal prediction,
+sensory admission and novelty validation require separately reviewed I2/I3 work.
+`completed_close_credit()` expresses the pure clock rule; it does not execute,
+deduplicate or certify completed roots. No OPEN/ABORT/REPLAY/read-only/internal
+event gains age/evidence credit from an I1 fixture API.
 
 The same installation and validation commands above run all I0 and I1 checks.
-Use `python -m pytest -q --basetemp=.pytest-tmp -rs` to display the two explicitly
-**POLICY_BLOCKED** skips (I1-T09 and I1-T26 production-policy execution). Tests of
-their fail-closed API behavior run separately and do not count as executing the
-missing policies. The full-network test writes measurements to the ignored
+Use `python -m pytest -q --basetemp=.pytest-tmp -rs` to run the complete regression
+suite. The two historical I1 policy skips now execute physical initialization and
+production fail-closed checks, with additional bilateral fixture replacement tests.
+The full-network test writes measurements to the ignored
 `.pytest_cache/i1-stress-metrics.json`; it has no invented time or memory pass
-threshold. All constructed graphs and quality calculations remain synthetic
+threshold. `.pytest_cache/i1-l01-feasibility.json` measures structural triangle
+eligibility for four published SIC-footprint fixtures; it executes no SIC encoder
+or learning. All constructed graphs and quality calculations remain synthetic
 contract fixtures. LLA-T01–T41 and LG-T01–T16 remain scientifically **NOT_RUN**.
 
 The workflow retains I0 validation and also runs I1 feature pushes and main PRs
 on Ubuntu/Windows. Executed increment/gate evidence and policy limitations are
-recorded in `docs/implementation/I1-VERIFICATION-REPORT.md`. Stop at
-**I1 PARTIAL / POLICY_BLOCKED**; I2 requires separate review authorization.
+recorded in the historical `docs/implementation/I1-VERIFICATION-REPORT.md` and the
+current `docs/implementation/I1-L01-VERIFICATION-REPORT.md`. Stop at
+**I1-L01 REVIEW READY** after verification; I2 requires separate authorization.
 
 ## Approved L01 baseline transition
 
-The owner-approved RC4.2 policy supersedes the historical I1 policy blocker described above. The migration record is `docs/implementation/I1-L01-SOURCE-MIGRATION.md`; old reports remain historical evidence. L01 implementation and re-verification follow on this branch. Automatic production recycling remains disabled until genuine I2/I3 novelty verification exists.
+The migration record is `docs/implementation/I1-L01-SOURCE-MIGRATION.md`; old
+reports remain historical evidence. Automatic production recycling remains
+disabled until genuine I2/I3 novelty verification exists. RC4.2 remains
+**NOT FROZEN / NOT EMPIRICALLY VERIFIED**.

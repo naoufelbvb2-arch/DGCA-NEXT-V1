@@ -10,6 +10,7 @@ from dgca_next.integrity import (
     ARCHIVAL_SPECS,
     EXPECTED_SPECS,
     HISTORICAL_I0_COMMIT,
+    RC4_2_MIGRATION_PARENT,
     SpecIntegrityError,
     verify_specs,
 )
@@ -40,6 +41,53 @@ def test_exactly_two_current_scientific_artifacts():
         "DGCA_CORE_RC4_2.md",
         "DGCA_LLA_RC4_2.md",
     ]
+
+
+@pytest.mark.parametrize("path,digest,blob_sha", ARCHIVAL_SPECS)
+def test_migration_parent_retains_exact_rc4_1_bytes(path, digest, blob_sha):
+    data = subprocess.check_output(["git", "show", f"{RC4_2_MIGRATION_PARENT}:{path}"], cwd=ROOT)
+    assert hashlib.sha256(data).hexdigest() == digest
+    assert hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest() == blob_sha
+
+
+def test_stale_third_scientific_artifact_fails_integrity(source_copy):
+    (source_copy / "docs/specs/DGCA_CORE_RC4_1.md").write_text("stale authority", encoding="utf-8")
+    with pytest.raises(SpecIntegrityError, match="exactly two"):
+        verify_specs(source_copy)
+
+
+@pytest.mark.parametrize("value", [HISTORICAL_I0_COMMIT, ARCHIVAL_SPECS[0][1]])
+def test_archival_manifest_provenance_is_pinned(source_copy, value):
+    path = source_copy / "docs/specs/SOURCE-MANIFEST.md"
+    path.write_text(path.read_text("utf-8").replace(value, "unapproved"), encoding="utf-8")
+    with pytest.raises(SpecIntegrityError, match="archival provenance"):
+        verify_specs(source_copy)
+
+
+def test_science_migration_preserves_independent_rc4_1_laws():
+    old_core = subprocess.check_output(
+        ["git", "show", f"{HISTORICAL_I0_COMMIT}:docs/specs/DGCA_CORE_RC4_1.md"], cwd=ROOT
+    )
+    core = (ROOT / "docs/specs/DGCA_CORE_RC4_2.md").read_bytes()
+    marker = b"### 1.4 Directed synapse, legal scopes, and quality"
+    assert core.split(marker)[1] == old_core.split(marker)[1]
+    old_lla = subprocess.check_output(
+        ["git", "show", f"{HISTORICAL_I0_COMMIT}:docs/specs/DGCA_LLA_RC4_1.md"], cwd=ROOT
+    )
+    lla = (ROOT / "docs/specs/DGCA_LLA_RC4_2.md").read_bytes()
+    start = lla.index(b"### 5.1 RC4.2 L01")
+    end = lla.index(b"## 6. Context-dependent", start)
+    lla = lla[:start] + lla[end:]
+    start = lla.index(b"**RC4.2 L01 lifecycle clarification:**")
+    end = lla.index(b"\n", start)
+    lla = lla[:start] + lla[end + 1 :]
+    # The insertion includes its paragraph separator; preserve original blank-line count.
+    lla = lla.replace(
+        b"### 7.1 RC4 learning/generation separation and readout evidence\n\n\n",
+        b"### 7.1 RC4 learning/generation separation and readout evidence\n\n",
+    )
+    marker = b"## 0. Design objective and safety invariants"
+    assert lla.split(marker)[1] == old_lla.split(marker)[1]
 
 
 @pytest.mark.parametrize("path,digest,blob_sha", EXPECTED_SPECS)

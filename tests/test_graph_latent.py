@@ -3,7 +3,13 @@ from collections import Counter
 import pytest
 
 from dgca_next.contracts import Region
-from dgca_next.graph import FixtureBuilder, SlotCategory, SparseNetwork, UnresolvedLatentPolicy
+from dgca_next.graph import (
+    FixtureBuilder,
+    FixtureEventSnapshot,
+    FixtureReceiver,
+    SlotCategory,
+    SparseNetwork,
+)
 
 
 @pytest.mark.parametrize("region", Region)
@@ -21,9 +27,9 @@ def test_i1_t04_slot_schema(region):
     ] * 6
 
 
-def test_i1_t26_unresolved_policy_fails_closed_without_mutation():
+def test_i1_t26_unverified_event_fails_closed_without_mutation():
     graph = SparseNetwork()
-    with pytest.raises(UnresolvedLatentPolicy, match="UNRESOLVED_LATENT_POLICY"):
+    with pytest.raises(ValueError, match="UNVERIFIED_EVENT_SNAPSHOT"):
         graph.initialize_latent_neighborhoods()
     assert graph.stored_cell_count == 0
 
@@ -91,22 +97,36 @@ def test_i1_t08_protection_blocks_recycling(graph_pair, protection, key_factory,
     assert graph.structural_hash == before
 
 
-def test_i1_t09_no_production_recycling_without_confirmation_policy(graph_pair):
+def test_i1_t09_no_recycling_without_novelty_authority(graph_pair):
     graph, builder = graph_pair
     before = graph.structural_hash
-    with pytest.raises(UnresolvedLatentPolicy, match="UNRESOLVED_LATENT_POLICY"):
+    with pytest.raises(ValueError, match="UNVERIFIED_NOVELTY"):
         builder.recycle_slot(8192, 0)
     assert graph.structural_hash == before
 
 
-def test_i1_t09_production_recycling_policy_execution():
-    pytest.skip("POLICY_BLOCKED: UNRESOLVED_LATENT_POLICY, missing original confirmation window")
+def test_i1_t09_production_recycling_policy_execution(graph_pair):
+    graph, _ = graph_pair
+    before = graph.structural_hash
+    assert graph.automatic_recycling_enabled is False
+    with pytest.raises(ValueError, match="UNVERIFIED_NOVELTY"):
+        graph.recycle_slot(8192, 0)
+    assert graph.structural_hash == before
 
 
 def test_i1_t26_production_initializer_policy_execution():
-    pytest.skip(
-        "POLICY_BLOCKED: UNRESOLVED_LATENT_POLICY, missing exact inherited target selection"
+    graph = SparseNetwork()
+    event = FixtureEventSnapshot(
+        1, 1, 0, 0, direct_receivers=(FixtureReceiver(8192, 500000),), birth_ids=frozenset({8192})
     )
+    FixtureBuilder(graph).initialize_cohort(event)
+    assert graph.stored_cell_count == 1
+    assert graph.occupied_slot_count == 12
+    assert graph.initialization(8192) is not None
+    assert all(
+        s.target_id is not None for s in graph.latent_slots(8192) if not s.recyclable_category
+    )
+    graph.validate_graph()
 
 
 @pytest.mark.parametrize(

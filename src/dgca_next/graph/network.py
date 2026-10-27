@@ -8,7 +8,7 @@ import hashlib
 import json
 import struct
 from collections.abc import Callable, Iterable, Iterator, Mapping
-from dataclasses import dataclass, field, replace
+from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
 from types import MappingProxyType
 from typing import TYPE_CHECKING
@@ -17,7 +17,21 @@ from dgca_next.contracts import CellAddress, SynapseKey
 from dgca_next.graph.budget import OutgoingUsage, outgoing_usage, validate_usage
 from dgca_next.graph.cell import Cell
 from dgca_next.graph.geometry import microcolumn_neighborhood, microcolumn_of
-from dgca_next.graph.latent import LatentSlot, SlotCategory, empty_slots, require_latent_policy
+from dgca_next.graph.latent import LATENT_POLICY_VERSION, LatentSlot, SlotCategory, empty_slots
+from dgca_next.graph.policy import (
+    FixtureEventSnapshot,
+    InitializationRecord,
+    fill_coactive,
+    initialize_layout,
+    validate_fixture_event,
+)
+from dgca_next.graph.recycling import (
+    FixtureLocalNovelty,
+    RecyclingRecord,
+    VerifiedLocalNovelty,
+    bilateral_occurrences,
+    plan_fixture_recycling,
+)
 from dgca_next.graph.synapse import Synapse, SynapseState, key_order, quality
 
 if TYPE_CHECKING:
@@ -52,6 +66,8 @@ class _State:
     # Wiring audit tuples: (owner_id, slot_index, old_target, new_target).
     # -1 denotes empty only in this administrative log, never a physical ID.
     wiring_log: tuple[tuple[int, int, int, int], ...] = ()
+    initializations: Mapping[int, InitializationRecord] = field(default_factory=_empty_mapping)
+    recycling_log: tuple[RecyclingRecord, ...] = ()
 
 
 def _slots(state: _State, cell_id: int) -> tuple[LatentSlot, ...]:
@@ -142,7 +158,25 @@ class SparseNetwork:
         return quality(self.synapse(key))
 
     def initialize_latent_neighborhoods(self) -> None:
-        require_latent_policy()
+        raise ValueError("UNVERIFIED_EVENT_SNAPSHOT: use pure selectors or explicit FixtureBuilder")
+
+    @property
+    def automatic_recycling_enabled(self) -> bool:
+        return False
+
+    def recycle_slot(
+        self, owner_id: int, slot_index: int, *, novelty: VerifiedLocalNovelty | None = None
+    ) -> None:
+        # Protection diagnostics remain useful, but no caller can enable production.
+        bilateral_occurrences(self._state, owner_id, slot_index)
+        raise ValueError("UNVERIFIED_NOVELTY: production automatic recycling is disabled")
+
+    def initialization(self, owner_id: int) -> InitializationRecord | None:
+        CellAddress.from_cell_id(owner_id)
+        return self._state.initializations.get(owner_id)
+
+    def recycling_log(self) -> tuple[RecyclingRecord, ...]:
+        return self._state.recycling_log
 
     def validate_graph(self) -> AuditReport:
         from dgca_next.graph.audit import validate_graph
@@ -213,6 +247,35 @@ class SparseNetwork:
                     for source in sorted(state.outgoing)
                 ],
                 "wiring_log": sorted(state.wiring_log),
+                **(
+                    {
+                        "slot_assignments": [
+                            [owner, s.index, asdict(s.assignment)]
+                            for owner in sorted(state.slots)
+                            for s in state.slots[owner]
+                            if s.assignment is not None
+                        ]
+                    }
+                    if any(
+                        s.assignment is not None for slots in state.slots.values() for s in slots
+                    )
+                    else {}
+                ),
+                **(
+                    {
+                        "latent_initializations": [
+                            asdict(state.initializations[owner])
+                            for owner in sorted(state.initializations)
+                        ]
+                    }
+                    if state.initializations
+                    else {}
+                ),
+                **(
+                    {"recycling_log": [asdict(record) for record in state.recycling_log]}
+                    if state.recycling_log
+                    else {}
+                ),
             },
             sort_keys=True,
             separators=(",", ":"),
@@ -240,6 +303,8 @@ class _Editor:
         self.reservations = dict(self.base.reservations)
         self.outgoing = dict(self.base.outgoing)
         self.wiring_log = list(self.base.wiring_log)
+        self.initializations = dict(self.base.initializations)
+        self.recycling_log = list(self.base.recycling_log)
 
     def checkpoint(self, stage: MutationStage) -> None:
         if self.hook is not None:
@@ -254,6 +319,8 @@ class _Editor:
             reservations=MappingProxyType(dict(self.reservations)),
             outgoing=MappingProxyType(dict(self.outgoing)),
             wiring_log=tuple(self.wiring_log),
+            initializations=MappingProxyType(dict(self.initializations)),
+            recycling_log=tuple(self.recycling_log),
         )
 
     def require_committed(self, cell_id: int) -> Cell:
@@ -270,6 +337,115 @@ class _Editor:
                 raise ValueError("CONFLICTING_DUPLICATE_CELL")
             self.cells[cell_id] = cell
             self.checkpoint(MutationStage.CELL)
+
+    def _store_layout(self, owner_id: int, layout: tuple[LatentSlot, ...]) -> None:
+        old_slots = self.slots.get(
+            owner_id, empty_slots(self.require_committed(owner_id).address.region)
+        )
+        self.slots.setdefault(owner_id, old_slots)
+        for old, new in zip(old_slots, layout, strict=True):
+            if old == new:
+                continue
+            self._replace_slot(owner_id, new)
+            if old.target_id is not None:
+                refs = self.reverse[old.target_id] - {(owner_id, old.index)}
+                if refs:
+                    self.reverse[old.target_id] = refs
+                else:
+                    del self.reverse[old.target_id]
+            if new.target_id is not None:
+                self.reverse[new.target_id] = self.reverse.get(new.target_id, frozenset()) | {
+                    (owner_id, new.index)
+                }
+            self.checkpoint(MutationStage.REVERSE_INDEX)
+            if old.target_id != new.target_id:
+                self.wiring_log.append(
+                    (
+                        owner_id,
+                        old.index,
+                        old.target_id if old.target_id is not None else -1,
+                        new.target_id if new.target_id is not None else -1,
+                    )
+                )
+
+    def initialize_cohort(self, event: FixtureEventSnapshot) -> None:
+        validate_fixture_event(event, self.cells, births_pending=True)
+        for record in self.initializations.values():
+            prior = record.assignment
+            if (prior.exposure_id, prior.event_id, prior.event_order) == (
+                event.exposure_id,
+                event.event_id,
+                event.event_order,
+            ) and record.snapshot_digest != event.digest:
+                raise ValueError("CONFLICTING_COBIRTH_SNAPSHOT")
+        # Retry only the exact whole-cohort snapshot; never retroactively initialize.
+        if any(owner in self.cells for owner in event.birth_ids):
+            if all(
+                owner in self.initializations
+                and not self.initializations[owner].contextual
+                and self.initializations[owner].snapshot_digest == event.digest
+                for owner in event.birth_ids
+            ):
+                return
+            raise ValueError("CONFLICTING_BIRTH_COHORT")
+        layouts = {owner: initialize_layout(owner, event) for owner in sorted(event.birth_ids)}
+        self.commit_cells(sorted(event.birth_ids), committed_event=event.event_id)
+        for owner, layout in layouts.items():
+            self._store_layout(owner, layout)
+            self.initializations[owner] = InitializationRecord(
+                owner,
+                event.digest,
+                False,
+                (),
+                event.assignment(pending_birth=True),
+                LATENT_POLICY_VERSION,
+            )
+            self._update_budget(owner)
+            self.checkpoint(MutationStage.BUDGET)
+
+    def initialize_context_cell(
+        self, owner_id: int, event: FixtureEventSnapshot, pinned_slots: tuple[LatentSlot, ...]
+    ) -> None:
+        validate_fixture_event(event, self.cells)
+        layout = initialize_layout(owner_id, event, pinned_slots=pinned_slots, contextual=True)
+        seeds = tuple(sorted(s.target_id for s in pinned_slots if s.target_id is not None))
+        for target in seeds:
+            self.require_committed(target)
+        record = InitializationRecord(
+            owner_id,
+            event.digest,
+            True,
+            seeds,
+            event.assignment(pending_birth=False),
+            LATENT_POLICY_VERSION,
+        )
+        if owner_id in self.cells:
+            if self.initializations.get(owner_id) == record:
+                return
+            raise ValueError("CONFLICTING_BIRTH_COHORT")
+        self.commit_cells([owner_id], committed_event=event.event_id)
+        self._store_layout(owner_id, layout)
+        self.initializations[owner_id] = record
+        self._update_budget(owner_id)
+        self.checkpoint(MutationStage.BUDGET)
+
+    def fill_coactive(self, owner_id: int, event: FixtureEventSnapshot) -> None:
+        validate_fixture_event(event, self.cells)
+        if owner_id not in self.initializations:
+            raise ValueError("UNINITIALIZED_LATENT_POLICY")
+        previous = self.slots[owner_id]
+        layout = fill_coactive(owner_id, previous, event, pending_birth=False)
+        if layout != previous:
+            assignments = [s.assignment for s in previous if s.assignment is not None]
+            if any(
+                a.event_id >= event.event_id
+                or a.completed_close_serial > event.completed_external_closes
+                for a in assignments
+            ):
+                raise ValueError("UNVERIFIED_EVENT_SNAPSHOT: RETROACTIVE_FILL")
+        self._store_layout(owner_id, layout)
+        self._update_budget(owner_id)
+        self.checkpoint(MutationStage.BUDGET)
 
     def inject_slot(self, owner_id: int, slot_index: int, target_id: int) -> None:
         self.require_committed(owner_id)
@@ -348,7 +524,7 @@ class _Editor:
             for k in self.reservations
         ):
             raise ValueError("RELEASE_FIXTURE_RESERVATION_FIRST")
-        self._replace_slot(owner_id, replace(slot, target_id=None))
+        self._replace_slot(owner_id, replace(slot, target_id=None, assignment=None))
         refs = self.reverse[slot.target_id] - {(owner_id, slot_index)}
         if refs:
             self.reverse[slot.target_id] = refs
@@ -357,9 +533,49 @@ class _Editor:
         self.checkpoint(MutationStage.REVERSE_INDEX)
         self.wiring_log.append((owner_id, slot_index, slot.target_id, -1))
 
-    def recycle_slot(self, owner_id: int, slot_index: int) -> None:
-        self.check_slot_removal(owner_id, slot_index)
-        require_latent_policy()
+    def recycle_slot(
+        self,
+        owner_id: int,
+        slot_index: int,
+        *,
+        event: FixtureEventSnapshot | None = None,
+        novelty: FixtureLocalNovelty | None = None,
+    ) -> None:
+        if type(event) is FixtureEventSnapshot and type(novelty) is FixtureLocalNovelty:
+            for record in reversed(self.recycling_log):
+                if record.snapshot_digest == event.digest and any(
+                    change[:2] == (owner_id, slot_index) for change in record.changes
+                ):
+                    if record.novelty_digest == novelty.digest and all(
+                        self.slots[owner][index].target_id == new
+                        for owner, index, _, new in record.changes
+                    ):
+                        return
+                    raise ValueError("CONFLICTING_RECYCLING_RETRY")
+        replacements = plan_fixture_recycling(self.state(), owner_id, slot_index, event, novelty)
+        assert event is not None and novelty is not None
+        changes = []
+        for owner, new in replacements:
+            old = self.slots[owner][new.index]
+            assert old.target_id is not None and new.target_id is not None
+            changes.append((owner, new.index, old.target_id, new.target_id))
+            layout = self.slots[owner]
+            self._store_layout(owner, layout[: new.index] + (new,) + layout[new.index + 1 :])
+        self.recycling_log.append(
+            RecyclingRecord(
+                event.exposure_id,
+                event.event_id,
+                event.event_order,
+                event.completed_external_closes,
+                tuple(changes),
+                event.digest,
+                novelty.digest,
+                LATENT_POLICY_VERSION,
+            )
+        )
+        for owner, _ in replacements:
+            self._update_budget(owner)
+            self.checkpoint(MutationStage.BUDGET)
 
     def _require_key(self, key: SynapseKey) -> None:
         if type(key) is not SynapseKey:
@@ -522,8 +738,28 @@ class FixtureBuilder:
     def remove_fixture_slot(self, owner_id: int, slot_index: int) -> None:
         self._apply(lambda shadow: shadow.remove_fixture_slot(owner_id, slot_index))
 
-    def recycle_slot(self, owner_id: int, slot_index: int) -> None:
-        self._apply(lambda shadow: shadow.recycle_slot(owner_id, slot_index))
+    def initialize_cohort(self, event: FixtureEventSnapshot) -> None:
+        self._apply(lambda shadow: shadow.initialize_cohort(event))
+
+    def initialize_context_cell(
+        self, owner_id: int, event: FixtureEventSnapshot, pinned_slots: tuple[LatentSlot, ...]
+    ) -> None:
+        self._apply(lambda shadow: shadow.initialize_context_cell(owner_id, event, pinned_slots))
+
+    def fill_coactive(self, owner_id: int, event: FixtureEventSnapshot) -> None:
+        self._apply(lambda shadow: shadow.fill_coactive(owner_id, event))
+
+    def recycle_slot(
+        self,
+        owner_id: int,
+        slot_index: int,
+        *,
+        event: FixtureEventSnapshot | None = None,
+        novelty: FixtureLocalNovelty | None = None,
+    ) -> None:
+        self._apply(
+            lambda shadow: shadow.recycle_slot(owner_id, slot_index, event=event, novelty=novelty)
+        )
 
     def add_synapse(self, synapse: Synapse) -> None:
         self._apply(lambda shadow: shadow.add_synapse(synapse))

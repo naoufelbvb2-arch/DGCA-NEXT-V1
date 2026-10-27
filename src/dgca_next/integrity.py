@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Final
 
 HISTORICAL_I0_COMMIT: Final = "fdcd3ea3c85b9c7484e89d043188a59d49907b71"
+RC4_2_MIGRATION_PARENT: Final = "673451ca905911931c60e3bece47e37e0e3d1e7a"
 ARCHIVAL_SPECS: Final = (
     (
         "docs/specs/DGCA_CORE_RC4_1.md",
@@ -51,6 +52,18 @@ def verify_specs(repository_root: Path) -> tuple[str, ...]:
             raise SpecIntegrityError(
                 "source manifest does not match the pinned current RC4.2 sources"
             )
+        if (
+            HISTORICAL_I0_COMMIT not in manifest
+            or RC4_2_MIGRATION_PARENT not in manifest
+            or any(sha not in manifest or blob not in manifest for _, sha, blob in ARCHIVAL_SPECS)
+        ):
+            raise SpecIntegrityError("source manifest archival provenance changed")
+        current = sorted(
+            p.relative_to(repository_root).as_posix()
+            for p in (repository_root / "docs/specs").glob("DGCA_*_RC*.md")
+        )
+        if current != sorted(path for path, _, _ in EXPECTED_SPECS):
+            raise SpecIntegrityError("expected exactly two current scientific artifacts")
         results = []
         for path, expected, blob_sha in EXPECTED_SPECS:
             data = (repository_root / path).read_bytes()

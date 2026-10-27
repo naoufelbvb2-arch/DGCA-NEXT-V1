@@ -1,13 +1,35 @@
-"""Typed slot schema; no inherited initialization/recycling heuristic (Core §1.3)."""
+"""Typed slot schema and assignment metadata (Core RC4.2 §1.3)."""
 
 from dataclasses import dataclass
 from enum import Enum
 
 from dgca_next.contracts import CellAddress, Region
+from dgca_next.graph.cell import nonnegative_integer
+
+LATENT_POLICY_VERSION = "DGCA-LATENT-TOPO-V1"
 
 
 class UnresolvedLatentPolicy(RuntimeError):
-    """Production target selection/confirmation window is not specified."""
+    """Legacy exception retained for callers of the historical RC4.1 API."""
+
+
+@dataclass(frozen=True, slots=True)
+class SlotAssignment:
+    completed_close_serial: int
+    exposure_id: int
+    event_id: int
+    event_order: int
+    pending_birth: bool
+    policy_version: str
+    fixture_only: bool = True
+
+    def __post_init__(self) -> None:
+        for name in ("completed_close_serial", "exposure_id", "event_id", "event_order"):
+            nonnegative_integer(getattr(self, name), name)
+        if type(self.pending_birth) is not bool or self.fixture_only is not True:
+            raise ValueError("INVALID_FIXTURE_ASSIGNMENT")
+        if type(self.policy_version) is not str or self.policy_version != LATENT_POLICY_VERSION:
+            raise ValueError("UNSUPPORTED_LATENT_POLICY_VERSION")
 
 
 class SlotCategory(Enum):
@@ -32,6 +54,7 @@ class LatentSlot:
     target_id: int | None = None
     protected: bool = False
     pin_owners: frozenset[int] = frozenset()
+    assignment: SlotAssignment | None = None
 
     def __post_init__(self) -> None:
         if type(self.index) is not int or not 0 <= self.index < 24:
@@ -41,12 +64,18 @@ class LatentSlot:
         if type(self.protected) is not bool or type(self.pin_owners) is not frozenset:
             raise ValueError("invalid immutable protection metadata")
         if self.target_id is None:
-            if self.protected or self.pin_owners:
-                raise ValueError("empty slots cannot be protected or pinned")
+            if self.protected or self.pin_owners or self.assignment is not None:
+                raise ValueError("empty slots cannot have protection or assignment metadata")
         elif CellAddress.from_cell_id(self.target_id).region is not self.permitted_region:
             raise ValueError("target violates slot region")
         for owner in self.pin_owners:
             CellAddress.from_cell_id(owner)
+        if self.assignment is not None and type(self.assignment) is not SlotAssignment:
+            raise ValueError("INVALID_ASSIGNMENT_METADATA")
+
+    @property
+    def assigned_at_completed_close_serial(self) -> int | None:
+        return self.assignment.completed_close_serial if self.assignment is not None else None
 
     @property
     def recyclable_category(self) -> bool:
@@ -74,11 +103,4 @@ def empty_slots(region: Region) -> tuple[LatentSlot, ...]:
             region if index < 12 else other[((index - 12) % 6) // 3],
         )
         for index in range(24)
-    )
-
-
-def require_latent_policy() -> None:
-    raise UnresolvedLatentPolicy(
-        "UNRESOLVED_LATENT_POLICY: Core §1.3 names inherited selection and an original "
-        "confirmation window; neither RC4.1 spec supplies their complete executable rule"
     )

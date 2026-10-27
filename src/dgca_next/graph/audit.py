@@ -6,8 +6,10 @@ from dataclasses import dataclass, replace
 from dgca_next.contracts import CellAddress, SynapseKey
 from dgca_next.graph.cell import Cell
 from dgca_next.graph.geometry import microcolumn_neighborhood, microcolumn_of
-from dgca_next.graph.latent import LatentSlot, SlotCategory, empty_slots
+from dgca_next.graph.latent import LatentSlot, SlotAssignment, SlotCategory, empty_slots
 from dgca_next.graph.network import SlotRef, SparseNetwork, _State
+from dgca_next.graph.policy import InitializationRecord, local_targets, topographic_targets
+from dgca_next.graph.recycling import RecyclingRecord
 from dgca_next.graph.synapse import Synapse, SynapseState, key_order
 
 
@@ -66,7 +68,9 @@ def _validate(state: _State) -> AuditReport:
             if slot.target_id is None:
                 continue
             target = slot.target_id
-            _require(target in state.cells, "UNCOMMITTED_LATENT_TARGET")
+            _require(
+                not slot.recyclable_category or target in state.cells, "UNCOMMITTED_LATENT_TARGET"
+            )
             _require(target != owner, "LATENT_SELF_TARGET")
             _require(target not in targets, "DUPLICATE_LATENT_TARGET")
             targets.add(target)
@@ -78,6 +82,36 @@ def _validate(state: _State) -> AuditReport:
                 )
             expected_reverse[target].add((owner, index))
             pairs.add((owner, target))
+            if slot.assignment is not None:
+                _require(type(slot.assignment) is SlotAssignment, "INVALID_ASSIGNMENT_METADATA")
+                replace(slot.assignment)
+    for owner in sorted(state.initializations):
+        record = state.initializations[owner]
+        _require(type(record) is InitializationRecord, "INVALID_INITIALIZATION_RECORD")
+        replace(record)
+        _require(record.owner_id == owner and owner in state.cells, "INVALID_INITIALIZATION_OWNER")
+        _require(
+            state.cells[owner].committed_event == record.assignment.event_id,
+            "INITIALIZATION_COMMITMENT_TIMING",
+        )
+        initialized_slots = state.slots.get(owner)
+        _require(initialized_slots is not None, "MISSING_INITIALIZED_SLOTS")
+        assert initialized_slots is not None
+        local = local_targets(owner, frozenset(record.seed_targets))
+        topo = topographic_targets(owner, frozenset((*record.seed_targets, *local)))
+        _require(
+            tuple(initialized_slots[i].target_id for i in (*range(6, 12), *range(18, 24)))
+            == local + topo,
+            "FIXED_POLICY_TARGET_MISMATCH",
+        )
+        _require(
+            all(
+                slot.assignment is not None
+                for slot in initialized_slots
+                if slot.target_id is not None
+            ),
+            "MISSING_ASSIGNMENT_METADATA",
+        )
     _require(
         all(type(refs) is frozenset for refs in state.reverse.values()), "MUTABLE_REVERSE_INDEX"
     )
@@ -154,7 +188,7 @@ def _validate(state: _State) -> AuditReport:
     for owner, index, old, new in sorted(state.wiring_log):
         CellAddress.from_cell_id(owner)
         _require(type(index) is int and 0 <= index < 24, "INVALID_WIRING_LOG_INDEX")
-        _require(old != new and (old == -1 or new == -1), "INVALID_WIRING_LOG_CHANGE")
+        _require(old != new, "INVALID_WIRING_LOG_CHANGE")
         for target, amount in ((old, -1), (new, 1)):
             if target != -1:
                 CellAddress.from_cell_id(target)
@@ -168,6 +202,16 @@ def _validate(state: _State) -> AuditReport:
     _require(
         {k: v for k, v in balance.items() if v} == dict(expected_balance), "WIRING_LOG_MISMATCH"
     )
+    _require(type(state.recycling_log) is tuple, "MUTABLE_RECYCLING_LOG")
+    recorded: Counter[tuple[int, int, int, int]] = Counter()
+    for recycling_entry in state.recycling_log:
+        _require(type(recycling_entry) is RecyclingRecord, "INVALID_RECYCLING_RECORD")
+        replace(recycling_entry)
+        recorded.update(recycling_entry.changes)
+    actual_replacements = Counter(
+        change for change in state.wiring_log if change[2] != -1 and change[3] != -1
+    )
+    _require(recorded == actual_replacements, "RECYCLING_LOG_MISMATCH")
     return AuditReport(
         12288, len(state.cells), len(pairs), len(state.synapses), len(state.reservations)
     )
@@ -182,12 +226,22 @@ def validate_graph(network: SparseNetwork) -> AuditReport:
 def validate_transition(base: _State, candidate: _State) -> None:
     """Check retention rules requiring a before-image, independently of writers."""
     pinned_pairs: set[frozenset[int]] = set()
+    _require(
+        candidate.recycling_log[: len(base.recycling_log)] == base.recycling_log,
+        "RECYCLING_HISTORY_CHANGED",
+    )
     for owner in sorted(base.slots):
         for slot in base.slots[owner]:
             if slot.target_id is None:
                 continue
             after_slots = candidate.slots.get(owner)
             after = after_slots[slot.index] if after_slots is not None else None
+            if (
+                after is not None
+                and after.target_id == slot.target_id
+                and slot.assignment is not None
+            ):
+                _require(after.assignment == slot.assignment, "ASSIGNMENT_AGE_RESET")
             if not slot.recyclable_category or slot.protected or slot.pinned:
                 _require(
                     after is not None and after.target_id == slot.target_id,
@@ -225,3 +279,64 @@ def validate_transition(base: _State, candidate: _State) -> None:
             ),
             "COMMITTED_CELL_CHANGED",
         )
+    for owner in base.initializations:
+        _require(
+            candidate.initializations.get(owner) == base.initializations[owner],
+            "INITIALIZATION_HISTORY_CHANGED",
+        )
+    for record in candidate.recycling_log[len(base.recycling_log) :]:
+        for owner, index, old_target, new_target in record.changes:
+            if owner not in base.slots or base.slots[owner][index].target_id != old_target:
+                # New assignments in this fixture batch have no published before-image.
+                continue
+            before_slot = base.slots[owner][index]
+            assigned = before_slot.assigned_at_completed_close_serial
+            _require(
+                assigned is not None and record.completed_close_serial - assigned >= 100,
+                "CONFIRMATION_WINDOW_NOT_ELAPSED",
+            )
+            pair = frozenset((owner, old_target))
+            _require(
+                not any(
+                    frozenset((k.source.cell_id, k.target.cell_id)) == pair
+                    for k in (*base.synapses, *base.reservations)
+                ),
+                "RECYCLE_BLOCKED_LIVE_OR_PROTECTED",
+            )
+            for source, other in ((owner, old_target), (old_target, owner)):
+                for old_slot in base.slots.get(source, ()):
+                    if old_slot.target_id == other:
+                        _require(
+                            old_slot.recyclable_category
+                            and not old_slot.protected
+                            and not old_slot.pinned,
+                            "PROTECTED_BILATERAL_REPLACEMENT",
+                        )
+                        _require(
+                            any(
+                                change[:3] == (source, old_slot.index, other)
+                                for change in record.changes
+                            ),
+                            "INCOMPLETE_BILATERAL_REPLACEMENT",
+                        )
+            after_slot = candidate.slots[owner][index]
+            _require(
+                after_slot.target_id == new_target and after_slot.assignment is not None,
+                "RECYCLE_ASSIGNMENT_MISMATCH",
+            )
+            assert after_slot.assignment is not None
+            _require(
+                (
+                    after_slot.assignment.exposure_id,
+                    after_slot.assignment.event_id,
+                    after_slot.assignment.event_order,
+                    after_slot.assignment.completed_close_serial,
+                )
+                == (
+                    record.exposure_id,
+                    record.event_id,
+                    record.event_order,
+                    record.completed_close_serial,
+                ),
+                "RECYCLE_ASSIGNMENT_MISMATCH",
+            )

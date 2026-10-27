@@ -10,13 +10,28 @@ from dgca_next.graph.geometry import (
 )
 from dgca_next.graph.latent import LatentSlot, SlotCategory, UnresolvedLatentPolicy
 from dgca_next.graph.network import FixtureBuilder, MutationStage, SparseNetwork
+from dgca_next.graph.policy import (
+    CandidateOrigin,
+    FixtureEventSnapshot,
+    FixtureFrontier,
+    FixtureReceiver,
+    initialize_layout,
+    local_targets,
+    topographic_targets,
+)
+from dgca_next.graph.recycling import FixtureLocalNovelty, VerifiedLocalNovelty
 from dgca_next.graph.synapse import Synapse, SynapseState, quality
 from dgca_next.graph.transaction import FixtureTransaction, InjectedFailure
 
 __all__ = [
     "Cell",
+    "CandidateOrigin",
     "AuditReport",
     "FixtureBuilder",
+    "FixtureEventSnapshot",
+    "FixtureFrontier",
+    "FixtureReceiver",
+    "FixtureLocalNovelty",
     "FixtureTransaction",
     "GraphInvariantError",
     "InjectedFailure",
@@ -33,4 +48,8 @@ __all__ = [
     "same_microcolumn",
     "quality",
     "validate_graph",
+    "VerifiedLocalNovelty",
+    "initialize_layout",
+    "local_targets",
+    "topographic_targets",
 ]
