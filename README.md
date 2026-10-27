@@ -4,14 +4,14 @@ Research implementation of the **Dynamic Graph Cognitive Architecture — DCR**.
 
 ## Project status
 
-**I0 accepted. I1 — Graph Anatomy: verified structural subset; latent policy blocked.**
+**I0 accepted. I1 — approved L01 remediation in progress against RC4.2.**
 
 The foundation refers to two design-candidate specifications under `docs/specs/`:
 
-- `DGCA_CORE_RC4_1.md` — Core anatomy, dynamics, assemblies, contextual memory and bounded generation.
-- `DGCA_LLA_RC4_1.md` — local learning, evidence, consolidation and derived context witnesses.
+- `DGCA_CORE_RC4_2.md` — Core anatomy, dynamics, assemblies, contextual memory and bounded generation.
+- `DGCA_LLA_RC4_2.md` — local learning, evidence, consolidation and derived context witnesses.
 
-Both specifications are **RC4.1 / NOT FROZEN / NOT IMPLEMENTED / NOT EMPIRICALLY VERIFIED**. They are design contracts, not evidence of model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
+Both specifications are **RC4.2 / NOT FROZEN / NOT IMPLEMENTED / NOT EMPIRICALLY VERIFIED**. They are design contracts, not evidence of model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
 
 ## Implementation direction
 
@@ -53,7 +53,7 @@ git status --porcelain
 
 On Linux/macOS, substitute `.venv/bin/python` for the Windows interpreter path.
 Fetching `main` only updates the remote tracking ref; it does not switch branches
-or merge. Tests use that local ref to verify I0-G01 without making network calls.
+or merge. Tests verify archival RC4.1 provenance at immutable commit fdcd3ea3c85b9c7484e89d043188a59d49907b71 and current RC4.2 bytes without network calls.
 For a shallow clone, fetch it explicitly before running tests. The dedicated
 `.pytest-tmp` directory is disposable: pytest clears it each run. After committing
 the implementation, the final status command must produce no output. Validation
@@ -89,7 +89,7 @@ persistent reference. These are ownership contracts, not implementations of
 graph storage, scratch execution, adaptation, checkpointing, or rollback. Future
 runtime payload schemas and their binary field order/version remain to be defined.
 
-`dgca_next.config.load_lab_config()` returns the fixed RC4.1 baseline registry.
+`dgca_next.config.load_lab_config()` returns the fixed RC4.2 baseline registry.
 Every value has an exact Core/LLA section in `Parameter.origins`. It includes
 declared future-engine constants for traceability; it activates no scientific
 mechanism. `parameter(name)` raises `UnresolvedParameter` for an unregistered
@@ -122,7 +122,7 @@ All I0 tests are **contract tests**. Neural learning, Assembly formation, probes
 retrieval execution, hierarchy, generation, SIC projection, surface attestation,
 and scientific success remain unimplemented. LLA-T01–T41, LG-T01–T16, and the Core
 scientific validation program are **NOT_RUN**. The first scientific gate remains
-I3/I4. Neither these tests nor a CI success freezes or empirically validates RC4.1.
+I3/I4. Neither these tests nor a CI success freezes or empirically validates RC4.2.
 
 The GitHub Actions workflow runs these checks on CPython 3.14 on Ubuntu and
 Windows. See `docs/implementation/I0-VERIFICATION-REPORT.md` for the executed
@@ -230,3 +230,7 @@ The workflow retains I0 validation and also runs I1 feature pushes and main PRs
 on Ubuntu/Windows. Executed increment/gate evidence and policy limitations are
 recorded in `docs/implementation/I1-VERIFICATION-REPORT.md`. Stop at
 **I1 PARTIAL / POLICY_BLOCKED**; I2 requires separate review authorization.
+
+## Approved L01 baseline transition
+
+The owner-approved RC4.2 policy supersedes the historical I1 policy blocker described above. The migration record is `docs/implementation/I1-L01-SOURCE-MIGRATION.md`; old reports remain historical evidence. L01 implementation and re-verification follow on this branch. Automatic production recycling remains disabled until genuine I2/I3 novelty verification exists.

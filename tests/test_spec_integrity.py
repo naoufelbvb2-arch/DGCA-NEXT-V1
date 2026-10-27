@@ -6,7 +6,13 @@ from pathlib import Path
 import pytest
 
 from dgca_next.__main__ import main
-from dgca_next.integrity import EXPECTED_SPECS, SpecIntegrityError, verify_specs
+from dgca_next.integrity import (
+    ARCHIVAL_SPECS,
+    EXPECTED_SPECS,
+    HISTORICAL_I0_COMMIT,
+    SpecIntegrityError,
+    verify_specs,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -21,11 +27,19 @@ def test_spec_and_manifest_integrity():
     assert len(verify_specs(ROOT)) == 2
 
 
-@pytest.mark.parametrize("path,digest,blob_sha", EXPECTED_SPECS)
+@pytest.mark.parametrize("path,digest,blob_sha", ARCHIVAL_SPECS)
 def test_default_branch_contains_identical_sources(path, digest, blob_sha):
-    # Read-only, offline test. Fetch origin/main before running (README/CI).
-    data = subprocess.check_output(["git", "show", f"refs/remotes/origin/main:{path}"], cwd=ROOT)
+    # Immutable accepted I0 commit, not a movable main path after a later merge.
+    data = subprocess.check_output(["git", "show", f"{HISTORICAL_I0_COMMIT}:{path}"], cwd=ROOT)
     assert hashlib.sha256(data).hexdigest() == digest
+    assert hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest() == blob_sha
+
+
+def test_exactly_two_current_scientific_artifacts():
+    assert sorted(p.name for p in (ROOT / "docs/specs").glob("DGCA_*_RC*.md")) == [
+        "DGCA_CORE_RC4_2.md",
+        "DGCA_LLA_RC4_2.md",
+    ]
 
 
 @pytest.mark.parametrize("path,digest,blob_sha", EXPECTED_SPECS)

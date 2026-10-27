@@ -1,3 +1,5 @@
+> Historical RC4.1 artifact. Current authorities are `docs/specs/DGCA_CORE_RC4_2.md` and `docs/specs/DGCA_LLA_RC4_2.md` under the approved L01 execution contract. Historical paths/results below remain reproducible at their recorded commits; they are not current RC4.2 validation claims. See `I1-L01-SOURCE-MIGRATION.md`.
+
 # I1 verification report
 
 Date: 2026-10-27 (America/New_York).
