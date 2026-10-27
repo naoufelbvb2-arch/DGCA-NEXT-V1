@@ -1,0 +1,4 @@
+* text=auto eol=lf
+# Scientific artifacts are byte-exact inputs to SOURCE-MANIFEST.md.
+docs/specs/DGCA_CORE_RC4_1.md -text
+docs/specs/DGCA_LLA_RC4_1.md -text
