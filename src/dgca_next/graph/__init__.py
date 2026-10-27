@@ -9,6 +9,7 @@ from dgca_next.graph.geometry import (
 )
 from dgca_next.graph.latent import LatentSlot, SlotCategory, UnresolvedLatentPolicy
 from dgca_next.graph.network import FixtureBuilder, SparseNetwork
+from dgca_next.graph.synapse import Synapse, SynapseState, quality
 
 __all__ = [
     "Cell",
@@ -17,8 +18,11 @@ __all__ = [
     "Microcolumn",
     "SlotCategory",
     "SparseNetwork",
+    "Synapse",
+    "SynapseState",
     "UnresolvedLatentPolicy",
     "microcolumn_neighborhood",
     "microcolumn_of",
     "same_microcolumn",
+    "quality",
 ]
