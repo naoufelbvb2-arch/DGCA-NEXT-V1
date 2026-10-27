@@ -99,6 +99,16 @@ def test_i1_t09_no_production_recycling_without_confirmation_policy(graph_pair):
     assert graph.structural_hash == before
 
 
+def test_i1_t09_production_recycling_policy_execution():
+    pytest.skip("POLICY_BLOCKED: UNRESOLVED_LATENT_POLICY, missing original confirmation window")
+
+
+def test_i1_t26_production_initializer_policy_execution():
+    pytest.skip(
+        "POLICY_BLOCKED: UNRESOLVED_LATENT_POLICY, missing exact inherited target selection"
+    )
+
+
 @pytest.mark.parametrize(
     "index,target,reason",
     [

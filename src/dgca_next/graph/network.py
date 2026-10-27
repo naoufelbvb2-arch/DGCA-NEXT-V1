@@ -9,7 +9,9 @@ import json
 import struct
 from collections.abc import Callable, Iterable, Iterator, Mapping
 from dataclasses import dataclass, field, replace
+from enum import Enum
 from types import MappingProxyType
+from typing import TYPE_CHECKING
 
 from dgca_next.contracts import CellAddress, SynapseKey
 from dgca_next.graph.budget import OutgoingUsage, outgoing_usage, validate_usage
@@ -18,7 +20,21 @@ from dgca_next.graph.geometry import microcolumn_neighborhood, microcolumn_of
 from dgca_next.graph.latent import LatentSlot, SlotCategory, empty_slots, require_latent_policy
 from dgca_next.graph.synapse import Synapse, SynapseState, key_order, quality
 
+if TYPE_CHECKING:
+    from dgca_next.graph.audit import AuditReport
+    from dgca_next.graph.transaction import FixtureTransaction
+
 SlotRef = tuple[int, int]
+
+
+class MutationStage(Enum):
+    CELL = "CELL"
+    SLOT = "SLOT"
+    REVERSE_INDEX = "REVERSE_INDEX"
+    LINK = "LINK"
+    RESERVATION = "RESERVATION"
+    BUDGET = "BUDGET"
+    PUBLISH = "PUBLISH"
 
 
 def _empty_mapping[K, V]() -> Mapping[K, V]:
@@ -128,6 +144,11 @@ class SparseNetwork:
     def initialize_latent_neighborhoods(self) -> None:
         require_latent_policy()
 
+    def validate_graph(self) -> AuditReport:
+        from dgca_next.graph.audit import validate_graph
+
+        return validate_graph(self)
+
     def debug_dump(self) -> str:
         """Canonical diagnostic, not a durable checkpoint. Includes all indices.
 
@@ -206,8 +227,11 @@ class SparseNetwork:
 class _Editor:
     """Private mutable fixture shadow; published by one pointer assignment."""
 
-    def __init__(self, network: SparseNetwork) -> None:
+    def __init__(
+        self, network: SparseNetwork, hook: Callable[[MutationStage], None] | None = None
+    ) -> None:
         self.network = network
+        self.hook = hook
         self.base = network._state
         self.cells = dict(self.base.cells)
         self.slots = dict(self.base.slots)
@@ -216,6 +240,10 @@ class _Editor:
         self.reservations = dict(self.base.reservations)
         self.outgoing = dict(self.base.outgoing)
         self.wiring_log = list(self.base.wiring_log)
+
+    def checkpoint(self, stage: MutationStage) -> None:
+        if self.hook is not None:
+            self.hook(stage)
 
     def state(self) -> _State:
         return _State(
@@ -241,6 +269,7 @@ class _Editor:
             if cell_id in self.cells and self.cells[cell_id] != cell:
                 raise ValueError("CONFLICTING_DUPLICATE_CELL")
             self.cells[cell_id] = cell
+            self.checkpoint(MutationStage.CELL)
 
     def inject_slot(self, owner_id: int, slot_index: int, target_id: int) -> None:
         self.require_committed(owner_id)
@@ -263,9 +292,11 @@ class _Editor:
         ):
             raise ValueError("LOCAL_SLOT_OUTSIDE_VICINITY")
         self.slots[owner_id] = slots[:slot_index] + (replacement,) + slots[slot_index + 1 :]
+        self.checkpoint(MutationStage.SLOT)
         self.reverse[target_id] = self.reverse.get(target_id, frozenset()) | {
             (owner_id, slot_index)
         }
+        self.checkpoint(MutationStage.REVERSE_INDEX)
         self.wiring_log.append((owner_id, slot_index, -1, target_id))
 
     def pin_slot(self, owner_id: int, slot_index: int, claimant_id: int) -> None:
@@ -291,6 +322,7 @@ class _Editor:
     def _replace_slot(self, owner_id: int, slot: LatentSlot) -> None:
         slots = self.slots[owner_id]
         self.slots[owner_id] = slots[: slot.index] + (slot,) + slots[slot.index + 1 :]
+        self.checkpoint(MutationStage.SLOT)
 
     def check_slot_removal(self, owner_id: int, slot_index: int) -> LatentSlot:
         slot = self._occupied_slot(owner_id, slot_index)
@@ -322,6 +354,7 @@ class _Editor:
             self.reverse[slot.target_id] = refs
         else:
             del self.reverse[slot.target_id]
+        self.checkpoint(MutationStage.REVERSE_INDEX)
         self.wiring_log.append((owner_id, slot_index, slot.target_id, -1))
 
     def recycle_slot(self, owner_id: int, slot_index: int) -> None:
@@ -365,8 +398,10 @@ class _Editor:
         if key in self.synapses:
             return
         self.reservations[key] = self.reservations.get(key, frozenset()) | {claimant_id}
+        self.checkpoint(MutationStage.RESERVATION)
         source_id = key.source.cell_id
         self.outgoing[source_id] = self.outgoing.get(source_id, frozenset()) | {key}
+        self.checkpoint(MutationStage.BUDGET)
         self._update_budget(source_id)
 
     def release(self, key: SynapseKey, claimant_id: int) -> None:
@@ -376,8 +411,10 @@ class _Editor:
         remaining = self.reservations.get(key, frozenset()) - {claimant_id}
         if remaining:
             self.reservations[key] = remaining
+            self.checkpoint(MutationStage.RESERVATION)
         elif key in self.reservations:
             del self.reservations[key]
+            self.checkpoint(MutationStage.RESERVATION)
             self._uncharge_if_unused(key)
 
     def _uncharge_if_unused(self, key: SynapseKey) -> None:
@@ -388,6 +425,7 @@ class _Editor:
                 self.outgoing[source] = keys
             else:
                 del self.outgoing[source]
+            self.checkpoint(MutationStage.BUDGET)
 
     def add_synapse(self, synapse: Synapse) -> None:
         if type(synapse) is not Synapse:
@@ -406,8 +444,11 @@ class _Editor:
         ):
             raise ValueError("COMMITMENT_TIMING")
         self.synapses[key] = synapse
+        self.checkpoint(MutationStage.LINK)
         self.reservations.pop(key, None)
+        self.checkpoint(MutationStage.RESERVATION)
         self.outgoing[source.cell_id] = self.outgoing.get(source.cell_id, frozenset()) | {key}
+        self.checkpoint(MutationStage.BUDGET)
         self._update_budget(source.cell_id)
 
     def remove_synapse(self, key: SynapseKey) -> None:
@@ -425,16 +466,27 @@ class _Editor:
         ):
             raise ValueError("PINNED_SYNAPSE")
         del self.synapses[key]
+        self.checkpoint(MutationStage.LINK)
         self._uncharge_if_unused(key)
 
     def set_memberships(self, cell_id: int, assembly_ids: frozenset[int]) -> None:
         cell = self.require_committed(cell_id)
         self.cells[cell_id] = replace(cell, assembly_ids=assembly_ids)
+        self.checkpoint(MutationStage.CELL)
 
     def publish(self) -> None:
+        from dgca_next.graph.audit import validate_state, validate_transition
+
         if self.network._state is not self.base:
             raise ValueError("STALE_SHADOW_TRANSACTION")
-        self.network._state = self.state()
+        candidate = self.state()
+        validate_state(candidate)
+        validate_transition(self.base, candidate)
+        self.checkpoint(MutationStage.PUBLISH)
+        if self.network._state is not self.base:
+            raise ValueError("STALE_SHADOW_TRANSACTION")
+        if candidate != self.base:
+            self.network._state = candidate
 
 
 class FixtureBuilder:
@@ -452,6 +504,11 @@ class FixtureBuilder:
 
     def commit_cells(self, cell_ids: Iterable[int], *, committed_event: int) -> None:
         self._apply(lambda shadow: shadow.commit_cells(cell_ids, committed_event=committed_event))
+
+    def transaction(self, *, fail_at: MutationStage | None = None) -> FixtureTransaction:
+        from dgca_next.graph.transaction import FixtureTransaction
+
+        return FixtureTransaction(self._network, fail_at=fail_at)
 
     def inject_slot(self, owner_id: int, slot_index: int, target_id: int) -> None:
         self._apply(lambda shadow: shadow.inject_slot(owner_id, slot_index, target_id))

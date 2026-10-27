@@ -126,3 +126,19 @@ def test_commitment_timing_is_checked(graph_pair, record_factory):
     with pytest.raises(ValueError, match="COMMITMENT_TIMING"):
         builder.add_synapse(record_factory(created_event=0))
     assert graph.structural_hash == before
+
+
+def test_absent_link_quality_is_zero(graph_pair, key_factory):
+    graph, _ = graph_pair
+    assert graph.quality(key_factory()) == 0.0
+
+
+def test_pinned_link_cannot_be_removed(graph_pair, record_factory):
+    graph, builder = graph_pair
+    link = record_factory()
+    builder.add_synapse(link)
+    builder.pin_slot(8192, 0, 8192)
+    before = graph.structural_hash
+    with pytest.raises(ValueError, match="PINNED_SYNAPSE"):
+        builder.remove_synapse(link.key)
+    assert graph.structural_hash == before

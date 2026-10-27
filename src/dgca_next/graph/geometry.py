@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from dgca_next.contracts import CellAddress, Region
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, slots=True)
 class Microcolumn:
     region: Region
     row: int

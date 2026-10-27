@@ -103,3 +103,61 @@ def test_network_episodic_cap(graph_pair, record_factory):
     with pytest.raises(ValueError, match="NETWORK_EPISODIC_CAPACITY"):
         builder.add_synapse(record_factory(state=SynapseState.EPISODIC_INDEXED))
     assert graph.structural_hash == before
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_combined_live_and_prospective_keys_use_one_shadow(reverse, key_factory, record_factory):
+    graph = SparseNetwork()
+    builder = FixtureBuilder(graph)
+    with builder.transaction() as tx:
+        tx.commit_cells(range(8192, 8258), committed_event=0)
+        for target in range(8193, 8258):
+            tx.inject_slot(target, 0, 8192)
+        for target in range(8193, 8256):
+            tx.add_synapse(record_factory(key_factory(8192, target)))
+    assert graph.outgoing_usage(8192).total == 63
+    before = graph.structural_hash
+    with pytest.raises(ValueError, match="SOURCE_OUTGOING_CAPACITY"), builder.transaction() as tx:
+        for target in [8257, 8256] if reverse else [8256, 8257]:
+            tx.reserve(key_factory(8192, target), 8192)
+    assert graph.structural_hash == before
+    assert graph.reserved_keys() == ()
+    graph.validate_graph()
+
+
+@pytest.mark.parametrize("case", ["outgoing", "cross", "episodic"])
+def test_independent_audit_recomputes_caps(case, key_factory, record_factory):
+    from dataclasses import replace
+    from types import MappingProxyType
+
+    from dgca_next.graph import GraphInvariantError
+
+    graph = SparseNetwork()
+    builder = FixtureBuilder(graph)
+    targets = list(range(13)) if case == "cross" else list(range(8193, 8258))
+    scope = SynapseScope.ASSOCIATIVE if case == "cross" else SynapseScope.LOCAL
+    with builder.transaction() as tx:
+        tx.commit_cells([8192, *targets], committed_event=0)
+        for target in targets:
+            tx.inject_slot(target, 15 if case == "cross" else 0, 8192)
+    chosen = targets[:5] if case == "episodic" else targets
+    state = SynapseState.EPISODIC_INDEXED if case == "episodic" else SynapseState.CANDIDATE
+    records = {
+        key_factory(8192, target, scope): record_factory(
+            key_factory(8192, target, scope), state=state
+        )
+        for target in chosen
+    }
+    # Corrupt only internal bookkeeping, with otherwise legal endpoints/D/records.
+    graph._state = replace(
+        graph._state,
+        synapses=MappingProxyType(records),
+        outgoing=MappingProxyType({8192: frozenset(records)}),
+    )
+    diagnostic = {
+        "outgoing": "SOURCE_OUTGOING_CAPACITY",
+        "cross": "CROSS_OUTGOING_CAPACITY",
+        "episodic": "EPISODIC_OUTGOING_CAPACITY",
+    }[case]
+    with pytest.raises(GraphInvariantError, match=diagnostic):
+        graph.validate_graph()

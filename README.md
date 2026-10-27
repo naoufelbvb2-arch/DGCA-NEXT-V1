@@ -4,7 +4,7 @@ Research implementation of the **Dynamic Graph Cognitive Architecture — DCR**.
 
 ## Project status
 
-**I0 — Repository & Contract Foundation. Review candidate.**
+**I0 accepted. I1 — Graph Anatomy: verified structural subset; latent policy blocked.**
 
 The foundation refers to two design-candidate specifications under `docs/specs/`:
 
@@ -127,3 +127,106 @@ I3/I4. Neither these tests nor a CI success freezes or empirically validates RC4
 The GitHub Actions workflow runs these checks on CPython 3.14 on Ubuntu and
 Windows. See `docs/implementation/I0-VERIFICATION-REPORT.md` for the executed
 commands, results, gate coverage, limitations, and unresolved decisions.
+
+## I1 physical graph
+
+`dgca_next.graph` adds a sparse physical graph over the existing I0 IDs. Reading
+or iterating the 12,288 logical cells never stores or commits missing cells. Cell
+metadata, synapse records, latent slots and public index views are immutable.
+Activity and adaptation remain outside the graph, under the unchanged I0 R and
+HSlow boundaries. No LLA, activation, learning or generation is implemented.
+
+Only the explicitly named **FixtureBuilder** can construct synthetic committed
+cells and links in I1. Records require `fixture_only=True`. A fixture's root count
+is asserted test data, not proof of independent observations or accepted evidence.
+There is no production synapse-admission interface.
+
+```python
+from dgca_next.contracts import CellAddress, SynapseKey, SynapseScope
+from dgca_next.graph import FixtureBuilder, SparseNetwork, Synapse, SynapseState
+
+graph = SparseNetwork()
+builder = FixtureBuilder(graph)
+source, target = CellAddress.from_cell_id(8192), CellAddress.from_cell_id(8193)
+key = SynapseKey(source, target, SynapseScope.LOCAL)
+with builder.transaction() as tx:
+    tx.commit_cells([source.cell_id, target.cell_id], committed_event=0)
+    tx.inject_slot(target.cell_id, 0, source.cell_id)  # Explicit fixture target.
+    tx.reserve(key, source.cell_id)
+    tx.add_synapse(Synapse(key, 0, SynapseState.CANDIDATE,
+                           0.6, 1.0, 0.0, 1, 2, fixture_only=True))
+assert graph.structurally_eligible(source.cell_id, target.cell_id)
+assert graph.outgoing_usage(source.cell_id).total == 1
+assert graph.reserved_keys() == ()  # Claim transferred to live key.
+graph.validate_graph()
+```
+
+Geometry functions return inclusive, clipped Manhattan balls of radius 0, 1 or 2,
+in row/column order within one region. They never select latent targets. Slot
+indexing is an administrative schema: 0–5 coactive intra, 6–11 fixed local,
+12–17 coactive inter, 18–23 fixed topographic. Cross groups allocate three slots
+to each other region in region-byte order. Empty positions stay empty until an
+explicit fixture target is injected. The fixture API rejects redundant targets
+within one owner's slots rather than choosing or normalizing the caller's input.
+This conservative construction convention does not resolve production selection
+or overlap handling under the missing inherited policy.
+
+Structural eligibility is exactly the either-endpoint OR predicate. The reverse
+index records every occupied `(owner_id, slot_index)` reference. Distinct live
+keys plus reserved future keys share a 64-outgoing cap per source; cross-region
+endpoints (including ASSOCIATIVE keys) share its 12-cross cap. Incoming keys do
+not debit target outgoing capacity. Repeated claimants and multiple claims for
+the same intended key consume one key. Releasing one claimant preserves the
+others; fulfillment transfers the entire key to live storage. Slot pins are
+explicit physical claimant IDs, separate from synapse reservations; fulfillment
+does not silently remove a pin.
+
+Episodic fixtures obey four outgoing links per source and the existing network
+`floor(.10 * committedCells)` cap. Membership IDs exercise the 12-membership bound
+only; they create no Assemblies. Consolidated and explicitly protected synapses
+cannot be deleted by the fixture API. Slot removal respects fixed categories,
+live links in both directions, protection and candidate pins. A separate
+`remove_fixture_slot` primitive supports explicit safe synthetic teardown; it is
+not a production recycling policy. Pending fixture reservations must first be
+released before tearing down their backing pair.
+
+Exact repeated fixture mutations are strict no-ops; conflicting duplicate cells,
+occupied slots and link payloads fail. `transaction()` creates one single-use
+shadow, commits automatically on successful context exit, and discards all
+staged changes on error. An operation error invalidates that transaction, even
+if the caller catches it. Manual `commit()`/`rollback()` are available outside
+the context-manager form. Stale shadows cannot overwrite later changes. Batches
+that exceed capacity fail in full; I1 does not rank or partially admit proposals.
+This is a single-thread in-memory contract, not durable crash recovery.
+
+`validate_graph()` independently reconstructs inverse indices, directed-key
+counts, endpoint eligibility, slot shapes and caps. Publication also compares
+the before-image to prevent loss of protected slots, pins, links or commitment.
+`MutationStage`/`InjectedFailure` exercise faults after shadow cell, slot, reverse
+index, link, reservation and budget writes, and immediately before publication.
+No fallible work follows the single published-state assignment. `debug_dump()`
+and `structural_hash` provide sorted diagnostics, including all bookkeeping and
+fixture wiring-log deltas; they are not persistence or save/load formats.
+
+**UNRESOLVED_LATENT_POLICY:** Core §1.3 names inherited highest-coactivity,
+local/inter/topographic target policies and an original confirmation window,
+without providing their complete executable procedure in either normative spec.
+`initialize_latent_neighborhoods()` and unprotected `recycle_slot()` therefore
+raise `UnresolvedLatentPolicy`. Protected recycling attempts return their more
+specific rejection diagnostics. Production auto-wiring, cross-category overlap
+selection and confirmation-window recycling need a separately reviewed rule.
+I1 cannot be declared fully complete while this policy boundary remains open.
+
+The same installation and validation commands above run all I0 and I1 checks.
+Use `python -m pytest -q --basetemp=.pytest-tmp -rs` to display the two explicitly
+**POLICY_BLOCKED** skips (I1-T09 and I1-T26 production-policy execution). Tests of
+their fail-closed API behavior run separately and do not count as executing the
+missing policies. The full-network test writes measurements to the ignored
+`.pytest_cache/i1-stress-metrics.json`; it has no invented time or memory pass
+threshold. All constructed graphs and quality calculations remain synthetic
+contract fixtures. LLA-T01–T41 and LG-T01–T16 remain scientifically **NOT_RUN**.
+
+The workflow retains I0 validation and also runs I1 feature pushes and main PRs
+on Ubuntu/Windows. Executed increment/gate evidence and policy limitations are
+recorded in `docs/implementation/I1-VERIFICATION-REPORT.md`. Stop at
+**I1 PARTIAL / POLICY_BLOCKED**; I2 requires separate review authorization.
