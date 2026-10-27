@@ -2,7 +2,7 @@
 
 **ID:** I1-L01-POLICY-RESOLUTION
 **Revision:** PROPOSAL-R01 (2026-10-27)
-**Status:** **FOR SCIENTIFIC APPROVAL — NOT NORMATIVE — NOT IMPLEMENTATION AUTHORIZATION**
+**Status:** **APPROVED by project owner for controlled RC4.2 integration — not yet normative until merged into both Core/LLA specs, hashed, tested and reviewed.**
 **Source implementation:** `feature/i1-graph-anatomy` at `1de0de43cfc634fb5e00ed175c121d749b779c41`.
 **Affected source sections:** CORE RC4.1 §1.3, §7.3, §10.1–10.2; LLA RC4.1 §5, §6.2.
 **Compatibility:** Preserve 24 slot quotas, D(i,j) OR eligibility, local Δ0 vs associative Δ1, 64-outgoing budget, two-root evidence, genuine observation provenance, and immutability of successful knowledge.
@@ -110,3 +110,11 @@ If approved:
 3. Re-run all I0/I1 regressions, run cross-platform CI, independently review diff and updated spec hashes. Merge I1 only after explicit decision about deferral of real novelty triggering to I2/I3; any true neural learning/Assembly result remains unclaimed.
 
 **Critical distinction:** missing *policy definition* is a real contract blocker; missing *I3 runtime wiring of a future verified novelty producer* need not keep I1 physical anatomy blocked if the correct guarded mechanism is already verified and its production trigger is explicitly out-of-scope. Do not relax protection, evidence or binary64 laws to make an initialization test pass.
+
+## Approval decision — 2026-10-27
+
+The project owner **APPROVED I1-L01** as the experimental latent wiring policy. This approval authorizes a versioned, coordinated **RC4.1 → RC4.2** scientific specification migration and implementation on the I1 feature branch. It does **not** imply that initializations or recycling have already passed their tests, that RC4.2 is scientifically frozen, or that a real neural novelty trigger has been validated.
+
+The choice in §3.2 to use a local residual-novelty formula is approved as an **experimental first-lab law**, not a demonstrated biological or optimal novelty function. Production automatic recycling remains **disabled/fail-closed** until a genuine externally witnessed LEARN event can generate a verified, canonical pre-input prediction and direct SIC residual without label leakage. Structural guard evaluation and explicit fixture-only replacement can be implemented and tested in I1. The actual verified-trigger integration/ablation belongs to I2/I3.
+
+The only two *normative* documents after migration remain Core and LLA. This document records decision provenance, not a competing third source of graph laws. Implementation must preserve RC4.1 exactly in Git history and update the integrity manifest, code-pinned hashes and test fixtures together with the versioned science migration. No main merge and no I2 authorization is implied by this approval.
