@@ -17,6 +17,8 @@ CORE §§1.2/5/12 define legal gain range .70..1.40, rho_cell=.05, LANGUAGE regi
 
 The existing I3 work has 621 PASS and 0 failed/skipped tests, independently confirmed successful final-head Windows/Ubuntu CI, but RootStore.EVENT and END still fail closed intentionally and all scientific learning remains NOT_RUN.
 
+**Additional implementation trap verified in current code:** RootStore.event currently invokes ingress preflight against a freshly created SparseNetwork(), not against a persisted production W snapshot. That is acceptable only as a fail-closed skeleton; a future production EVENT must load and validate the actual durable W before identifying previously committed receivers, allocating K_new, computing same-root eligibility or adapting H. The current store has EMPTY_W markers only, no learned W codec. Repeated observations cannot be adjudicated correctly by removing S01/S02 errors alone.
+
 ## 2. S01 — exact sensory cohort arbitration for the first LANGUAGE laboratory
 
 For an authenticated, valid external LEARN EVENT t, compute one canonical SIC-V1 projection before commitment, including exact integer-millionth direct support. Freeze the pre-event committed set. Define
