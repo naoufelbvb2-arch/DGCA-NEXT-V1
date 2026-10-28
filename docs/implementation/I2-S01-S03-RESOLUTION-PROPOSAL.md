@@ -1,7 +1,7 @@
 # DGCA NEXT — I2 S01/S02/S03 Scientific Resolution Proposal
 
 **ID:** I2-THREE-BLOCKER-RESOLUTION · **Revision:** PROPOSAL-R01 (2026-10-27)
-**Status:** **PENDING OWNER APPROVAL — NOT NORMATIVE — NO SCIENTIFIC SPEC OR CODE CHANGE AUTHORIZED BY THIS DOCUMENT ALONE**
+**Status:** **APPROVED by project owner for controlled RC4.3 integration — implementation and verification still pending; non-normative until integrated into Core/LLA.**
 **Source branch:** feature/i2-neural-dynamics
 **Reviewed I2 commit:** eabc2b79beec8f97e9d3380a3bd4fa58d6c571fe (547 PASS, 0 FAIL, 0 SKIP; three SPEC_BLOCKED)
 **Authority:** Core/LLA RC4.2 exactly; if approved, version both scientific specifications together to RC4.3, without overwriting RC4.2 in Git history.
@@ -107,4 +107,4 @@ Let `theta_r_pre` be frozen before EVENT t and `A_i^+(t)` its actual final pass-
 5. Keep production LEARN, LLA evidence, genuine novelty authority/recycling, Assembly FORM, contextual owner discovery, generation and all 57 LLA/LG named experiments **NOT_RUN**. Pure operators and legal fixtures may pass without claiming these experiments.
 6. Publish I2 remediation report and exact G01–G08 gate verdicts, or remain `I2 PARTIAL / SPEC_BLOCKED` with a minimal counterexample. Never merge to main or start I3 before independent review.
 
-**Present state remains I2 PARTIAL / SPEC_BLOCKED.** This proposal is not scientific approval and must not be implemented as a normative law until the project owner authorizes it.
+**Decision recorded 2026-10-27:** Owner APPROVED all three S01/S02/S03 options. This document now authorizes the targeted **RC4.2 → RC4.3** versioned migration and its code/test remediation, subject to the dedicated I2-S01-S03 approved execution contract. It remains **non-normative**; only the updated two scientific specs become authoritative after the audited migration. **I2 remains PARTIAL / SPEC_BLOCKED until new code and CI pass, and RC4.3 remains NOT FROZEN / NOT EMPIRICALLY VERIFIED.**
