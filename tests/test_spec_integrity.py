@@ -1,3 +1,4 @@
+import ast
 import hashlib
 import shutil
 import subprocess
@@ -52,8 +53,11 @@ def test_migration_parent_retains_exact_rc4_1_bytes(path, digest, blob_sha):
     assert hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest() == blob_sha
 
 
-def test_stale_third_scientific_artifact_fails_integrity(source_copy):
-    (source_copy / "docs/specs/DGCA_CORE_RC4_1.md").write_text("stale authority", encoding="utf-8")
+@pytest.mark.parametrize("version", ["RC4_1", "RC4_2"])
+def test_stale_third_scientific_artifact_fails_integrity(source_copy, version):
+    (source_copy / f"docs/specs/DGCA_CORE_{version}.md").write_text(
+        "stale authority", encoding="utf-8"
+    )
     with pytest.raises(SpecIntegrityError, match="exactly two"):
         verify_specs(source_copy)
 
@@ -133,6 +137,25 @@ def test_rc43_migration_preserves_every_independent_rc42_law():
     assert count == 1
     marker = b"## 0. Design objective and safety invariants"
     assert lla.split(marker)[1] == old_lla.split(marker)[1]
+
+
+def test_rc43_migration_preserves_every_configured_parameter_value():
+    old_source = subprocess.check_output(
+        ["git", "show", f"{RC4_3_MIGRATION_PARENT}:src/dgca_next/config.py"], cwd=ROOT
+    ).decode("utf-8")
+    new_source = (ROOT / "src/dgca_next/config.py").read_text("utf-8")
+
+    def defaults(source):
+        tree = ast.parse(source)
+        return next(
+            node.value
+            for node in tree.body
+            if isinstance(node, ast.AnnAssign)
+            and isinstance(node.target, ast.Name)
+            and node.target.id == "_DEFAULTS"
+        )
+
+    assert ast.dump(defaults(old_source)) == ast.dump(defaults(new_source))
 
 
 @pytest.mark.parametrize("path,digest,blob_sha", EXPECTED_SPECS)
