@@ -7,6 +7,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from dgca_next.config import load_lab_config
+from dgca_next.contracts import Region
 from dgca_next.dynamics.activation import two_pass
 from dgca_next.dynamics.drive import aggregate, temporal_drives
 from dgca_next.dynamics.frontier import final_frontiers
@@ -29,6 +30,12 @@ from dgca_next.learning.production_event import (
     _numbers,
     decode_event,
     encode_event,
+)
+from dgca_next.learning.proposals import (
+    LinkProposal,
+    _derive_proposals,
+    decode_proposals,
+    encode_proposals,
 )
 from dgca_next.persistence.graph_codec import decode_production_graph, encode_production_graph
 from dgca_next.persistence.store import R_COLD, RootView, StoreView
@@ -125,13 +132,14 @@ class ProductionRootStore:
                 "exposure_id INTEGER NOT NULL REFERENCES p01_roots(exposure_id), "
                 "event_order INTEGER NOT NULL, record BLOB NOT NULL, w_before BLOB NOT NULL, "
                 "w_after BLOB NOT NULL, h_before BLOB NOT NULL, h_after BLOB NOT NULL, "
+                "proposals BLOB NOT NULL, "
                 "checkpoint_hash TEXT NOT NULL, "
                 "UNIQUE(exposure_id,event_order))"
             )
             self._connection.execute(
                 "INSERT INTO p01_metadata VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
-                    2,
+                    3,
                     load_lab_config().sha256,
                     EXPECTED_SPECS[0][1],
                     EXPECTED_SPECS[1][1],
@@ -164,7 +172,7 @@ class ProductionRootStore:
     def _validate(self) -> None:
         row = self._metadata()
         identity = (
-            2,
+            3,
             load_lab_config().sha256,
             EXPECTED_SPECS[0][1],
             EXPECTED_SPECS[1][1],
@@ -184,7 +192,7 @@ class ProductionRootStore:
         ).fetchall()
         events = self._connection.execute(
             "SELECT event_id,exposure_id,event_order,record,w_before,w_after,h_before,h_after,"
-            "checkpoint_hash "
+            "proposals,checkpoint_hash "
             "FROM p01_events ORDER BY event_id"
         ).fetchall()
         if row[10] != (roots[-1][0] if roots else -1) or row[11] != (
@@ -207,6 +215,7 @@ class ProductionRootStore:
             after_w,
             before_h,
             after_h,
+            proposal_data,
             checksum,
         ) in events:
             if (
@@ -223,7 +232,9 @@ class ProductionRootStore:
             expected_w_before = after_w
             last_h[exposure] = after_h
             counts[exposure] = order + 1
-            if checksum != _checkpoint_digest(raw, before_w, after_w, before_h, after_h):
+            if checksum != _checkpoint_digest(
+                raw, before_w, after_w, before_h, after_h, proposal_data
+            ):
                 raise ValueError("EVENT_CHECKPOINT_HASH_MISMATCH")
             observation = decode_event(raw)
             if (observation.event_id, observation.exposure_id, observation.event_order) != (
@@ -234,7 +245,7 @@ class ProductionRootStore:
                 raise ValueError("EVENT_IDENTITY_MISMATCH")
             before = decode_production_graph(before_w)
             after = decode_production_graph(after_w)
-            LanguageHomeostasis.decode(before_h)
+            before_profile = LanguageHomeostasis.decode(before_h)
             LanguageHomeostasis.decode(after_h)
             if observation.pre_w_hash != _sha(before_w) or observation.pre_h_hash != _sha(before_h):
                 raise ValueError("EVENT_PRESTATE_MISMATCH")
@@ -259,6 +270,15 @@ class ProductionRootStore:
                 or observation.synchronous
             ):
                 raise ValueError("INVALID_EVENT_CAUSAL_TRACE")
+            threshold = before_profile.overrides.thresholds[Region.LANGUAGE]
+            staged = _derive_proposals(
+                GraphSnapshot.capture(before), observation, previous, threshold
+            )
+            if (
+                encode_proposals(staged) != proposal_data
+                or decode_proposals(proposal_data) != staged
+            ):
+                raise ValueError("EVENT_PROPOSAL_MISMATCH")
             eligible = sorted(
                 ((i, u) for i, u in x.items() if i not in pre and u > 1),
                 key=lambda p: (-p[1], p[0]),
@@ -363,6 +383,20 @@ class ProductionRootStore:
                 (exposure_id, order),
             ).fetchone()
             return None if row is None else decode_event(row[0])
+
+    def pending_proposals(self, exposure_id: int) -> tuple[LinkProposal, ...]:
+        """Read staged proposals; their values alone cannot publish evidence."""
+        self._id(exposure_id)
+        with self._read_snapshot():
+            self._validate()
+            root = self.root(exposure_id)
+            if root is None or root.status != "OPEN":
+                raise ValueError("EXPOSURE_NOT_OPEN")
+            rows = self._connection.execute(
+                "SELECT proposals FROM p01_events WHERE exposure_id=? ORDER BY event_order",
+                (exposure_id,),
+            ).fetchall()
+            return tuple(proposal for row in rows for proposal in decode_proposals(row[0]))
 
     def begin(self, exposure_id: int, *, hook: Hook | None = None) -> RootView:
         self._id(exposure_id)
@@ -517,8 +551,12 @@ class ProductionRootStore:
             }
             raw = encode_event(payload)
             observation = decode_event(raw, _verified_projection=p)
+            staged = _derive_proposals(
+                snapshot, observation, previous, h.thresholds[Region.LANGUAGE]
+            )
+            proposal_data = encode_proposals(staged)
             self._connection.execute(
-                "INSERT INTO p01_events VALUES (?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO p01_events VALUES (?,?,?,?,?,?,?,?,?,?)",
                 (
                     event_id,
                     exposure_id,
@@ -528,7 +566,8 @@ class ProductionRootStore:
                     after_w,
                     before_h,
                     after_h,
-                    _checkpoint_digest(raw, before_w, after_w, before_h, after_h),
+                    proposal_data,
+                    _checkpoint_digest(raw, before_w, after_w, before_h, after_h, proposal_data),
                 ),
             )
             self._connection.execute(
