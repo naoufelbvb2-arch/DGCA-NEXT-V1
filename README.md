@@ -4,7 +4,7 @@ Research implementation of the **Dynamic Graph Cognitive Architecture — DCR**.
 
 ## Project status
 
-**I0 and I1 accepted. I2 RC4.3 targeted remediation is ready for review.**
+**I0, I1 and I2 accepted. I3 is partial and blocked on scientific rules.**
 
 The foundation refers to two design-candidate specifications under `docs/specs/`:
 
@@ -34,7 +34,7 @@ chosen because it is the available local validation runtime; broader Python
 compatibility is untested. The package has no runtime dependencies. Development
 tools are pinned in `pyproject.toml`.
 
-Run from the repository root on `feature/i2-neural-dynamics`:
+Run from the repository root on `feature/i3-local-learning`:
 
 ```powershell
 git fetch origin main:refs/remotes/origin/main
@@ -310,8 +310,8 @@ final activity, frontiers and typed support lanes. `full_control` and
 `pred_score` are isolated measurements; evaluator footprints never feed input.
 Context and Assembly descriptors are marked **synthetic fixtures**. They do not
 constitute learned owners, Assemblies, novelty or evidence. Production automatic
-recycling remains disabled. No I3 lifecycle, LLA, generation or real owner
-recruitment is implemented.
+recycling remains disabled. No I3 learning, generation or real owner recruitment
+is implemented.
 
 The owner-approved RC4.3 rules resolve the former I2-S01–S03 blockers. Every
 legal live synchronous key propagates its actual Q; Assembly reciprocity remains
@@ -323,3 +323,22 @@ state; those remain I3 obligations. VISION/AUDIO initial thresholds remain
 unspecified. The historical `I2-VERIFICATION-REPORT.md` records the prior
 blockers; `I2-S01-S03-REMEDIATION-VERIFICATION-REPORT.md` records the remediation
 results and current gate disposition.
+
+## I3 production-learning preflight
+
+`docs/implementation/I3-R00-PRODUCTION-PREFLIGHT.md` records the current graph,
+provenance and transaction boundaries. Two scientific decisions remain open:
+which sensory receivers are admitted when more than the 12-per-event budget
+qualify, and how the slow-state gain/rates are initialized for cold/newly
+committed cells. An explicitly supplied initial H is accepted by the SQLite
+transaction skeleton; it is not a default or an approved newborn policy.
+
+`RootStore` durably exercises BEGIN, exclusive OPEN state, monotonic root IDs,
+canonical binary H snapshots, ABORT and recovery with explicit H/code identity.
+It rejects EVENT and END, so it cannot publish observations, admissions,
+synapses or evidence. `learning.observation` is an uncommitted ingress preflight;
+`learning.evidence` performs explicitly synthetic arithmetic only. Neither is
+a production witness or learning engine. The initial cold-start ingress attempt
+stops at the documented guards; the genuine external-learning experiment has
+not run. See `docs/implementation/I3-VERIFICATION-REPORT.md` for executed
+checks and remaining gates. Production recycling remains disabled.

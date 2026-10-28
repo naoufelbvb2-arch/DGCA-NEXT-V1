@@ -95,6 +95,22 @@ def test_begin_abort_cold_exclusive_monotonic_and_retry(tmp_path):
     restored.close()
 
 
+def test_two_connections_share_the_same_persisted_open_lock(tmp_path):
+    db = tmp_path / "roots.sqlite"
+    first = store(db, initial=h_fixture())
+    second = store(db)
+    first.begin(3)
+    with pytest.raises(ValueError, match="EXPOSURE_ALREADY_OPEN"):
+        second.begin(4)
+    assert second.view().open_root == 3
+    first.abort(3)
+    second.begin(4)
+    assert first.view().open_root == 4
+    second.abort(4)
+    first.close()
+    second.close()
+
+
 def test_event_and_end_are_fail_closed_without_changing_checkpoint(tmp_path):
     engine = store(tmp_path / "roots.sqlite", initial=h_fixture())
     engine.begin(7)

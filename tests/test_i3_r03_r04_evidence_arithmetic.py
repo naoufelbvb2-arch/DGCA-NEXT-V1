@@ -3,7 +3,7 @@
 import pytest
 
 from dgca_next.contracts import CellAddress, SynapseKey, SynapseScope
-from dgca_next.graph import SynapseState
+from dgca_next.graph import FixtureBuilder, SparseNetwork, SynapseState
 from dgca_next.learning.evidence import (
     SyntheticEvidence,
     SyntheticProposal,
@@ -99,3 +99,12 @@ def test_17_root_illustration_is_only_synthetic_arithmetic():
 def test_invalid_evidence_never_accepted(mass):
     with pytest.raises(ValueError):
         SyntheticEvidence(key(), 0.8, mass, 0.0, (1,), SynapseState.CANDIDATE)
+
+
+def test_synthetic_arithmetic_cannot_publish_a_graph_synapse():
+    network = SparseNetwork()
+    before = network.structural_hash
+    synthetic = apply_fixture_proposal(None, proposal(1, 0, 0, 0.5, 0.7))
+    with pytest.raises(ValueError, match="INVALID_SYNAPSE_SCHEMA"):
+        FixtureBuilder(network).add_synapse(synthetic)
+    assert network.structural_hash == before and not network.synapses()

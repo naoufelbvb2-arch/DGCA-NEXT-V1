@@ -1,8 +1,8 @@
-name: I0, I1 and I2 validation
+name: I0 through I3 validation
 
 on:
   push:
-    branches: [feature/i0-contract-foundation, feature/i1-graph-anatomy, feature/i2-neural-dynamics]
+    branches: [feature/i0-contract-foundation, feature/i1-graph-anatomy, feature/i2-neural-dynamics, feature/i3-local-learning]
   pull_request:
     branches: [main]
 
