@@ -1,10 +1,10 @@
 # DGCA v2 — Dynamic Core Reconstruction: LLA Specification
 
 **Document ID:** `DGCA-DCR-LLA-SPEC`  
-**Revision:** `v1.0.0-RC4.3` — approved experimental S01–S03 neural resolutions integrated into the RC4.2 design candidate
+**Revision:** `v1.0.0-RC4.4` — approved I3-S01/S02 laboratory policies integrated into the RC4.3 design candidate
 **Date:** 2026-10-27
-**Status:** `RC4.3 DESIGN CANDIDATE — NOT FROZEN — NOT EMPIRICALLY VERIFIED`
-**Companion:** `DGCA_CORE_RC4_3.md`
+**Status:** `RC4.4 DESIGN CANDIDATE — NOT FROZEN — NOT EMPIRICALLY VERIFIED`
+**Companion:** `DGCA_CORE_RC4_4.md`
 **Scope:** LANGUAGE local learning plus first-lab neural next-event regression, **conditional RC4 hierarchical (max depth 8) and native Assembly learning**, and read-only G1/G2 generation; semantic/compositional G3 remains empirical and unproven.
 
 > **Authority.** This is a self-contained proposed integration of historical LLA v2.0 (C1–C5), the DCR unified v0.9.0, and corrective overlays C01, C02, C03 and C04. If finally accepted, **only this document plus its Core companion** should be handed to implementation. All old variants are traceability sources, not competing runtime rulebooks. No code, trainable model, native generation capability or empirical result is asserted by this paper. RC3 is a new architecture **review candidate**, not a freeze-approved bugfix; preserve RC2 separately for clean ablations.
@@ -205,6 +205,8 @@ Priority(e)=S_e(1-E_e/E_{max})\exp[-\alpha_{rec}(t-t_{last\_ext}(e))],\quad\alph
 
 - An eligible Replay-supported candidate can be `EPISODIC_INDEXED` with window `W_episodic=2000`, subject to per-cell outgoing `E_cap=4` and network cap `G_cap=floor(.10×committedCells)`; eviction chooses lowest priority with deterministic key tie. No Replay can raise `external_count` or satisfy two independent external roots.
 - Expiration/pruning may release **unprotected/unused** capacity, never delete an otherwise legal consolidated knowledge link merely to free a candidate resource. `W_conf=100` for ordinary links and `W_conf_context=240` completed-root external events for candidate-owned P/C/Y links, while `W_episodic=2000` remains unchanged. Contextual special deadline attaches to the exact reserved link keys at their first creation, terminates when the owner completes/expires and never grants indefinite extension or retroactive learning. The 240-event ownership limit is distinct from the 8/32 qualified-root limits.
+
+**RC4.4 I3-S01/S02 — genuine EVENT admission and H:** Core §§1.3 and 5 govern the ranked integer-support sensory cohort, per-receiver deferral, simultaneous latent initialization and versioned LANGUAGE H profile. Only valid ordered external LEARN EVENT input can provide an external observation witness. Freeze actual committed-before-event W/H and event provenance before evaluation; a newborn has no same-event positive q, `F_step` or evidence. Cohort birth does not itself constitute learning. Provisional legitimate event adaptation remains subject to exact BEGIN H restoration on ABORT, including sparse per-cell overrides, even if lawful sensory W birth remains. These choices do not change q, y, scope, eligibility, root deduplication or consolidation laws.
 
 ## 5. First creation from latent pair: exact legal transition
 

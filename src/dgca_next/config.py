@@ -1,4 +1,4 @@
-"""One fixed RC4.3 lab profile, with source origins on every value.
+"""One fixed RC4.4 lab profile, with source origins on every value.
 
 I0 validates declarations only; registry entries do not enable any engine.
 External TOML is a complete [lab] snapshot, never an implicit partial override.
@@ -16,8 +16,8 @@ from types import MappingProxyType
 from typing import Final
 
 Scalar = bool | int | float | str
-CORE: Final = "docs/specs/DGCA_CORE_RC4_3.md"
-LLA: Final = "docs/specs/DGCA_LLA_RC4_3.md"
+CORE: Final = "docs/specs/DGCA_CORE_RC4_4.md"
+LLA: Final = "docs/specs/DGCA_LLA_RC4_4.md"
 
 
 class ConfigurationError(ValueError):
@@ -62,6 +62,10 @@ _DEFAULTS: Final[Mapping[str, Parameter]] = MappingProxyType(
         "rho_target_VISION": _core(0.020, "1.1"),
         "rho_target_AUDIO": _core(0.025, "1.1"),
         "rho_target_LANGUAGE": _core(0.030, "1.1"),
+        "h_profile_version": _core("DGCA-H-LANGUAGE-V1", "1.3"),
+        "g_initial_LANGUAGE": _core(1.0, "1.3"),
+        "r_bar_initial_LANGUAGE": _core(0.05, "1.3"),
+        "rho_bar_initial_LANGUAGE": _core(0.030, "1.3"),
         "g_min": _core(0.70, "1.2"),
         "g_max": _core(1.40, "1.2"),
         "B_i": _core(64, "1.2"),

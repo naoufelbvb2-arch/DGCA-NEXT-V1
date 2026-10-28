@@ -1,10 +1,10 @@
 # DGCA v2 — Dynamic Core Reconstruction: CORE Specification
 
 **Document ID:** `DGCA-DCR-CORE-SPEC`  
-**Revision:** `v1.0.0-RC4.3` — approved experimental S01–S03 neural resolutions integrated into the RC4.2 design candidate
+**Revision:** `v1.0.0-RC4.4` — approved I3-S01/S02 laboratory policies integrated into the RC4.3 design candidate
 **Date:** 2026-10-27
-**Status:** `RC4.3 DESIGN CANDIDATE — NOT FROZEN — NOT EMPIRICALLY VERIFIED`
-**Companion document:** `DGCA_LLA_RC4_3.md`
+**Status:** `RC4.4 DESIGN CANDIDATE — NOT FROZEN — NOT EMPIRICALLY VERIFIED`
+**Companion document:** `DGCA_LLA_RC4_4.md`
 **Scope:** `LANGUAGE / INDEPENDENT_EXPOSURE / CONTEXTUAL_LEARNING / BOUNDED GENERATION (G1/G2)` with a mandatory unchanged `SINGLE_NEXT_EVENT` RC3.1 regression baseline; Vision/Audio and compositional G3 are not claimed.
 
 > **Source and precedence.** This is a self-contained proposed integration of the frozen historical `DGCA-V2-CORE-LLA-SPEC v2.0.0` (C1–C5), DCR unified v0.9.0, and targeted overlays FFR01-C01, FFR02-C02, FFR03-C03, FFR04-C04. It does **not** retroactively unfreeze or modify historical documents. RC3 modifies four RC2 experimental design choices and is NOT a stable approved version. If this RC is approved after independent integrated review, this document and its companion are to be the **only two normative implementation documents** for the first lab. The companion owns learning/evidence; this one owns state, graph anatomy, event execution, context runtime, and retrieval. A discrepancy between them is a freeze blocker, not a choice left to the programmer.
@@ -67,6 +67,10 @@ Maintain `reverse_latent_index` transactionally. Fixed `local/topographic` slots
 **Capacity-aware rule (RC3):** for a new z, the already pinned `z`-side latent slot makes `D_iz=1` even when source `i` has no free latent slot; it does **not** bypass the source outgoing budget. The only mandatory outbound headroom checks are on actual unique directed proposed keys, including overlapping P/C roles. Do not count each role twice if one live identical directed key already exists.
 
 **Contextual exception:** a context candidate `z` may use up to six `co-active intra` slots in strict **two predecessor (`P`), two current (`C`), two outcome (`Y`) roles**, chosen and reserved with the algorithm in §7. This is a change to the *selection policy*, **not** to the total 24 slots. Repeated physical cell IDs across role sets consume one physical slot; distinct intended synapse keys still consume distinct source-outbound claims. Cross-region roles use compatible cross slots/budgets; unsupported combinations are rejected, never force-fitted.
+
+**RC4.4 I3-S01 — first-lab sensory admission:** For each valid external LEARN EVENT, project SIC-V1 once, freeze the committed-before-event W, and form unique uncommitted physical receivers with integer `X_fixed/1000000 > eps_p`. With contextual admission disabled for I3, all `K_R=12` slots are available to sensory births. Sort by `(-X_fixed, physical_cell_id)` and accept the first `min(K_R, |U|)` as one simultaneous `K_new` cohort. Report each remaining receiver as `SENSORY_BIRTH_CAPACITY_DEFERRED`; no autonomous birth queue or backdated witness exists. A later external observation may retry it. Initialize the cohort atomically by §§1.3.1–1.3.4. Newborns do not participate in same-event q, `F_step`, or evidence. The nominal 8/4 quota is transferable here; future concurrent contextual reservations need their own policy.
+
+**RC4.4 I3-S02 — LANGUAGE H initialization:** The immutable versioned first-lab profile has default cell gain `g0=1.0`, default cell firing EMA `rbar0=0.05`, initial LANGUAGE regional firing EMA `rhobar0=0.030`, and initial LANGUAGE threshold `theta_active=0.20`. VISION/AUDIO initial thresholds and production homeostasis remain unspecified. A newly committed cell has virtual defaults until an authorized later committed-before-event adaptation publishes a sparse override. Materializing a temporary numeric H snapshot is not durable H mutation or evidence. Birth never resets current regional H. Freeze the pre-event population and H; newborns are excluded from event-time population, per-cell adaptation and learning. Empty pre-event regional population skips its regional adaptation. On ABORT restore exact `H_slow_BEGIN` bytes including prior overrides while lawful sensory births already committed in W may remain and still resolve their virtual defaults; a later unrelated root cannot be reverted by a duplicate ABORT. READ_ONLY, FULL/CONTROL, REPLAY and GENERATE do not update H. These are experimental initialization choices, not empirically established laws.
 
 #### 1.3.1 RC4.2 L01 event snapshot and simultaneous births
 

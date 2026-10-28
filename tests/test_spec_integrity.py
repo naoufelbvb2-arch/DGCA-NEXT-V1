@@ -9,11 +9,13 @@ import pytest
 from dgca_next.__main__ import main
 from dgca_next.integrity import (
     ARCHIVAL_RC42_SPECS,
+    ARCHIVAL_RC43_SPECS,
     ARCHIVAL_SPECS,
     EXPECTED_SPECS,
     HISTORICAL_I0_COMMIT,
     RC4_2_MIGRATION_PARENT,
     RC4_3_MIGRATION_PARENT,
+    RC4_4_MIGRATION_PARENT,
     SpecIntegrityError,
     verify_specs,
 )
@@ -41,8 +43,8 @@ def test_default_branch_contains_identical_sources(path, digest, blob_sha):
 
 def test_exactly_two_current_scientific_artifacts():
     assert sorted(p.name for p in (ROOT / "docs/specs").glob("DGCA_*_RC*.md")) == [
-        "DGCA_CORE_RC4_3.md",
-        "DGCA_LLA_RC4_3.md",
+        "DGCA_CORE_RC4_4.md",
+        "DGCA_LLA_RC4_4.md",
     ]
 
 
@@ -53,7 +55,7 @@ def test_migration_parent_retains_exact_rc4_1_bytes(path, digest, blob_sha):
     assert hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest() == blob_sha
 
 
-@pytest.mark.parametrize("version", ["RC4_1", "RC4_2"])
+@pytest.mark.parametrize("version", ["RC4_1", "RC4_2", "RC4_3"])
 def test_stale_third_scientific_artifact_fails_integrity(source_copy, version):
     (source_copy / f"docs/specs/DGCA_CORE_{version}.md").write_text(
         "stale authority", encoding="utf-8"
@@ -116,7 +118,9 @@ def test_rc43_migration_preserves_every_independent_rc42_law():
     old_core = subprocess.check_output(
         ["git", "show", f"{RC4_3_MIGRATION_PARENT}:docs/specs/DGCA_CORE_RC4_2.md"], cwd=ROOT
     )
-    core = (ROOT / "docs/specs/DGCA_CORE_RC4_3.md").read_bytes()
+    core = subprocess.check_output(
+        ["git", "show", f"{RC4_4_MIGRATION_PARENT}:docs/specs/DGCA_CORE_RC4_3.md"], cwd=ROOT
+    )
     for tag in (b"S01", b"S02", b"S03"):
         core, count = re.subn(rb"\*\*RC4\.3 " + tag + rb"[^\n]*\n\n", b"", core)
         assert count == 1
@@ -132,7 +136,9 @@ def test_rc43_migration_preserves_every_independent_rc42_law():
     old_lla = subprocess.check_output(
         ["git", "show", f"{RC4_3_MIGRATION_PARENT}:docs/specs/DGCA_LLA_RC4_2.md"], cwd=ROOT
     )
-    lla = (ROOT / "docs/specs/DGCA_LLA_RC4_3.md").read_bytes()
+    lla = subprocess.check_output(
+        ["git", "show", f"{RC4_4_MIGRATION_PARENT}:docs/specs/DGCA_LLA_RC4_3.md"], cwd=ROOT
+    )
     lla, count = re.subn(rb"\*\*RC4\.3 S01\xe2\x80\x93S03[^\n]*\n\n", b"", lla)
     assert count == 1
     marker = b"## 0. Design objective and safety invariants"
@@ -143,7 +149,9 @@ def test_rc43_migration_preserves_every_configured_parameter_value():
     old_source = subprocess.check_output(
         ["git", "show", f"{RC4_3_MIGRATION_PARENT}:src/dgca_next/config.py"], cwd=ROOT
     ).decode("utf-8")
-    new_source = (ROOT / "src/dgca_next/config.py").read_text("utf-8")
+    new_source = subprocess.check_output(
+        ["git", "show", f"{RC4_4_MIGRATION_PARENT}:src/dgca_next/config.py"], cwd=ROOT
+    ).decode("utf-8")
 
     def defaults(source):
         tree = ast.parse(source)
@@ -156,6 +164,25 @@ def test_rc43_migration_preserves_every_configured_parameter_value():
         )
 
     assert ast.dump(defaults(old_source)) == ast.dump(defaults(new_source))
+
+
+@pytest.mark.parametrize("path,digest,blob_sha", ARCHIVAL_RC43_SPECS)
+def test_rc43_archival_bytes_and_rc44_preservation(path, digest, blob_sha):
+    old = subprocess.check_output(["git", "show", f"{RC4_4_MIGRATION_PARENT}:{path}"], cwd=ROOT)
+    assert hashlib.sha256(old).hexdigest() == digest
+    assert hashlib.sha1(b"blob " + str(len(old)).encode() + b"\0" + old).hexdigest() == blob_sha
+    new = (ROOT / path.replace("RC4_3", "RC4_4")).read_bytes()
+    marker = (
+        b"#### 1.3.1 RC4.2 L01 event snapshot and simultaneous births"
+        if "CORE" in path
+        else b"## 5. First creation from latent pair: exact legal transition"
+    )
+    added_start = new.index(b"**RC4.4 I3-S01")
+    added_end = new.index(marker, added_start)
+    assert new[added_end:] == old[old.index(marker) :]
+    assert new.split(b"## 0.", 1)[1][: added_start - new.index(b"## 0.")].startswith(
+        old.split(b"## 0.", 1)[1].split(marker, 1)[0]
+    )
 
 
 @pytest.mark.parametrize("path,digest,blob_sha", EXPECTED_SPECS)
