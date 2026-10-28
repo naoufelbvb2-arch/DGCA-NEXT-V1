@@ -35,7 +35,8 @@ def _pass(
     lanes: tuple[Mapping[int, float], ...],
     gates: Mapping[int, bool],
 ) -> PassResult:
-    ids = graph.committed_ids
+    committed = graph.committed_ids
+    ids = committed | frozenset(i for lane in lanes for i in lane)
     raw = {
         i: noisy_or(lane.get(i, 0.0) for lane in lanes) if gates.get(i, True) else 0.0
         for i in sorted(ids)
@@ -46,8 +47,11 @@ def _pass(
     normalized, activity = {}, {}
     for i in sorted(ids):
         region = CellAddress.from_cell_id(i).region.name
-        # All eight logical positions contribute, including uncommitted zeros.
+        # All eight logical positions contribute; directly stimulated but
+        # uncommitted positions have raw drive but never receive activity.
         normalized[i] = raw[i] / (1.0 + parameter(f"beta_{region}") * (sums[i // 8] / 8))
+        if i not in committed:
+            continue
         if i not in homeostasis.gains:
             raise ValueError(f"MISSING_HOMEOSTATIC_GAIN: {i}")
         activity[i] = (

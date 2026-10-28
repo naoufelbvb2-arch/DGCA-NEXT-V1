@@ -4,14 +4,14 @@ Research implementation of the **Dynamic Graph Cognitive Architecture — DCR**.
 
 ## Project status
 
-**I0 accepted. I1-L01 — RC4.2 physical policy implemented; independent review required.**
+**I0 and I1 accepted. I2 neural dynamics are partial pending scientific decisions.**
 
 The foundation refers to two design-candidate specifications under `docs/specs/`:
 
 - `DGCA_CORE_RC4_2.md` — Core anatomy, dynamics, assemblies, contextual memory and bounded generation.
 - `DGCA_LLA_RC4_2.md` — local learning, evidence, consolidation and derived context witnesses.
 
-Both specifications are **RC4.2 / NOT FROZEN / NOT EMPIRICALLY VERIFIED**. Only the I0/I1 physical foundation is implemented. They are design contracts, not evidence of model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
+Both specifications are **RC4.2 / NOT FROZEN / NOT EMPIRICALLY VERIFIED**. I2 adds SIC projection and read-only numerical mechanics over physical fixtures; unresolved rules fail closed. These contracts do not prove model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
 
 ## Implementation direction
 
@@ -34,7 +34,7 @@ chosen because it is the available local validation runtime; broader Python
 compatibility is untested. The package has no runtime dependencies. Development
 tools are pinned in `pyproject.toml`.
 
-Run from the repository root on `feature/i1-graph-anatomy`:
+Run from the repository root on `feature/i2-neural-dynamics`:
 
 ```powershell
 git fetch origin main:refs/remotes/origin/main
@@ -120,8 +120,8 @@ fixture declares an administrative tag/version and fixed field order, following
 Core §3.1's record envelope; it does not assert a future W/R/H wire format.
 
 All I0 tests are **contract tests**. Neural learning, Assembly formation, probes,
-retrieval execution, hierarchy, generation, SIC projection, surface attestation,
-and scientific success remain unimplemented. LLA-T01–T41, LG-T01–T16, and the Core
+learned hierarchy, generation, surface attestation, and scientific success remain
+unimplemented. LLA-T01–T41, LG-T01–T16, and the Core
 scientific validation program are **NOT_RUN**. The first scientific gate remains
 I3/I4. Neither these tests nor a CI success freezes or empirically validates RC4.2.
 
@@ -135,7 +135,8 @@ commands, results, gate coverage, limitations, and unresolved decisions.
 or iterating the 12,288 logical cells never stores or commits missing cells. Cell
 metadata, synapse records, latent slots and public index views are immutable.
 Activity and adaptation remain outside the graph, under the unchanged I0 R and
-HSlow boundaries. No LLA, activation, learning or generation is implemented.
+HSlow boundaries. I2 separately computes read-only numerical activity; no LLA,
+learning or generation is implemented.
 
 Only the explicitly named **FixtureBuilder** can construct synthetic committed
 cells and links in I1. Records require `fixture_only=True`. A fixture's root count
@@ -282,8 +283,8 @@ contract fixtures. LLA-T01–T41 and LG-T01–T16 remain scientifically **NOT_RU
 The workflow retains I0 validation and also runs I1 feature pushes and main PRs
 on Ubuntu/Windows. Executed increment/gate evidence and policy limitations are
 recorded in the historical `docs/implementation/I1-VERIFICATION-REPORT.md` and the
-current `docs/implementation/I1-L01-VERIFICATION-REPORT.md`. Stop at
-**I1-L01 REVIEW READY** after verification; I2 requires separate authorization.
+current `docs/implementation/I1-L01-VERIFICATION-REPORT.md`. I2 is separately
+authorized on its feature branch; no I3 work is authorized by this I1 report.
 
 ## Approved L01 baseline transition
 
@@ -291,3 +292,33 @@ The migration record is `docs/implementation/I1-L01-SOURCE-MIGRATION.md`; old
 reports remain historical evidence. Automatic production recycling remains
 disabled until genuine I2/I3 novelty verification exists. RC4.2 remains
 **NOT FROZEN / NOT EMPIRICALLY VERIFIED**.
+
+## I2 read-only numerical reference and known blockers
+
+`dgca_next.peripheral.sic.project` accepts Unicode mechanical feature strings and
+decimal support strings. It produces exact millionth receivers with fixed SHA-256
+salts; it does not tokenize raw surface text. Its bundle digest retains canonical
+pre-salience feature supports and salience. Distinct features mapping to one cell
+yield a `CELL_FEATURE_ALIAS` diagnostic. Physical role fingerprints are separate
+and contain only sorted cell IDs and direct-support integers.
+
+`GraphSnapshot.capture` freezes the existing I1 physical state; `Homeostasis`
+requires explicit gains and thresholds. `read_only_episode` starts cold and
+processes caller-supplied `FeatureEvent` values as read-only observations, without
+admission or evidence. Traces contain raw, normalized, temporal, synchronous,
+final activity, frontiers and typed support lanes. `full_control` and
+`pred_score` are isolated measurements; evaluator footprints never feed input.
+Context and Assembly descriptors are marked **synthetic fixtures**. They do not
+constitute learned owners, Assemblies, novelty or evidence. Production automatic
+recycling remains disabled. No I3 lifecycle, LLA, generation or real owner
+recruitment is implemented.
+
+Three rules require owner/specification resolution: I2-S01, whether live
+nonconsolidated LOCAL/CROSS links contribute during pass 2; I2-S02, the exact
+Assembly cohesion calculation for Attractor admission; and I2-S03, the population
+and denominator defining regional firing `rho_r(t)`. The affected operators fail
+closed, while pure Attractor and homeostasis arithmetic can be exercised with
+explicit synthetic cohesion or region firing fixtures. VISION/AUDIO initial
+thresholds remain unspecified. See `docs/implementation/I2-VERIFICATION-REPORT.md`
+for reproducers, coverage and exact results. I2 is **PARTIAL / SPEC_BLOCKED**
+until these decisions are reviewed.

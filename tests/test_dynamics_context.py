@@ -110,3 +110,12 @@ def test_context_fixture_stale_parent_generation_fails_closed():
         bindings=(stale, child),
     )
     assert traces[-1].state.activity[child.z] == 0.0
+
+
+def test_legal_weight_change_revalidates_scoped_binding():
+    _, _, _, _, original = context_fixture(strength=1.0)
+    _, _, graph, h, _ = context_fixture(strength=0.6)
+    binding = original[0]
+    assert structural_diagnostic(binding, graph, {binding.z: binding}) is None
+    trace = episode(graph, h, (binding,))[-1]
+    assert trace.gates[binding.z]

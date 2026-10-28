@@ -152,3 +152,32 @@ def test_T07_projection_cannot_assert_arbitrary_X():
         SICProjection(Region.LANGUAGE, ((b"a", 500000),), ((8192, 1000000),))
     with pytest.raises(ValueError):
         project((("a", "1"), ("b", "nan")))
+
+
+def test_projection_rejects_boolean_and_float_numeric_aliases():
+    good = project((("a", "0.000001"),))
+    bad_fixed = tuple((float(i), True) for i, _ in good.X_fixed)
+    with pytest.raises(ValueError, match="UNVERIFIED_SIC"):
+        SICProjection(
+            good.region, good.features, bad_fixed, good.input_features, good.salience_fixed
+        )
+    with pytest.raises(ValueError, match="UNVERIFIED_SIC"):
+        SICProjection(
+            good.region, ((b"a", True),), good.X_fixed, good.input_features, good.salience_fixed
+        )
+
+
+def test_sealed_bundle_identity_preserves_original_features_and_salience():
+    first = project((("a", "1"),), salience="0.5")
+    second = project((("a", "0.5"),))
+    assert first.X_fixed == second.X_fixed
+    assert first.digest != second.digest
+    assert project((("a", "0"),)).digest != project(()).digest
+    assert project((("a", "0.5"), ("a", "0.25"))).digest == project((("a", "0.625"),)).digest
+
+
+def test_receiver_alias_diagnostic_is_feature_based_not_salt_based():
+    assert project((("a", "0.5"), ("f617", "0.25"))).aliased_receivers == (8606,)
+    assert project((("a", "0.5"), ("a", "0.25"))).aliased_receivers == ()
+    assert project((("collision4375", "0.5"),)).aliased_receivers == ()
+    assert project((("a", "0.5"), ("f617", "0"))).aliased_receivers == ()

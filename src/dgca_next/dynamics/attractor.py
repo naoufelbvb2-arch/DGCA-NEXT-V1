@@ -1,9 +1,10 @@
 """Pure fixture Attractor transitions (Core §2.1); no Assembly formation."""
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 from dgca_next.contracts import SynapseScope
-from dgca_next.dynamics.context_gate import _key
+from dgca_next.dynamics.context_gate import ContextBindingFixture, _key, structural_diagnostic
 from dgca_next.dynamics.numeric import SpecBlocked, finite, parameter, support
 from dgca_next.dynamics.state import GraphSnapshot
 from dgca_next.graph import SynapseState
@@ -31,13 +32,22 @@ class AssemblyFixture:
             raise ValueError("INVALID_ASSEMBLY_FIXTURE")
 
 
-def validate_assembly(graph: GraphSnapshot, assembly: AssemblyFixture) -> None:
+def validate_assembly(
+    graph: GraphSnapshot,
+    assembly: AssemblyFixture,
+    bindings: Mapping[int, ContextBindingFixture] | None = None,
+) -> None:
     members = assembly.members
     if not set(members) <= graph.committed_ids or any(i < 8192 for i in members):
         raise ValueError("INVALID_ASSEMBLY_MEMBERS")
     cells = {c.cell_id: c for c in graph.cells()}
     if any(assembly.assembly_id not in cells[i].assembly_ids for i in members):
         raise ValueError("MISSING_ASSEMBLY_FIXTURE_MEMBERSHIP")
+    contexts = {} if bindings is None else bindings
+    for i in members:
+        binding = contexts.get(i)
+        if binding and (not binding.complete or structural_diagnostic(binding, graph, contexts)):
+            raise ValueError("UNQUALIFIED_CONTEXT_ASSEMBLY_MEMBER")
     reciprocal: dict[int, dict[int, float]] = {}
     for synapse in graph.synapses():
         key = synapse.key

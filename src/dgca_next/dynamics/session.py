@@ -22,6 +22,14 @@ from dgca_next.dynamics.state import GraphSnapshot, Homeostasis, frozen_numbers
 from dgca_next.peripheral.sic import SICProjection, project
 
 _AUTHORITY = object()  # In-process scratch provenance, not a persisted/evidence credential.
+_PENDING_PERMITS: set[object] = set()
+
+
+def _issue_permit() -> object:
+    """Single-use constructor token; copied scratch snapshots cannot mint witnesses."""
+    permit = object()
+    _PENDING_PERMITS.add(permit)
+    return permit
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,8 +67,10 @@ class RuntimeState:
     _authority: object = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
-        if self._authority is not _AUTHORITY:
+        if self._authority not in _PENDING_PERMITS:
             raise ValueError("UNVERIFIED_RUNTIME_PROVENANCE")
+        _PENDING_PERMITS.remove(self._authority)
+        object.__setattr__(self, "_authority", _AUTHORITY)
         if type(self.session_id) is not int or self.session_id < 0:
             raise ValueError("INVALID_SESSION_ID")
         if type(self.next_order) is not int or self.next_order < 0:
@@ -99,8 +109,9 @@ def cold_state(
     assemblies: tuple[AssemblyFixture, ...] = (),
     fixture_cohesion: Mapping[int, float] | None = None,
 ) -> RuntimeState:
+    context_by_cell = {binding.z: binding for binding in bindings}
     for assembly in assemblies:
-        validate_assembly(graph, assembly)
+        validate_assembly(graph, assembly, context_by_cell)
     return RuntimeState(
         session_id,
         0,
@@ -109,7 +120,7 @@ def cold_state(
         bindings=bindings,
         assemblies=assemblies,
         fixture_cohesion={} if fixture_cohesion is None else fixture_cohesion,
-        _authority=_AUTHORITY,
+        _authority=_issue_permit(),
     )
 
 
@@ -123,7 +134,7 @@ def cold_reset(state: RuntimeState) -> RuntimeState:
         bindings=state.bindings,
         assemblies=state.assemblies,
         fixture_cohesion=state.fixture_cohesion,
-        _authority=_AUTHORITY,
+        _authority=_issue_permit(),
     )
 
 
@@ -173,7 +184,7 @@ def _context_operators(
         assembly = assemblies.get(attractor.assembly_id)
         if assembly is None:
             raise ValueError("UNVERIFIED_ATTRACTOR_ASSEMBLY")
-        validate_assembly(graph, assembly)
+        validate_assembly(graph, assembly, bindings)
         for i in assembly.members:
             sigma[i] = max(sigma.get(i, 0.0), parameter("rho_s") * attractor.strength)
     return gates, sigma, diagnostics
@@ -215,6 +226,7 @@ def read_only_step(
     temporal = aggregate(drives)
     X = dict(observation.X)
     gates, sigma, diagnostics = _context_operators(graph, previous, X, event.boundary)
+    diagnostics.extend(f"CELL_FEATURE_ALIAS:{i}" for i in observation.aliased_receivers)
     passes = two_pass(graph, state.homeostasis, previous.activity, X, temporal, sigma, gates=gates)
     if fail_hook:
         fail_hook("PASS2")
@@ -255,11 +267,18 @@ def read_only_step(
                 )
             )
         if binding.complete and gates.get(z, False) and z in frontiers.step:
-            parents = tuple(
-                (p, order - 1, previous.witnesses[p].bundle_digest) for p in binding.predecessor
-            )
+            parents = tuple(previous.witnesses[p] for p in binding.predecessor)
             parents += tuple(
-                (c, order, observation.digest) for c in binding.current if X.get(c, 0.0) > 0
+                RuntimeSupport(
+                    c,
+                    X[c],
+                    SourceKind.READ_ONLY_OBSERVED,
+                    state.session_id,
+                    order,
+                    observation.digest,
+                )
+                for c in binding.current
+                if X.get(c, 0.0) > 0
             )
             witnesses[z] = RuntimeSupport(
                 z,
@@ -351,7 +370,7 @@ def read_only_step(
         assemblies=state.assemblies,
         attractors=tuple(attractors),
         fixture_cohesion=state.fixture_cohesion,
-        _authority=_AUTHORITY,
+        _authority=_issue_permit(),
     )
     if fail_hook:
         fail_hook("RESULT")

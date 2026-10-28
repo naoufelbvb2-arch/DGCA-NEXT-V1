@@ -86,12 +86,20 @@ class SICProjection:
     region: Region
     features: tuple[tuple[bytes, int], ...]
     X_fixed: tuple[tuple[int, int], ...]
+    input_features: tuple[tuple[bytes, int], ...] = ()
+    salience_fixed: int = SCALE
 
     def __post_init__(self) -> None:
-        if type(self.region) is not Region or type(self.features) is not tuple:
+        if (
+            type(self.region) is not Region
+            or type(self.features) is not tuple
+            or type(self.input_features) is not tuple
+            or type(self.salience_fixed) is not int
+            or not 0 <= self.salience_fixed <= SCALE
+        ):
             raise ValueError("INVALID_PROJECTION")
         previous = b""
-        for item in self.features:
+        for item in self.input_features:
             if type(item) is not tuple or len(item) != 2:
                 raise ValueError("INVALID_PROJECTION")
             feature, support = item
@@ -102,11 +110,35 @@ class SICProjection:
                     raise ValueError("NONCANONICAL_FEATURES")
             except UnicodeError as error:
                 raise ValueError("INVALID_FEATURE_ENCODING") from error
-            if type(support) is not int or not 0 < support <= SCALE:
+            if type(support) is not int or not 0 <= support <= SCALE:
                 raise ValueError("INVALID_FIXED_SUPPORT")
             previous = feature
-        if type(self.X_fixed) is not tuple or self.X_fixed != _receivers(
-            self.features, self.region
+        expected_features = tuple(
+            (feature, effective)
+            for feature, original in self.input_features
+            if (effective := round(Fraction(original * self.salience_fixed, SCALE))) > 0
+        )
+        if (
+            any(
+                type(item) is not tuple
+                or len(item) != 2
+                or type(item[0]) is not bytes
+                or type(item[1]) is not int
+                for item in self.features
+            )
+            or self.features != expected_features
+        ):
+            raise ValueError("UNVERIFIED_SIC_PROJECTION")
+        if (
+            type(self.X_fixed) is not tuple
+            or any(
+                type(item) is not tuple
+                or len(item) != 2
+                or type(item[0]) is not int
+                or type(item[1]) is not int
+                for item in self.X_fixed
+            )
+            or self.X_fixed != _receivers(self.features, self.region)
         ):
             raise ValueError("UNVERIFIED_SIC_PROJECTION")
 
@@ -116,12 +148,22 @@ class SICProjection:
 
     @property
     def digest(self) -> str:
-        """I2 diagnostic bundle schema 1: region, count, length/bytes/support records."""
-        payload = b"DGCA-I2-SIC-BUNDLE-V1\0" + bytes((self.region.value,))
-        payload += len(self.features).to_bytes(4, "big")
-        for feature, support in self.features:
+        """Diagnostic schema 2: canonical original supports and separate salience."""
+        payload = b"DGCA-I2-SIC-BUNDLE-V2\0" + bytes((self.region.value,))
+        payload += self.salience_fixed.to_bytes(4, "big")
+        payload += len(self.input_features).to_bytes(4, "big")
+        for feature, support in self.input_features:
             payload += len(feature).to_bytes(4, "big") + feature + support.to_bytes(4, "big")
         return hashlib.sha256(payload).hexdigest()
+
+    @property
+    def aliased_receivers(self) -> tuple[int, ...]:
+        """IDs receiving more than one distinct positive effective feature."""
+        counts: dict[int, int] = {}
+        for feature, _ in self.features:
+            for cell_id in set(_receiver_bytes(feature, self.region)):
+                counts[cell_id] = counts.get(cell_id, 0) + 1
+        return tuple(sorted(i for i, count in counts.items() if count > 1))
 
 
 def project(
@@ -139,9 +181,10 @@ def project(
             raise ValueError("INVALID_FEATURE_PAIR")
         text, support = item
         grouped.setdefault(feature_bytes(text), []).append(decimal_fixed(support))
+    original = tuple((feature, exact_or(supports)) for feature, supports in sorted(grouped.items()))
     effective = tuple(
         (feature, merged)
-        for feature, supports in sorted(grouped.items())
-        if (merged := round(Fraction(exact_or(supports) * sal, SCALE))) > 0
+        for feature, initial in original
+        if (merged := round(Fraction(initial * sal, SCALE))) > 0
     )
-    return SICProjection(region, effective, _receivers(effective, region))
+    return SICProjection(region, effective, _receivers(effective, region), original, sal)

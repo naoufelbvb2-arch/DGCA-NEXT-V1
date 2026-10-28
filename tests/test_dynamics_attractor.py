@@ -1,7 +1,7 @@
 from dataclasses import replace
 
 import pytest
-from neural_fixtures import assembly_fixture, fixture_graph
+from neural_fixtures import assembly_fixture, context_fixture, fixture_graph, physical_key
 
 from dgca_next.contracts import Region, SynapseScope
 from dgca_next.dynamics.attractor import (
@@ -10,10 +10,12 @@ from dgca_next.dynamics.attractor import (
     transition,
     validate_assembly,
 )
+from dgca_next.dynamics.context_gate import link_fingerprint, structural_diagnostic
 from dgca_next.dynamics.homeostasis import adapt
 from dgca_next.dynamics.numeric import SpecBlocked
 from dgca_next.dynamics.session import FeatureEvent, cold_reset, read_only_episode
 from dgca_next.dynamics.state import GraphSnapshot, Homeostasis
+from dgca_next.graph import Synapse, SynapseState
 
 
 def test_T25_fresh_zero_without_input_even_with_residual_and_attractor():
@@ -108,6 +110,44 @@ def test_assembly_requires_actual_reciprocity_and_membership():
         validate_assembly(GraphSnapshot.capture(graph), assembly)
 
 
+def test_assembly_rejects_incomplete_or_stale_context_even_with_valid_triangle():
+    graph, builder, _, _, bindings = context_fixture()
+    original = bindings[0]
+    z = original.z
+    members = (z, 8200, 8208)
+    # A physically pinned 2/2/2 candidate; no owner discovery is simulated.
+    for target in set((*original.predecessor, *original.current, *original.outcome)):
+        existing = next((s for s in graph.latent_slots(z) if s.target_id == target), None)
+        if existing is None:
+            existing = next(s for s in graph.latent_slots(z) if s.index < 6 and s.target_id is None)
+            builder.inject_slot(z, existing.index, target)
+        builder.pin_slot(z, existing.index, z)
+    for source in members:
+        for target in members:
+            if source == target:
+                continue
+            if not graph.structurally_eligible(source, target):
+                slot = next(
+                    s for s in graph.latent_slots(source) if s.index < 6 and s.target_id is None
+                )
+                builder.inject_slot(source, slot.index, target)
+            key = physical_key(source, target, SynapseScope.LOCAL)
+            builder.add_synapse(
+                Synapse(key, 0, SynapseState.CONSOLIDATED, 1.0, 10.0, 0.0, 2, 2, True, True)
+            )
+        builder.set_memberships(source, frozenset({7}))
+    frozen = GraphSnapshot.capture(graph)
+    binding = replace(original, link_fingerprint=link_fingerprint(frozen, original.keys))
+    candidate = replace(binding, complete=False)
+    assert structural_diagnostic(candidate, frozen, {z: candidate}) is None
+    assembly = AssemblyFixture(7, members)
+    with pytest.raises(ValueError, match="UNQUALIFIED_CONTEXT_ASSEMBLY_MEMBER"):
+        validate_assembly(frozen, assembly, {z: candidate})
+    with pytest.raises(ValueError, match="UNQUALIFIED_CONTEXT_ASSEMBLY_MEMBER"):
+        validate_assembly(frozen, assembly, {z: replace(binding, active=False)})
+    validate_assembly(frozen, assembly, {z: binding})
+
+
 def test_T27_pure_homeostasis_independent_golden():
     h = Homeostasis(
         {8192: 1.0, 8193: 0.7},
@@ -115,7 +155,7 @@ def test_T27_pure_homeostasis_independent_golden():
         {Region.LANGUAGE: 0.2},
         {Region.LANGUAGE: 0.1},
     )
-    adapted = adapt(h, {8192: 0.8})
+    adapted = adapt(h, {8192: 0.8}, fixture_region_firing={Region.LANGUAGE: 1 / 4096})
     expected_rate = 0.95 * 0.1 + 0.05
     assert adapted.rates[8192] == expected_rate
     assert adapted.gains[8192] == 1.0 + 0.002 * (0.05 - expected_rate)
@@ -128,6 +168,21 @@ def test_T27_pure_homeostasis_independent_golden():
 
 def test_T27_no_activity_still_updates_ema_pure_only():
     h = Homeostasis({8192: 1.0}, {8192: 0.5}, {Region.LANGUAGE: 0.2}, {Region.LANGUAGE: 0.0})
-    updated = adapt(h, {})
+    updated = adapt(h, {}, fixture_region_firing={Region.LANGUAGE: 0.0})
     assert updated.rates[8192] == 0.95 * 0.5
     assert updated.thresholds[Region.LANGUAGE] == 0.195
+
+
+def test_SPEC_BLOCKED_S03_region_firing_denominator_is_unspecified():
+    h = Homeostasis(
+        {8192: 1.0, 8193: 1.0},
+        {8192: 0.0, 8193: 0.0},
+        {Region.LANGUAGE: 0.2},
+        {Region.LANGUAGE: 0.03},
+    )
+    with pytest.raises(SpecBlocked, match="I2-S03"):
+        adapt(h, {8192: 1.0})
+    logical = adapt(h, {8192: 1.0}, fixture_region_firing={Region.LANGUAGE: 1 / 4096})
+    committed = adapt(h, {8192: 1.0}, fixture_region_firing={Region.LANGUAGE: 1 / 2})
+    assert logical.thresholds[Region.LANGUAGE] == 0.2
+    assert committed.thresholds[Region.LANGUAGE] == 0.20500000000000002

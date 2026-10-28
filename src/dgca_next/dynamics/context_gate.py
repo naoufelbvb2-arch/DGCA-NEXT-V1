@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from dgca_next.contracts import CellAddress, SynapseKey, SynapseScope
 from dgca_next.dynamics.frontier import support_is_current
-from dgca_next.dynamics.numeric import binary64_bytes, q6
+from dgca_next.dynamics.numeric import q6
 from dgca_next.dynamics.provenance import RuntimeSupport, SourceKind
 from dgca_next.dynamics.state import GraphSnapshot
 from dgca_next.graph import SynapseState
@@ -114,9 +114,6 @@ def link_fingerprint(graph: GraphSnapshot, keys: tuple[SynapseKey, ...]) -> str:
         result.extend(bytes((int(graph.eligible(key.source.cell_id, key.target.cell_id)),)))
         if synapse:
             result.extend(synapse.state.value.encode("ascii") + b"\0")
-            for number in (synapse.S, synapse.E_ext, synapse.E_int):
-                result.extend(binary64_bytes(number))
-            result.extend(str(synapse.external_root_count).encode("ascii") + b"\0")
         else:
             result.extend(b"ABSENT\0")
         for claimant in sorted(graph.claimants(key)):

@@ -1,7 +1,7 @@
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, replace
 
 import pytest
-from neural_fixtures import fixture_graph
+from neural_fixtures import context_fixture, fixture_graph
 
 from dgca_next.contracts import EventOrigin, SynapseScope
 from dgca_next.dynamics.provenance import Lane, RuntimeSupport, SourceKind
@@ -123,3 +123,34 @@ def test_runtime_nested_immutability_and_bounded_history():
         state.history[-1][9345] = 0.0
     with pytest.raises(FrozenInstanceError):
         state.witnesses[9345].kind = SourceKind.INTERNAL_SELECTED
+
+
+def test_T19_forged_predecessor_cannot_be_installed_on_copied_state():
+    _, _, graph, h, bindings = context_fixture()
+    cold = cold_state(graph, h, session_id=1, bindings=bindings)
+    blank = read_only_step(graph, cold, FeatureEvent(())).state
+    forged = {
+        i: RuntimeSupport(i, 1.0, SourceKind.READ_ONLY_OBSERVED, 1, 0, "forged")
+        for i in bindings[0].predecessor
+    }
+    with pytest.raises(ValueError, match="UNVERIFIED_RUNTIME_PROVENANCE"):
+        replace(blank, witnesses=forged)
+    actual = read_only_step(graph, blank, FeatureEvent((("ab", "1"),)))
+    assert not actual.gates[bindings[0].z]
+    assert actual.state.activity[bindings[0].z] == 0.0
+
+
+def test_sealed_replay_rejects_same_X_from_different_canonical_input():
+    _, _, graph, h = fixture_graph(cells=(9345,))
+    event = FeatureEvent((("a", "1"),), salience="0.5")
+    trace = read_only_step(graph, cold_state(graph, h, session_id=1), event)
+    with pytest.raises(ValueError, match="SEALED_FEATURE_DIGEST_MISMATCH"):
+        FeatureEvent((("a", "0.5"),), sealed_digest=trace.observation.digest)
+
+
+def test_receiver_collision_diagnostic_is_visible_in_event_trace():
+    _, _, graph, h = fixture_graph(cells=(8606,))
+    trace = read_only_step(
+        graph, cold_state(graph, h, session_id=1), FeatureEvent((("a", "0.5"), ("f617", "0.25")))
+    )
+    assert "CELL_FEATURE_ALIAS:8606" in trace.diagnostics

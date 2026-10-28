@@ -57,11 +57,20 @@ class RuntimeSupport:
     bundle_digest: str
     depth: int = 0
     binding_digest: str | None = None
-    parents: tuple[tuple[int, int, str], ...] = ()
+    parents: tuple[RuntimeSupport, ...] = ()
 
     def __post_init__(self) -> None:
         CellAddress.from_cell_id(self.cell_id)
         support(self.value)
+        if (
+            type(self.session_id) is not int
+            or self.session_id < 0
+            or type(self.event_order) is not int
+            or self.event_order < 0
+        ):
+            raise ValueError("UNVERIFIED_PROVENANCE")
+        if type(self.bundle_digest) is not str or not self.bundle_digest:
+            raise ValueError("UNVERIFIED_PROVENANCE")
         if type(self.kind) is not SourceKind or self.kind not in (
             SourceKind.READ_ONLY_OBSERVED,
             SourceKind.DERIVED_RUNTIME_CONTEXT,
@@ -77,7 +86,20 @@ class RuntimeSupport:
             self.depth or self.parents or self.binding_digest
         ):
             raise ValueError("DIRECT_SOURCE_HAS_CONTEXT_METADATA")
-        if self.kind is SourceKind.DERIVED_RUNTIME_CONTEXT and (
-            not self.parents or not self.binding_digest or not self.depth
-        ):
-            raise ValueError("DERIVED_PROVENANCE_UNVERIFIED")
+        if self.kind is SourceKind.DERIVED_RUNTIME_CONTEXT:
+            if (
+                len(self.parents) < 3
+                or not self.binding_digest
+                or not self.depth
+                or any(
+                    type(p) is not RuntimeSupport or p.session_id != self.session_id or p.value <= 0
+                    for p in self.parents
+                )
+                or any(p.event_order != self.event_order - 1 for p in self.parents[:2])
+                or any(
+                    p.event_order != self.event_order or p.kind is not SourceKind.READ_ONLY_OBSERVED
+                    for p in self.parents[2:]
+                )
+                or self.depth != 1 + max(p.depth for p in self.parents[:2])
+            ):
+                raise ValueError("DERIVED_PROVENANCE_UNVERIFIED")

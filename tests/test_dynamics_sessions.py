@@ -86,3 +86,18 @@ def test_T32_fault_injection_no_graph_R_H_mutation(stage):
     assert state.activity == {} and state.next_order == 0
     assert state.homeostasis is h and graph.debug_dump() == before
     assert read_only_step(frozen, state, FeatureEvent((("a", "1"),))).state.next_order == 1
+
+
+@pytest.mark.parametrize("feature,support", [("a", "NaN"), ("\ud800", "1"), ("a", "0.0000001")])
+def test_T07_malformed_feature_event_leaves_graph_and_caller_R_unchanged(feature, support):
+    graph, _, frozen, h = fixture_graph(cells=(9345,))
+    state = read_only_step(
+        frozen, cold_state(frozen, h, session_id=1), FeatureEvent((("a", "1"),))
+    ).state
+    before = graph.debug_dump()
+    before_activity = dict(state.activity)
+    with pytest.raises(ValueError):
+        read_only_step(frozen, state, FeatureEvent(((feature, support),)))
+    assert graph.debug_dump() == before
+    assert dict(state.activity) == before_activity and state.next_order == 1
+    assert state.homeostasis is h

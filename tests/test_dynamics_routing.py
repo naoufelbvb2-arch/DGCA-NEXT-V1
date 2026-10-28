@@ -22,6 +22,9 @@ def test_T22_masked_ordinary_and_preserved_depth2_target():
     assert traces[2].gates[8194]
     assert 8194 in traces[2].state.frontiers.step
     assert traces[2].state.witnesses[8194].depth == 2
+    lineage = traces[2].state.witnesses[8194].parents[0]
+    assert lineage.cell_id == 8192 and lineage.depth == 1
+    assert len(lineage.parents) >= 3
     assert graph.debug_dump() == before
 
 
