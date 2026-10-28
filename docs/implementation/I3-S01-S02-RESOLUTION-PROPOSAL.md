@@ -2,7 +2,7 @@
 
 **ID:** I3-S01-S02-RESOLUTION-PROPOSAL
 **Revision:** PROPOSAL-R01 (2026-10-28)
-**Status:** PENDING OWNER APPROVAL — NON-NORMATIVE — NOT IMPLEMENTATION AUTHORIZATION
+**Status:** APPROVED BY PROJECT OWNER — RC4.4 MIGRATION AND TARGETED I3 IMPLEMENTATION AUTHORIZED; non-normative until integrated into Core/LLA and verified.
 **Branch:** feature/i3-local-learning
 **Reviewed implementation:** 500f5e10c1670ce5a079f531505f68d5a839a5fc
 **Current authority:** Only CORE RC4.3 and LLA RC4.3 (DESIGN CANDIDATES, NOT FROZEN, NOT EMPIRICALLY VERIFIED).
@@ -96,4 +96,4 @@ If the project owner APPROVES S01/S02:
 5. **Do not claim that resolving these policies proves learning.** The first true empirical gate requires that a production root actually witnesses two committed-before-event sources, forms and strengthens legal links from a cold empty target-link graph, preserves them over save/load, and shows read-only causal influence. No fixture mutation may satisfy that gate.
 6. No merge to main, no I4, no "I3 REVIEW READY" until independent full I3 acceptance. Remaining work may be PARTIAL even after these policy decisions pass.
 
-**Present verdict:** I3 PARTIAL / SPEC_BLOCKED. This is a proposal, not authorization to modify RC4.3, train, or claim successful learned synapses.
+**Owner approval (2026-10-28):** Both S01 and S02 are approved as EXPERIMENTAL first-LANGUAGE-laboratory choices. This approves the precise 12-receiver ranking/deferral and neutral H initialization plus immutable profile / sparse overrides / exact ABORT restoration. The owner authorizes controlled, versioned CORE+LLA RC4.4 migration and the full missing I3 implementation described by the accompanying approved execution contract. This document remains a decision record, not a third normative scientific specification. **I3 remains PARTIAL / SPEC_BLOCKED until genuine production EVENT/END, persistence and from-zero LOCAL+ASSOCIATIVE learning are implemented and actually verified.**
