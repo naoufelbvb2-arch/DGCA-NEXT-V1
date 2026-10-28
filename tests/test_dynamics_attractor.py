@@ -12,7 +12,6 @@ from dgca_next.dynamics.attractor import (
 )
 from dgca_next.dynamics.context_gate import link_fingerprint, structural_diagnostic
 from dgca_next.dynamics.homeostasis import adapt
-from dgca_next.dynamics.numeric import SpecBlocked
 from dgca_next.dynamics.session import FeatureEvent, cold_reset, read_only_episode
 from dgca_next.dynamics.state import GraphSnapshot, Homeostasis
 from dgca_next.graph import Synapse, SynapseState
@@ -172,40 +171,40 @@ def test_assembly_rejects_incomplete_or_stale_context_even_with_valid_triangle()
 
 
 def test_T27_pure_homeostasis_independent_golden():
+    _, _, graph, _ = fixture_graph(cells=(8192, 8193))
     h = Homeostasis(
         {8192: 1.0, 8193: 0.7},
         {8192: 0.1, 8193: 1.0},
         {Region.LANGUAGE: 0.2},
         {Region.LANGUAGE: 0.1},
     )
-    adapted = adapt(h, {8192: 0.8}, fixture_region_firing={Region.LANGUAGE: 1 / 4096})
+    adapted = adapt(h, {8192: 0.8}, graph=graph)
     expected_rate = 0.95 * 0.1 + 0.05
     assert adapted.rates[8192] == expected_rate
     assert adapted.gains[8192] == 1.0 + 0.002 * (0.05 - expected_rate)
     assert adapted.rates[8193] == 0.95
     assert adapted.gains[8193] == 0.7
-    assert adapted.region_rates[Region.LANGUAGE] == 0.95 * 0.1 + 0.05 * (1 / 4096)
+    assert adapted.region_rates[Region.LANGUAGE] == 0.95 * 0.1 + 0.05 * 0.5
     assert adapted.thresholds[Region.LANGUAGE] == 0.20500000000000002
     assert h.gains[8192] == 1.0 and h.thresholds[Region.LANGUAGE] == 0.2
 
 
 def test_T27_no_activity_still_updates_ema_pure_only():
+    _, _, graph, _ = fixture_graph(cells=(8192,))
     h = Homeostasis({8192: 1.0}, {8192: 0.5}, {Region.LANGUAGE: 0.2}, {Region.LANGUAGE: 0.0})
-    updated = adapt(h, {}, fixture_region_firing={Region.LANGUAGE: 0.0})
+    updated = adapt(h, {}, graph=graph)
     assert updated.rates[8192] == 0.95 * 0.5
     assert updated.thresholds[Region.LANGUAGE] == 0.195
 
 
-def test_SPEC_BLOCKED_S03_region_firing_denominator_is_unspecified():
+def test_S03_region_firing_uses_committed_population():
+    _, _, graph, _ = fixture_graph(cells=(8192, 8193))
     h = Homeostasis(
         {8192: 1.0, 8193: 1.0},
         {8192: 0.0, 8193: 0.0},
         {Region.LANGUAGE: 0.2},
         {Region.LANGUAGE: 0.03},
     )
-    with pytest.raises(SpecBlocked, match="I2-S03"):
-        adapt(h, {8192: 1.0})
-    logical = adapt(h, {8192: 1.0}, fixture_region_firing={Region.LANGUAGE: 1 / 4096})
-    committed = adapt(h, {8192: 1.0}, fixture_region_firing={Region.LANGUAGE: 1 / 2})
-    assert logical.thresholds[Region.LANGUAGE] == 0.2
+    committed = adapt(h, {8192: 1.0}, graph=graph)
+    assert committed.region_rates[Region.LANGUAGE] == 0.0535
     assert committed.thresholds[Region.LANGUAGE] == 0.20500000000000002

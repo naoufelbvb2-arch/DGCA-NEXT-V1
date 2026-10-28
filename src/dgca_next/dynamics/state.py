@@ -56,6 +56,14 @@ class GraphSnapshot:
     def claimants(self, key: SynapseKey) -> frozenset[int]:
         return self._state.reservations.get(key, frozenset())
 
+    def validate(self) -> None:
+        """Independently audit the frozen I1 state and its diagnostic identity."""
+        network = SparseNetwork()
+        network._state = self._state
+        network.validate_graph()
+        if network.structural_hash != self.structural_hash:
+            raise ValueError("UNVERIFIED_GRAPH_SNAPSHOT")
+
 
 @dataclass(frozen=True, slots=True)
 class Homeostasis:
