@@ -1,10 +1,10 @@
 # DGCA v2 — Dynamic Core Reconstruction: LLA Specification
 
 **Document ID:** `DGCA-DCR-LLA-SPEC`  
-**Revision:** `v1.0.0-RC4.1` — proposed integration with derived witnesses, executable Assembly formation, and bounded hybrid autoregressive generation  
-**Date:** 2026-10-26  
-**Status:** `RC4.1 DESIGN CANDIDATE — NOT FROZEN — NOT IMPLEMENTED — NOT EMPIRICALLY VALIDATED`  
-**Companion:** `DGCA_CORE_RC4_1.md`  
+**Revision:** `v1.0.0-RC4.2` — approved experimental L01 observation/novelty gate integrated into the RC4.1 design candidate
+**Date:** 2026-10-27
+**Status:** `RC4.2 DESIGN CANDIDATE — NOT FROZEN — NOT EMPIRICALLY VALIDATED`
+**Companion:** `DGCA_CORE_RC4_2.md`
 **Scope:** LANGUAGE local learning plus first-lab neural next-event regression, **conditional RC4 hierarchical (max depth 8) and native Assembly learning**, and read-only G1/G2 generation; semantic/compositional G3 remains empirical and unproven.
 
 > **Authority.** This is a self-contained proposed integration of historical LLA v2.0 (C1–C5), the DCR unified v0.9.0, and corrective overlays C01, C02, C03 and C04. If finally accepted, **only this document plus its Core companion** should be handed to implementation. All old variants are traceability sources, not competing runtime rulebooks. No code, trainable model, native generation capability or empirical result is asserted by this paper. RC3 is a new architecture **review candidate**, not a freeze-approved bugfix; preserve RC2 separately for clean ablations.
@@ -251,6 +251,22 @@ Synapse {
 
 The directed link is visible to neural dynamics **only after** the entire END close commits. A reserved intended link converted to a live link transfers its capacity claim instead of double-consuming capacity. A still-pending proposal alone has no right to block legal recycling. If a new z is admitted at this same close, no link involving its previous phantom activation may be created from this root; z must participate in later OPEN exposures.
 
+### 5.1 RC4.2 L01 external provenance, topology and local novelty
+
+**Approved experimental supersession, not empirical verification:** Core §§1.3.1–1.3.6 replace the incomplete RC4.1 inherited initializer/recycling references. Core owns exact LOCAL/topographic/coactive selection, age and bilateral mutation; this section owns their observation/novelty authority. All independent RC4.1 learning/evidence laws remain unchanged.
+
+The sensory cohort `K_new` must be the entire accepted cohort from one canonical genuine external EVENT, evaluated simultaneously. Its ranking support is canonical directly observed `X_ext` (integer millionths converted to binary64/Q6 per Core §3.1). `L_t` contains already-committed-before-event lawful active-frontier cells ranked by frozen final `Q6(A_i^+)`. No prediction-only, bootstrap-only, internal, replay or read-only source can be relabeled as real co-birth observation. No labels, raw surfaces or expected answers enter selection. Fixed physical targets may be uncommitted; merely naming them in topology never admits them. Later empty coactive fills require the same fresh witnessed-event provenance. Contextual z admitted at END uses its accepted physical pins first and does not acquire fabricated sensory witness/score. This topology confers no q, S, E, external count or same-root retroactive learning.
+
+For a directly observed valid external receiver u in a genuine LEARN event t, define the approved experimental first-lab residual measure:
+
+`nu(u,t) = max(0, X_ext(u,t)-min(X_ext(u,t),P^T_u(t))) / max(X_ext(u,t),1e-6)`.
+
+Otherwise `nu(u,t)=0`. `P^T_u(t)` must be the canonical, frozen **pre-current-SIC** one-step temporal prediction from that real runtime, never an expected outcome, a target-guided reconstruction or a post-input value. `theta_R=.30` is the existing local novelty threshold; it is **not** branch novelty `nu_ctx=c*dP*dY`. Compare valid bounded values with Core §3.1's Q6 numerical convention. Missing predictions can make residual novelty 1; no biological, optimality or utility claim is made.
+
+A `VerifiedLocalNovelty` authority must bind receiver ID, exposure/root, event identity/order, direct SIC support and the frozen pre-input temporal value to the same genuine external event. At least one endpoint of a recyclable pair must have a validated value meeting theta_R. A supplied scalar, fixture label, read-only observation, generated event, ABORTED proposal or replay cannot mint that authority. Every affected dynamic slot must independently satisfy Core's **100 completed genuine external root-close** age and bilateral live-link/reservation/fixed/protected/pin guards. Slots/reverse-index/wiring changes and any lawful sensory births publish atomically, with no evidence-store writes.
+
+In I1 the immutable witness **interface**, pure physical feasibility and explicitly fixture-only residual/guard arithmetic may be tested. There is no real LEARN executor or verifier yet. **Automatic production recycling remains OFF and rejects fixture/caller-asserted novelty** until a separately reviewed I2/I3 integration provides actual external proof. That real trigger integration and its ablations are NOT_RUN/DEFERRED. This does not block verification of the approved I1 physical mechanism.
+
 ## 6. Context-dependent structural learning and probation
 
 ### 6.1 Reuse-first novelty evidence
@@ -381,6 +397,8 @@ Each higher-order link's `V_ext` still requires **actual** ordered external curr
 6. No internal REPLAY/RETRIEVE while an external root is OPEN. `READ_ONLY_EPISODE` consumes actual feature input, has no training exposure_id, no evidence and no change to caller state.
 
 ### 7.1 RC4 learning/generation separation and readout evidence
+
+**RC4.2 L01 lifecycle clarification:** only completed genuine external LEARN roots advance the latent assignment-age serial. OPEN processing, ABORT, REPLAY, READ_ONLY and GENERATE never advance it. An ABORT retains only already permitted sensory commitments and their incident original physical slot initialization, including birth metadata, without staged novelty/evidence credit. A future executor must carry a single frozen cohort snapshot through commitment/index publication; I1 fixtures neither execute this root lifecycle nor certify a genuine novelty trigger.
 
 RC4 `GENERATE_EPISODE` is **not** an `END_EXPOSURE` and has no external `exposure_id`. It may consume a frozen neural winner's peripheral attested surface and original canonical mechanical SIC feature bundle only **after** neural winner selection (Core §§9.3–9.4), and must inject it as `INTERNAL_SELECTED`, never an `EXTERNAL` witness. Under `GENERATE`, set `V_ext=0`, `q_ext=q_int=0`, `external_count_delta=0`; do not create links, admit/recruit cells, alter context owner states, evidence, `H_slow`, Assembly graph/ID/generation, or peripheral witness counts. No newly generated event may later be replayed as an independent true training root. The selection FULL/CONTROL is scratch-only and never a second event; source sensory input on an INTERNAL_SELECTED event suppresses its **own** temporal target contribution exactly once via `P_T_debit_selected` (Core §9.3), without suppressing the legal incoming contextual temporal path.
 

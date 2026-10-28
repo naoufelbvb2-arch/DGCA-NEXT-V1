@@ -1,8 +1,8 @@
-name: I0 validation
+name: I0 and I1 validation
 
 on:
   push:
-    branches: [feature/i0-contract-foundation]
+    branches: [feature/i0-contract-foundation, feature/i1-graph-anatomy]
   pull_request:
     branches: [main]
 
@@ -25,7 +25,7 @@ jobs:
       - run: python -m pip install -e ".[dev]"
       - run: python -m dgca_next --version
       - run: python -m dgca_next verify-specs
-      - run: python -m pytest -q --basetemp=.pytest-tmp
+      - run: python -m pytest -q --basetemp=.pytest-tmp -rs
       - run: python -m pytest -q --basetemp=.pytest-tmp
       - run: python -m ruff check .
       - run: python -m ruff format --check .

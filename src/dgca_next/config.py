@@ -1,4 +1,4 @@
-"""One fixed RC4.1 lab profile, with source origins on every value.
+"""One fixed RC4.2 lab profile, with source origins on every value.
 
 I0 validates declarations only; registry entries do not enable any engine.
 External TOML is a complete [lab] snapshot, never an implicit partial override.
@@ -16,8 +16,8 @@ from types import MappingProxyType
 from typing import Final
 
 Scalar = bool | int | float | str
-CORE: Final = "docs/specs/DGCA_CORE_RC4_1.md"
-LLA: Final = "docs/specs/DGCA_LLA_RC4_1.md"
+CORE: Final = "docs/specs/DGCA_CORE_RC4_2.md"
+LLA: Final = "docs/specs/DGCA_LLA_RC4_2.md"
 
 
 class ConfigurationError(ValueError):
@@ -73,6 +73,9 @@ _DEFAULTS: Final[Mapping[str, Parameter]] = MappingProxyType(
         "latent_local": _core(6, "1.3"),
         "latent_coactive_inter": _core(6, "1.3"),
         "latent_topographic": _core(6, "1.3"),
+        "latent_policy_version": _core("DGCA-LATENT-TOPO-V1", "1.3.3"),
+        "salt_T": _core("DGCA-LATENT-TOP1", "1.3.3"),
+        "AUTOMATIC_RECYCLING_ENABLED": _core(False, "1.3.6"),
         "theta_active_init_LANGUAGE": _core(0.20, "12"),
         "theta_min": _core(0.05, "12"),
         "theta_max": _core(0.60, "12"),

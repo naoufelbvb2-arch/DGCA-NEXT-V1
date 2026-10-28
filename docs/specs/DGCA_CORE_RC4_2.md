@@ -1,10 +1,10 @@
 # DGCA v2 — Dynamic Core Reconstruction: CORE Specification
 
 **Document ID:** `DGCA-DCR-CORE-SPEC`  
-**Revision:** `v1.0.0-RC4.1` — integrated contextual learning + bounded native-assembly, hierarchical memory and hybrid autoregressive surface generation (proposed)  
-**Date:** 2026-10-26  
-**Status:** `RC4.1 DESIGN CANDIDATE — NOT FROZEN — NOT IMPLEMENTED — NOT EMPIRICALLY VERIFIED`  
-**Companion document:** `DGCA_LLA_RC4_1.md`  
+**Revision:** `v1.0.0-RC4.2` — approved experimental L01 latent policy integrated into the RC4.1 design candidate
+**Date:** 2026-10-27
+**Status:** `RC4.2 DESIGN CANDIDATE — NOT FROZEN — NOT EMPIRICALLY VERIFIED`
+**Companion document:** `DGCA_LLA_RC4_2.md`
 **Scope:** `LANGUAGE / INDEPENDENT_EXPOSURE / CONTEXTUAL_LEARNING / BOUNDED GENERATION (G1/G2)` with a mandatory unchanged `SINGLE_NEXT_EVENT` RC3.1 regression baseline; Vision/Audio and compositional G3 are not claimed.
 
 > **Source and precedence.** This is a self-contained proposed integration of the frozen historical `DGCA-V2-CORE-LLA-SPEC v2.0.0` (C1–C5), DCR unified v0.9.0, and targeted overlays FFR01-C01, FFR02-C02, FFR03-C03, FFR04-C04. It does **not** retroactively unfreeze or modify historical documents. RC3 modifies four RC2 experimental design choices and is NOT a stable approved version. If this RC is approved after independent integrated review, this document and its companion are to be the **only two normative implementation documents** for the first lab. The companion owns learning/evidence; this one owns state, graph anatomy, event execution, context runtime, and retrieval. A discrepancy between them is a freeze blocker, not a choice left to the programmer.
@@ -54,7 +54,7 @@ A cell carries only physical identity/administration, structural connectivity, a
 
 ### 1.3 Latent neighborhood, eligibility, inverse index
 
-Exactly **24** latent slots: `6 co-active intra`, `6 local`, `6 co-active inter` (3 per other region), `6 topographic` (3 per other region). Ordinary admissions use the historical highest coactive/intra, fixed local, inter coactive and deterministic topographic policies.
+Exactly **24** latent slots: `6 co-active intra`, `6 local`, `6 co-active inter` (3 per other region), `6 topographic` (3 per other region). **RC4.2 supersession:** §§1.3.1–1.3.6 now give the approved experimental first-lab ordinary selection and recycling policy. They replace RC4.1's incomplete references to inherited highest-coactive, fixed local/topographic selection and an original confirmation window. Other RC4.1 scientific laws remain unchanged. This addition is owner-approved policy, not empirical validation.
 
 A directed synapse `i→j` is structurally eligible if **either** endpoint lists the other:
 
@@ -62,11 +62,51 @@ A directed synapse `i→j` is structurally eligible if **either** endpoint lists
 D_{ij}=\mathbf1[j\in N(i)\lor i\in N(j)].
 \]
 
-Maintain `reverse_latent_index` transactionally. Fixed `local/topographic` slots are not recycled; coactive slots can recycle only when no live/protected bidirectional synapse or candidate pin needs them, with the original confirmation window. Recycling must maintain both forward and reverse representations and `wiring_log`. **Priority:** legal live-link protection > committed contextual pin > recycling of unprotected latent slot > ordinary pending link proposal. Candidate-pinned slots cannot be evicted (`RECYCLE_BLOCKED_CANDIDATE`).
+Maintain `reverse_latent_index` transactionally. Fixed `local/topographic` slots are not recycled. Coactive recycling uses the exact 100-completed-external-close window and bilateral guards below; neither direction may have a live synapse, reserved intended key or candidate pin. Recycling must maintain both forward and reverse representations and `wiring_log`. **Priority:** legal live-link protection > committed contextual pin > recycling of unprotected latent slot > ordinary pending link proposal. Candidate-pinned slots cannot be evicted (`RECYCLE_BLOCKED_CANDIDATE`).
 
 **Capacity-aware rule (RC3):** for a new z, the already pinned `z`-side latent slot makes `D_iz=1` even when source `i` has no free latent slot; it does **not** bypass the source outgoing budget. The only mandatory outbound headroom checks are on actual unique directed proposed keys, including overlapping P/C roles. Do not count each role twice if one live identical directed key already exists.
 
 **Contextual exception:** a context candidate `z` may use up to six `co-active intra` slots in strict **two predecessor (`P`), two current (`C`), two outcome (`Y`) roles**, chosen and reserved with the algorithm in §7. This is a change to the *selection policy*, **not** to the total 24 slots. Repeated physical cell IDs across role sets consume one physical slot; distinct intended synapse keys still consume distinct source-outbound claims. Cross-region roles use compatible cross slots/budgets; unsupported combinations are rejected, never force-fitted.
+
+#### 1.3.1 RC4.2 L01 event snapshot and simultaneous births
+
+Initialize only physically newly committed cells. Use the single immutable canonical external EVENT observation/snapshot that admitted the full sensory cohort `K_new`; evaluate that entire accepted cohort simultaneously, sorted by physical cell ID. `L_t` contains only already-committed-before-event cells in that event's lawful active frontier. For ranking, an `L_t` cell has `score_q6=Q6(A_i^+(t))`; a `K_new` receiver has `score_q6=Q6(X_ext[i])` from canonical direct SIC support, not prediction, residual or bootstrap. `Q6` is exactly §3.1's binary64-rational ties-even millionth quantization. The two sets are disjoint and targets are physical IDs, never words or outcomes. There is no iteration-order admission advantage and no random padding.
+
+Publish cohort commitment, slot assignments, inverse index and wiring metadata in one shadow transaction. Topology creates no synapse, q, S, E or independent evidence root; prior commitment and LLA's separate evidence checks remain mandatory, with no retroactive learning involving same-root newborns. An ABORT may retain only the permitted sensory commitments and their incident original initialization; it discards staged novelty/evidence. Future production event execution owns these provenance checks; I1 may test explicit, immutable fixture snapshots only.
+
+#### 1.3.2 RC4.2 L01 fixed LOCAL selection
+
+Order microcolumns as `[owner_own_mc]` followed by valid Manhattan-1 orthogonal neighbor columns in `(row,col)` order. Cycle those columns round-robin, selecting each column's lowest physical cell ID not yet selected by this owner and different from the owner, until six distinct targets are chosen. Skip exhausted columns, clipping borders. LOCAL targets may remain logically uncommitted; do not materialize or commit a target merely because a fixed slot names it. These six slots are fixed permanently.
+
+#### 1.3.3 RC4.2 L01 fixed TOPOGRAPHIC selection
+
+The dedicated 16-byte salt is `salt_T=ASCII("DGCA-LATENT-TOP1")`; the version/domain tag is `ASCII("DGCA-LATENT-TOPO-V1")`. These approved new lab bytes are distinct from SIC salts. For owner global ID `u`, other-region byte `r` (§3.1), and ordinal `k=0,1,2`:
+
+`payload = tag || 0x00 || salt_T || u32BE(u) || u8(r) || u8(k)`
+
+`base = u64BE(SHA256(payload)[0:8]) mod 4096`.
+
+Process other regions in region-byte order, then ordinals ascending. Probe `(base+probe) mod 4096` within that region for at most 4096 probes, skipping IDs already selected in **any** of this owner's slots; take the first available target, else explicit `NO_TOPOGRAPHIC_TARGET`. Topographic targets can remain uncommitted and are never implicitly committed. All six topographic slots are permanently fixed. Persist the policy version with initialized topology; reject an absent/mismatched version when validating/restoring policy-initialized topology. This is not automatic migration of old checkpoints.
+
+#### 1.3.4 RC4.2 L01 coactive ranking and contextual exception
+
+First reserve already accepted contextual pins; then select fixed LOCAL and TOPOGRAPHIC targets, excluding those pins. Only then select ordinary dynamic candidates from frozen `L_t ∪ K_new`, independently per target region, excluding the owner and every target already selected by it. Sort by `(-score_q6,cell_id)`: take up to six intra-region targets and up to three per other region into compatible empty coactive positions. Leave remaining positions EMPTY. Later filling of empty dynamic positions requires a new genuine witnessed event with the same eligibility/ranking, and is not recycling or evidence. Fixed positions are not recomputed during later fills.
+
+The existing §7.3 contextual z exception has priority: up to six unique physical role targets occupy compatible protected coactive slots, with overlapping physical IDs consuming one slot and distinct directed keys consuming separate outbound claims. The accepted END-time z is not a new sensory witness and is not added to `K_new` with fabricated X or A. Its fixed six LOCAL and six TOPOGRAPHIC positions use the same physical selectors after pins; ordinary selection may fill remaining empty dynamic slots from the already frozen real event snapshot, without inventing a sensory score for z. Exactly 24 positions, quotas and source-outgoing limits remain unchanged. All occupied targets of one owner are distinct; reciprocity between owners is not required for D.
+
+#### 1.3.5 RC4.2 L01 completed-close age and bilateral recycling
+
+Each occupied dynamic assignment carries `assigned_at_completed_close_serial` and immutable last-wiring event/root/order metadata. An OPEN birth records the then-current completed-close serial and pending-birth marker. ABORT retains the permitted physical birth without adding age or novelty credit. Only **completed genuine EXTERNAL LEARN root closes** advance the age clock; OPEN steps, ABORT, READ_ONLY, REPLAY and GENERATE do not. Require `current_completed_external_closes-assigned_at_completed_close_serial >= W_conf=100` for **every** dynamic occurrence being replaced; never use event steps or synapse age instead.
+
+Inspect **all** u→v and v→u slot occurrences and directed synapse keys of every scope. If either occurrence is fixed, protected or candidate-pinned, block. Any live CANDIDATE, EPISODIC_INDEXED or CONSOLIDATED key, or reserved intended key in either direction, blocks the operation. No knowledge or reservation is deleted to make room. A valid, event/root-bound `VerifiedLocalNovelty` trigger at at least one endpoint must meet `theta_R=.30`, using LLA §5.1 and §3.1 canonical numerical comparisons. Arbitrary caller floats are not proof.
+
+Stage removal of all present bilateral dynamic occurrences. Replace each vacated position using that source's current-event ranked eligible `L_t ∪ K_new` pool, respecting its category/region and excluding its own just-evicted target, self and all still-selected targets. One-sided occupancy is legal; if both occurrences exist, both must qualify and both must obtain replacements. If any affected position has no legal replacement, fail the **whole** operation with `NO_RECYCLING_REPLACEMENT` and leave both sides unchanged. Rebuild inverse references, assignment clocks and ordered `WIRING(...,RECYCLED)` metadata together; audit topology, protections and the full shadow reservation/budget ledger before one publication. No partial edits or evidence credit are allowed.
+
+Diagnostics include `UNVERIFIED_NOVELTY`, `CONFIRMATION_WINDOW_NOT_ELAPSED`, `RECYCLE_BLOCKED_CANDIDATE`, `RECYCLE_BLOCKED_LIVE_OR_PROTECTED`, `RECYCLE_BLOCKED_FIXED` and `NO_RECYCLING_REPLACEMENT`. Fixed/protection failures can be reported before novelty/age tests. Rejections have no side effects.
+
+#### 1.3.6 RC4.2 L01 implementation/empirical boundary
+
+I1 implements pure physical selectors, immutable fixture-only snapshots/witnesses, guard evaluation and atomic fixture replacement. **Production automatic recycling stays disabled/fail-closed** until I2/I3 can create and validate genuine external novelty with canonical pre-current-SIC prediction and direct observation. No synthetic witness may enable that path. Production trigger integration is DEFERRED, not a missing I1 physical-policy definition. No activation, LLA learning, actual novelty detection, Assembly emergence or empirical benefit follows from a structural-policy test. RC4.2 remains NOT FROZEN and NOT EMPIRICALLY VERIFIED. The experimental residual novelty law may degenerate to 1 when predictions are absent; measure rather than assume usefulness.
 
 ### 1.4 Directed synapse, legal scopes, and quality
 
