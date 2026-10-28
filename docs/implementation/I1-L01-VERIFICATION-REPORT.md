@@ -1,3 +1,6 @@
+> Historical RC4.2 checkpoint; current authorities are the RC4.3 Core/LLA
+> sources. Results below remain historical and are not RC4.3 execution claims.
+
 # I1-L01 remediation verification
 
 Date: 2026-10-27 (America/New_York). Target: **I1-L01 REVIEW READY** after the

@@ -1,10 +1,10 @@
 # DGCA v2 — Dynamic Core Reconstruction: LLA Specification
 
 **Document ID:** `DGCA-DCR-LLA-SPEC`  
-**Revision:** `v1.0.0-RC4.2` — approved experimental L01 observation/novelty gate integrated into the RC4.1 design candidate
+**Revision:** `v1.0.0-RC4.3` — approved experimental S01–S03 neural resolutions integrated into the RC4.2 design candidate
 **Date:** 2026-10-27
-**Status:** `RC4.2 DESIGN CANDIDATE — NOT FROZEN — NOT EMPIRICALLY VALIDATED`
-**Companion:** `DGCA_CORE_RC4_2.md`
+**Status:** `RC4.3 DESIGN CANDIDATE — NOT FROZEN — NOT EMPIRICALLY VERIFIED`
+**Companion:** `DGCA_CORE_RC4_3.md`
 **Scope:** LANGUAGE local learning plus first-lab neural next-event regression, **conditional RC4 hierarchical (max depth 8) and native Assembly learning**, and read-only G1/G2 generation; semantic/compositional G3 remains empirical and unproven.
 
 > **Authority.** This is a self-contained proposed integration of historical LLA v2.0 (C1–C5), the DCR unified v0.9.0, and corrective overlays C01, C02, C03 and C04. If finally accepted, **only this document plus its Core companion** should be handed to implementation. All old variants are traceability sources, not competing runtime rulebooks. No code, trainable model, native generation capability or empirical result is asserted by this paper. RC3 is a new architecture **review candidate**, not a freeze-approved bugfix; preserve RC2 separately for clean ablations.
@@ -138,6 +138,8 @@ p_{ij}^{s}(\Delta)=A_i^{prop}(\Delta)Q_{ij}^{s}k_{neural}(s,\Delta).
 \]
 
 For LOCAL/CROSS, `A_i^prop=A_i^(1)(t)` (same-event); for ASSOCIATIVE, `A_i^prop=A_i^+(t−1)` **only when i belonged to frozen F_step(t−1)**. Core `P_S`, `P_T`, `PredScore` are Noisy-OR aggregates of exactly these `p` values, with `k_neural=1.0`; there is **no additional time decay**. In a new not-yet-materialized link, `Q=0` and **no** neural propagation exists, while a valid latent pair can still form a learning proposal.
+
+**RC4.3 S01–S03 consistency:** Core §§1.4 and 5 permit neural propagation through each structurally legal live CANDIDATE, EPISODIC_INDEXED or CONSOLIDATED link using actual Q, while reciprocal Assembly structure remains CONSOLIDATED-only. Core §2.1 defines fresh weighted reciprocal cohesion for Attractor admission, and Core §5 defines regional firing over the frozen committed-before-event population. These physical dynamics create no q, independent external witness, root confirmation or H update in read-only modes; genuine LEARN event adaptation remains provisional under the unchanged BEGIN/ABORT lifecycle. The evidence formulas and their separate eligibility checks in this document are unchanged.
 
 **Root-weight / Replay table, first laboratory:**
 

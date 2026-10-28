@@ -1,10 +1,10 @@
 # DGCA v2 — Dynamic Core Reconstruction: CORE Specification
 
 **Document ID:** `DGCA-DCR-CORE-SPEC`  
-**Revision:** `v1.0.0-RC4.2` — approved experimental L01 latent policy integrated into the RC4.1 design candidate
+**Revision:** `v1.0.0-RC4.3` — approved experimental S01–S03 neural resolutions integrated into the RC4.2 design candidate
 **Date:** 2026-10-27
-**Status:** `RC4.2 DESIGN CANDIDATE — NOT FROZEN — NOT EMPIRICALLY VERIFIED`
-**Companion document:** `DGCA_LLA_RC4_2.md`
+**Status:** `RC4.3 DESIGN CANDIDATE — NOT FROZEN — NOT EMPIRICALLY VERIFIED`
+**Companion document:** `DGCA_LLA_RC4_3.md`
 **Scope:** `LANGUAGE / INDEPENDENT_EXPOSURE / CONTEXTUAL_LEARNING / BOUNDED GENERATION (G1/G2)` with a mandatory unchanged `SINGLE_NEXT_EVENT` RC3.1 regression baseline; Vision/Audio and compositional G3 are not claimed.
 
 > **Source and precedence.** This is a self-contained proposed integration of the frozen historical `DGCA-V2-CORE-LLA-SPEC v2.0.0` (C1–C5), DCR unified v0.9.0, and targeted overlays FFR01-C01, FFR02-C02, FFR03-C03, FFR04-C04. It does **not** retroactively unfreeze or modify historical documents. RC3 modifies four RC2 experimental design choices and is NOT a stable approved version. If this RC is approved after independent integrated review, this document and its companion are to be the **only two normative implementation documents** for the first lab. The companion owns learning/evidence; this one owns state, graph anatomy, event execution, context runtime, and retrieval. A discrepancy between them is a freeze blocker, not a choice left to the programmer.
@@ -122,6 +122,8 @@ Q_{ij}^{s}=d_{ij}^{s}S_{ij}^{s}(E_{ij}^{s}/E_{max}),\quad
 
 `Q^T=Q^ASSOCIATIVE`; synchronous influence is supplied only by legal `LOCAL`/`CROSS_TERRITORY` links, counted once per directed key. **FIFR-B01 numerical closure:** neural propagation always uses `k_neural(LOCAL,0)=k_neural(CROSS_TERRITORY,0)=k_neural(ASSOCIATIVE,1)=1.0`; these factors multiply `A_source × Q` exactly once. **Evidence** has a *distinct* `k_evidence(LOCAL,0)=k_evidence(CROSS_TERRITORY,0)=1.0`, `k_evidence(ASSOCIATIVE,1)=0.7408182206817179` (LAB CONSTANT: rounded binary64 representation of `exp(-0.30)`). Illegal `(scope,Δ)` is rejected, not clamped. The threshold multiplier `1.15` for `theta_emit` is unrelated to either time factor. LLA §4.1 defines the same constants and uses `k_evidence` **only in q**, never in neural `Q` or `P_T/P_S/PredScore`.
 
+**RC4.3 S01 — live neural propagation:** Every structurally legal, live `CANDIDATE`, `EPISODIC_INDEXED`, or `CONSOLIDATED` LOCAL/CROSS key contributes `A_i^(1) Q_ij` from a committed source in the frozen pass-1 emitter set. A zero Q contributes zero; absent, rejected, staged-only, illegal or released keys contribute nothing. ASSOCIATIVE propagation retains the previous `F_step` and previous frozen `A^+`. This clarification neither changes Q nor relaxes the reciprocal CONSOLIDATED link requirement for Assembly structure, binding, or evidence rules.
+
 ## 2. Assembly and Context Attractor: distinct roles
 
 An **Assembly** is a structural set of `3–16` committed cells supported by *mutually* consolidated `LOCAL/CROSS_TERRITORY` links. Directed `ASSOCIATIVE` edges do not create Assembly structural reciprocity. One specialized contextual cell `z` is **not** automatically an Assembly or an Attractor.
@@ -185,6 +187,8 @@ C_G(t)=\begin{cases}0&\mathrm{collapse}\\\max(\rho_s C_G(t-1),M_G^{fresh}(t))&\t
 \]
 
 with `rho_s=0.90`, `T_max=30`, admission from fresh `M_G>=theta_in=0.40` plus cohesion `theta_ctx_form=0.50`, and collapse on `HARD_BOUNDARY`, `age_G>=30`, or `err_G>Theta_err=1.50`. An ACTIVE Attractor ages once per processed event, including internal steps; fresh input **does not reset accumulated error**.
+
+**RC4.3 S02 — weighted fresh cohesion:** At event start freeze the existing live qualified LANGUAGE Assembly `G`, its ID/generation, and W. Let `E_G={(i,j): i<j, i,j∈G, R^B_ij>=theta_A=.10}` where `R^B_ij=min(Q^LOCAL_ij,Q^LOCAL_ji)` uses only legal live reciprocal CONSOLIDATED LOCAL keys. Fold qualifying unordered pairs in ascending `(i,j)` order using finite binary64. With `f_i=fresh_i(t)` from the separate post-pass-2 fresh computation above, define `Cohesion_G^fresh(t) = sum_{(i,j)∈E_G}[R^B_ij min(f_i,f_j)] / sum_{(i,j)∈E_G} R^B_ij`. If `E_G` is empty or its denominator is zero, return an invalid-structure diagnostic and do not admit. Admission requires both `M_G^fresh>=theta_in=.40` and `Cohesion_G^fresh>=theta_ctx_form=.50` in the same event. No fresh input gives zero fresh activity and zero cohesion. This is an admission gate only; it neither adds excitation nor changes active Attractor decay, age, error, collapse, Assembly structure or evidence. A stale or invalid Assembly/generation cannot supply cohesion. Computed `C_G(t)` affects sigma only at the next event.
 
 For externally complete comparable outcomes, obtain from frozen prior Attractor member emitters the one-step predictions `p_Gj=NoisyOR(A_i(prev)Q_ij^ASSOCIATIVE)` for `i∈G∩F_step(prev)`, eligible `p_Gj>=theta_pred=0.25`. On valid directly witnessed comparable `j`, use
 
@@ -289,7 +293,7 @@ D_j^{(1)}=\frac{\hat D_j^{(1)}}{1+\beta_r\overline{\hat D}^{(1)}_{col(j)}},
 A_j^{(1)}=clip\big((1-\delta_r)A_j(t-1)+\gamma_r g_jD_j^{(1)},0,1\big).
 \]
 
-Freeze the pass-1 emission frontier `E_t^(1)={i committed: A_i^(1)>=theta_emit^(r)}` for **same-event** `LOCAL/CROSS` drive; this does **not** create a separate timeline event.
+Freeze the pass-1 emission frontier `E_t^(1)={i committed: A_i^(1)>=theta_emit^(r)}` for **same-event** `LOCAL/CROSS` drive; this does **not** create a separate timeline event. As specified in §1.4, lawful live CANDIDATE, EPISODIC_INDEXED and CONSOLIDATED synchronous keys all use their actual Q once; consolidation remains mandatory for Assembly structural reciprocity.
 
 **Pass 2 (same-event completion and optional candidate-only probe):**
 
@@ -314,6 +318,8 @@ The candidate-only permitted probe, when applicable in LEARN and **never** in RE
 \bar\rho_r\leftarrow (1-\beta_H)\bar\rho_r+\beta_H\rho_r(t),\quad
 \theta_{active}^r\leftarrow clip\left(\theta_{active}^r+\eta_H\mathbf1[|\bar\rho_r-\rho_{target}^r|>\epsilon_{dead}]\operatorname{sign}(\bar\rho_r-\rho_{target}^r),\theta_{min},\theta_{max}\right).
 \]
+
+**RC4.3 S03 — regional firing population:** For each genuine ordered LEARN EVENT `t`, freeze `K_r(t)={i: region(i)=r and i was committed before EVENT t began}` and `theta_active_pre^r` at event start. After real event execution/checkpoint in the OPEN exposure, use `rho_r(t)=|{i∈K_r(t): A_i^+(t)>=theta_active_pre^r}|/|K_r(t)|` when `K_r(t)` is nonempty. Include dormant committed cells in the denominator and all final active cells, including residual or predicted activity, in the numerator; exclude cells first committed during the event. This fraction is not `F_step`, SIC receiver count, a Homeostasis gain count or all 4096 logical addresses. For empty `K_r`, do not update that region's EMA, threshold or regional H entries. Only genuinely participating regions with an officially defined threshold are updated; first lab is LANGUAGE-only. Freeze membership, threshold and final activity and count by ascending physical ID. Provisional LEARN H updates remain subject to the unchanged BEGIN checkpoint and ABORT restoration in §10.1. READ_ONLY, FULL/CONTROL, REPLAY and GENERATE leave H unchanged. I2 may implement pure graph-verified fixture arithmetic; real event execution, durable H updates and rollback remain later obligations.
 
 `theta_emit=1.15*theta_active`, `theta_bind=1.2*theta_active`. Do not update `H_slow` in read-only scratch FULL/CONTROL nor re-evaluate prior event scores using newly adapted thresholds.
 

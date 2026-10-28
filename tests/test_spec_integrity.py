@@ -1,3 +1,4 @@
+import ast
 import hashlib
 import shutil
 import subprocess
@@ -7,10 +8,12 @@ import pytest
 
 from dgca_next.__main__ import main
 from dgca_next.integrity import (
+    ARCHIVAL_RC42_SPECS,
     ARCHIVAL_SPECS,
     EXPECTED_SPECS,
     HISTORICAL_I0_COMMIT,
     RC4_2_MIGRATION_PARENT,
+    RC4_3_MIGRATION_PARENT,
     SpecIntegrityError,
     verify_specs,
 )
@@ -38,8 +41,8 @@ def test_default_branch_contains_identical_sources(path, digest, blob_sha):
 
 def test_exactly_two_current_scientific_artifacts():
     assert sorted(p.name for p in (ROOT / "docs/specs").glob("DGCA_*_RC*.md")) == [
-        "DGCA_CORE_RC4_2.md",
-        "DGCA_LLA_RC4_2.md",
+        "DGCA_CORE_RC4_3.md",
+        "DGCA_LLA_RC4_3.md",
     ]
 
 
@@ -50,13 +53,19 @@ def test_migration_parent_retains_exact_rc4_1_bytes(path, digest, blob_sha):
     assert hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest() == blob_sha
 
 
-def test_stale_third_scientific_artifact_fails_integrity(source_copy):
-    (source_copy / "docs/specs/DGCA_CORE_RC4_1.md").write_text("stale authority", encoding="utf-8")
+@pytest.mark.parametrize("version", ["RC4_1", "RC4_2"])
+def test_stale_third_scientific_artifact_fails_integrity(source_copy, version):
+    (source_copy / f"docs/specs/DGCA_CORE_{version}.md").write_text(
+        "stale authority", encoding="utf-8"
+    )
     with pytest.raises(SpecIntegrityError, match="exactly two"):
         verify_specs(source_copy)
 
 
-@pytest.mark.parametrize("value", [HISTORICAL_I0_COMMIT, ARCHIVAL_SPECS[0][1]])
+@pytest.mark.parametrize(
+    "value",
+    [HISTORICAL_I0_COMMIT, ARCHIVAL_SPECS[0][1], RC4_3_MIGRATION_PARENT, ARCHIVAL_RC42_SPECS[0][1]],
+)
 def test_archival_manifest_provenance_is_pinned(source_copy, value):
     path = source_copy / "docs/specs/SOURCE-MANIFEST.md"
     path.write_text(path.read_text("utf-8").replace(value, "unapproved"), encoding="utf-8")
@@ -68,13 +77,17 @@ def test_science_migration_preserves_independent_rc4_1_laws():
     old_core = subprocess.check_output(
         ["git", "show", f"{HISTORICAL_I0_COMMIT}:docs/specs/DGCA_CORE_RC4_1.md"], cwd=ROOT
     )
-    core = (ROOT / "docs/specs/DGCA_CORE_RC4_2.md").read_bytes()
+    core = subprocess.check_output(
+        ["git", "show", f"{RC4_3_MIGRATION_PARENT}:docs/specs/DGCA_CORE_RC4_2.md"], cwd=ROOT
+    )
     marker = b"### 1.4 Directed synapse, legal scopes, and quality"
     assert core.split(marker)[1] == old_core.split(marker)[1]
     old_lla = subprocess.check_output(
         ["git", "show", f"{HISTORICAL_I0_COMMIT}:docs/specs/DGCA_LLA_RC4_1.md"], cwd=ROOT
     )
-    lla = (ROOT / "docs/specs/DGCA_LLA_RC4_2.md").read_bytes()
+    lla = subprocess.check_output(
+        ["git", "show", f"{RC4_3_MIGRATION_PARENT}:docs/specs/DGCA_LLA_RC4_2.md"], cwd=ROOT
+    )
     start = lla.index(b"### 5.1 RC4.2 L01")
     end = lla.index(b"## 6. Context-dependent", start)
     lla = lla[:start] + lla[end:]
@@ -88,6 +101,61 @@ def test_science_migration_preserves_independent_rc4_1_laws():
     )
     marker = b"## 0. Design objective and safety invariants"
     assert lla.split(marker)[1] == old_lla.split(marker)[1]
+
+
+@pytest.mark.parametrize("path,digest,blob_sha", ARCHIVAL_RC42_SPECS)
+def test_rc42_migration_parent_retains_exact_source_bytes(path, digest, blob_sha):
+    data = subprocess.check_output(["git", "show", f"{RC4_3_MIGRATION_PARENT}:{path}"], cwd=ROOT)
+    assert hashlib.sha256(data).hexdigest() == digest
+    assert hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest() == blob_sha
+
+
+def test_rc43_migration_preserves_every_independent_rc42_law():
+    import re
+
+    old_core = subprocess.check_output(
+        ["git", "show", f"{RC4_3_MIGRATION_PARENT}:docs/specs/DGCA_CORE_RC4_2.md"], cwd=ROOT
+    )
+    core = (ROOT / "docs/specs/DGCA_CORE_RC4_3.md").read_bytes()
+    for tag in (b"S01", b"S02", b"S03"):
+        core, count = re.subn(rb"\*\*RC4\.3 " + tag + rb"[^\n]*\n\n", b"", core)
+        assert count == 1
+    added = (
+        b" As specified in \xc2\xa71.4, lawful live CANDIDATE, EPISODIC_INDEXED and "
+        b"CONSOLIDATED synchronous keys all use their actual Q once; consolidation remains "
+        b"mandatory for Assembly structural reciprocity."
+    )
+    assert core.count(added) == 1
+    core = core.replace(added, b"")
+    marker = b"## 0. Reading conventions and exact claims"
+    assert core.split(marker)[1] == old_core.split(marker)[1]
+    old_lla = subprocess.check_output(
+        ["git", "show", f"{RC4_3_MIGRATION_PARENT}:docs/specs/DGCA_LLA_RC4_2.md"], cwd=ROOT
+    )
+    lla = (ROOT / "docs/specs/DGCA_LLA_RC4_3.md").read_bytes()
+    lla, count = re.subn(rb"\*\*RC4\.3 S01\xe2\x80\x93S03[^\n]*\n\n", b"", lla)
+    assert count == 1
+    marker = b"## 0. Design objective and safety invariants"
+    assert lla.split(marker)[1] == old_lla.split(marker)[1]
+
+
+def test_rc43_migration_preserves_every_configured_parameter_value():
+    old_source = subprocess.check_output(
+        ["git", "show", f"{RC4_3_MIGRATION_PARENT}:src/dgca_next/config.py"], cwd=ROOT
+    ).decode("utf-8")
+    new_source = (ROOT / "src/dgca_next/config.py").read_text("utf-8")
+
+    def defaults(source):
+        tree = ast.parse(source)
+        return next(
+            node.value
+            for node in tree.body
+            if isinstance(node, ast.AnnAssign)
+            and isinstance(node.target, ast.Name)
+            and node.target.id == "_DEFAULTS"
+        )
+
+    assert ast.dump(defaults(old_source)) == ast.dump(defaults(new_source))
 
 
 @pytest.mark.parametrize("path,digest,blob_sha", EXPECTED_SPECS)

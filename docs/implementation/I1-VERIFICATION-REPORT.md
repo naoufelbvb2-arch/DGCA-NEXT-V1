@@ -1,4 +1,4 @@
-> Historical RC4.1 artifact. Current authorities are `docs/specs/DGCA_CORE_RC4_2.md` and `docs/specs/DGCA_LLA_RC4_2.md` under the approved L01 execution contract. Historical paths/results below remain reproducible at their recorded commits; they are not current RC4.2 validation claims. See `I1-L01-SOURCE-MIGRATION.md`.
+> Historical RC4.1 artifact. L01 used RC4.2; current authorities are `docs/specs/DGCA_CORE_RC4_3.md` and `docs/specs/DGCA_LLA_RC4_3.md`. Historical paths/results remain reproducible at their recorded commits. See `I1-L01-SOURCE-MIGRATION.md` and the approved I2 S01–S03 execution contract.
 
 > Current remediation evidence is in `I1-L01-VERIFICATION-REPORT.md`. The 314 PASS / two-policy-skip result below is the historical I1 checkpoint, not the remediated RC4.2 result.
 
