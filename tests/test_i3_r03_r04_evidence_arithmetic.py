@@ -51,10 +51,10 @@ def test_same_root_max_q_keeps_paired_y_and_counts_once():
         apply_fixture_proposal(created, winner)
 
 
-def test_max_q6_tie_uses_event_and_ordinal_and_rejects_mixed_key():
+def test_full_q_near_tie_selects_larger_and_rejects_mixed_key():
     later = proposal(1, 1, 1, 0.5000001, 0.6)
     earlier = proposal(1, 0, 2, 0.5, 0.8)
-    assert root_max((later, earlier)) is earlier
+    assert root_max((later, earlier)) is later
     with pytest.raises(ValueError, match="MIXED_KEY_OR_ROOT"):
         root_max((later, proposal(2, 1, 1, 0.5, 0.6)))
     with pytest.raises(ValueError, match="DUPLICATE_PROPOSAL"):

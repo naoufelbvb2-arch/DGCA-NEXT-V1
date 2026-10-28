@@ -70,7 +70,7 @@ class SyntheticProposal:
 
 
 def root_max(proposals: tuple[SyntheticProposal, ...]) -> SyntheticProposal:
-    """Select one paired q/y for one physical key/root with canonical Q6 ties."""
+    """Select one paired q/y using full binary64 q and deterministic ties."""
     if type(proposals) is not tuple or not proposals:
         raise ValueError("NO_POSITIVE_PROPOSALS")
     if any(type(p) is not SyntheticProposal for p in proposals):
@@ -80,7 +80,7 @@ def root_max(proposals: tuple[SyntheticProposal, ...]) -> SyntheticProposal:
         raise ValueError("MIXED_KEY_OR_ROOT")
     if len({(p.event_order, p.ordinal) for p in proposals}) != len(proposals):
         raise ValueError("DUPLICATE_PROPOSAL_ORDINAL")
-    return min(proposals, key=lambda p: (-q6(p.q), p.event_order, p.ordinal))
+    return min(proposals, key=lambda p: (-p.q, p.event_order, p.ordinal))
 
 
 @dataclass(frozen=True, slots=True)

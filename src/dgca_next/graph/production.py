@@ -25,7 +25,9 @@ def _admit_sensory_cohort(
         raise ValueError("INVALID_PRODUCTION_ADMISSION")
     network.validate_graph()
     base = network._state
-    if any(c.fixture_only for c in base.cells.values()) or base.synapses or base.reservations:
+    if any(c.fixture_only for c in base.cells.values()) or any(
+        synapse.fixture_only for synapse in base.synapses.values()
+    ):
         raise ValueError("NONPRODUCTION_GRAPH")
     ids = tuple(i for i, _ in born)
     if len(ids) > 12 or len(set(ids)) != len(ids) or any(i in base.cells for i in ids):

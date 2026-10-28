@@ -368,7 +368,7 @@ def test_reverse_index_tampering_fails_graph_decode(tmp_path):
     store.begin(1)
     store.event(1, 0, (("a", "1"),))
     encoded = store.view().W
-    tag = b"DGCA-P01-W\x01\0"
+    tag = b"DGCA-P02-W\x02\0"
     doc = json.loads(encoded[len(tag) :])
     doc["reverse"][0][1] = []
     damaged = tag + json.dumps(doc, sort_keys=True, separators=(",", ":")).encode("ascii")
