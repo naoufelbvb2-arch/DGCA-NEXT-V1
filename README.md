@@ -4,14 +4,14 @@ Research implementation of the **Dynamic Graph Cognitive Architecture — DCR**.
 
 ## Project status
 
-**I0 and I1 accepted. I2 RC4.3 remediation is in progress.**
+**I0 and I1 accepted. I2 RC4.3 targeted remediation is ready for review.**
 
 The foundation refers to two design-candidate specifications under `docs/specs/`:
 
 - `DGCA_CORE_RC4_3.md` — Core anatomy, dynamics, assemblies, contextual memory and bounded generation.
 - `DGCA_LLA_RC4_3.md` — local learning, evidence, consolidation and derived context witnesses.
 
-Both specifications are **RC4.3 / NOT FROZEN / NOT EMPIRICALLY VERIFIED**. I2 adds SIC projection and read-only numerical mechanics over physical fixtures. The approved S01–S03 resolutions are being integrated. These contracts do not prove model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
+Both specifications are **RC4.3 / NOT FROZEN / NOT EMPIRICALLY VERIFIED**. I2 adds SIC projection and read-only numerical mechanics over physical fixtures, including the approved S01–S03 resolutions. These contracts do not prove model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
 
 ## Implementation direction
 
@@ -293,7 +293,7 @@ reports remain historical evidence. Automatic production recycling remains
 disabled until genuine I2/I3 novelty verification exists. RC4.3 remains
 **NOT FROZEN / NOT EMPIRICALLY VERIFIED**.
 
-## I2 read-only numerical reference and known blockers
+## I2 read-only numerical reference
 
 `dgca_next.peripheral.sic.project` accepts Unicode mechanical feature strings and
 decimal support strings. It produces exact millionth receivers with fixed SHA-256
@@ -313,12 +313,13 @@ constitute learned owners, Assemblies, novelty or evidence. Production automatic
 recycling remains disabled. No I3 lifecycle, LLA, generation or real owner
 recruitment is implemented.
 
-Three rules require owner/specification resolution: I2-S01, whether live
-nonconsolidated LOCAL/CROSS links contribute during pass 2; I2-S02, the exact
-Assembly cohesion calculation for Attractor admission; and I2-S03, the population
-and denominator defining regional firing `rho_r(t)`. The affected operators fail
-closed, while pure Attractor and homeostasis arithmetic can be exercised with
-explicit synthetic cohesion or region firing fixtures. VISION/AUDIO initial
-thresholds remain unspecified. See `docs/implementation/I2-VERIFICATION-REPORT.md`
-for reproducers, coverage and exact results. I2 is **PARTIAL / SPEC_BLOCKED**
-until these decisions are reviewed.
+The owner-approved RC4.3 rules resolve the former I2-S01–S03 blockers. Every
+legal live synchronous key propagates its actual Q; Assembly reciprocity remains
+consolidated-only. Attractor cohesion is computed from a bound, structurally
+validated synthetic Assembly and fresh activity, not from a supplied scalar.
+Pure regional firing derives its denominator from an audited, explicitly frozen
+pre-event graph snapshot. I2 cannot certify a real LEARN event or publish slow
+state; those remain I3 obligations. VISION/AUDIO initial thresholds remain
+unspecified. The historical `I2-VERIFICATION-REPORT.md` records the prior
+blockers; `I2-S01-S03-REMEDIATION-VERIFICATION-REPORT.md` records the remediation
+results and current gate disposition.

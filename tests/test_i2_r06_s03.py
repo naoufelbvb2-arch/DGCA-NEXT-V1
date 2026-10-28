@@ -49,6 +49,14 @@ def test_dormant_committed_included_and_same_activity_different_population():
     assert adapted.rates[8193] == 0.0  # H entries are not the population authority.
 
 
+def test_pre_event_threshold_is_used_at_exact_boundary():
+    _, _, graph, _ = fixture_graph(cells=(8192,))
+    h = homeostasis((8192,))
+    result = regional_firing(graph, h, {8192: 0.2})
+    assert result.threshold_before == 0.2 and result.active == (8192,)
+    assert adapt(h, {8192: 0.2}, graph=graph).thresholds[Region.LANGUAGE] > 0.2
+
+
 def test_newborn_excluded_from_pre_event_snapshot_and_included_next_event():
     graph, builder, pre_event, _ = fixture_graph(cells=(8192,))
     h = homeostasis((8192, 8193))

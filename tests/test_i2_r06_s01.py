@@ -55,3 +55,22 @@ def test_zero_quality_contributes_zero_and_assoc_remains_temporal_only():
     assert synchronous_drives(graph, {8192: 0.8}, frozenset({8192})) == ()
     assert temporal_drives(graph, {8192: 0.8}, frozenset(), {}) == ()
     assert temporal_drives(graph, {8192: 0.8}, frozenset({8192}), {})[0].value == 0.24
+
+
+def test_candidate_reciprocity_never_creates_qualified_assembly():
+    from dgca_next.dynamics.attractor import AssemblyFixture, validate_assembly
+
+    members = (8192, 8200, 8208)
+    edges = tuple(
+        (i, j, SynapseScope.LOCAL, 0.6, 1.0, 0.0, SynapseState.CANDIDATE)
+        for i in members
+        for j in members
+        if i != j
+    )
+    network, builder, _, _ = fixture_graph(edges)
+    for i in members:
+        builder.set_memberships(i, frozenset({7}))
+    snapshot = GraphSnapshot.capture(network)
+    assert synchronous_drives(snapshot, {8192: 0.8}, frozenset({8192}))
+    with pytest.raises(ValueError, match="UNQUALIFIED_ASSEMBLY_FIXTURE"):
+        validate_assembly(snapshot, AssemblyFixture(7, members))
