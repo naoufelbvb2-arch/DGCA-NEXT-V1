@@ -70,7 +70,7 @@ Core §5 defines `rho_bar_r <- (1-beta_H)rho_bar_r+beta_H*rho_r(t)` and the thre
 
 ### Recommended NEW experimental law: committed-before-event population
 
-For a real, completed, valid LEARN EVENT t in active region r, let
+For a genuine ordered LEARN EVENT t **after its atomic EVENT checkpoint within an OPEN root** (the root need not have ENDed yet; H_slow remains provisional and must restore H_slow_BEGIN on ABORT as Core §10.1 requires), in active region r, let
 
 `K_r(t)={i | region(i)=r AND i was COMMITTED before EVENT t started}`.
 
