@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 from dgca_next.contracts import EventMode, EventOrigin
+from dgca_next.dynamics.numeric import SpecBlocked
 from dgca_next.dynamics.session import FeatureEvent, read_only_episode
 from dgca_next.dynamics.state import GraphSnapshot
 from dgca_next.graph import FixtureBuilder, SlotCategory
@@ -46,6 +47,11 @@ def test_real_cold_event_restart_and_abort(tmp_path):
     assert event.pass1_raw == tuple((i, 1.0) for i in ids)
     assert all(value == pytest.approx(1 / 1.1) for _, value in event.pass1_normalized)
     assert store.root(1).next_order == 1
+    before_end = store.view()
+    assert before_end.completed_closes == 0
+    with pytest.raises(SpecBlocked, match="I3-R03"):
+        store.end(1)
+    assert store.view() == before_end
     graph = store.graph()
     assert tuple(c.cell_id for c in graph.stored_cells()) == ids
     assert all(c.committed and not c.fixture_only for c in graph.stored_cells())
