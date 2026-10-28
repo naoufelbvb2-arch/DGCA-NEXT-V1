@@ -57,4 +57,5 @@ def test_no_semantic_or_runtime_fields():
         "committed_event",
         "fixture_only",
         "assembly_ids",
+        "admission",
     }

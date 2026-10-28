@@ -1,0 +1,558 @@
+"""P01 SQLite production EVENT store. No END or evidence publication."""
+
+import hashlib
+import sqlite3
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from pathlib import Path
+
+from dgca_next.config import load_lab_config
+from dgca_next.dynamics.activation import two_pass
+from dgca_next.dynamics.drive import aggregate, temporal_drives
+from dgca_next.dynamics.frontier import final_frontiers
+from dgca_next.dynamics.numeric import SpecBlocked
+from dgca_next.dynamics.state import GraphSnapshot
+from dgca_next.graph import SparseNetwork
+from dgca_next.graph.cell import ProductionAdmission
+from dgca_next.graph.latent import LATENT_POLICY_VERSION
+from dgca_next.graph.production import _admit_sensory_cohort
+from dgca_next.integrity import EXPECTED_SPECS, verify_specs
+from dgca_next.learning.homeostasis_profile import (
+    PROFILE_VERSION,
+    LanguageHomeostasis,
+    preview_pre_event_adaptation,
+)
+from dgca_next.learning.observation import preflight
+from dgca_next.learning.production_event import (
+    SALT_HASH,
+    ExternalEventObservation,
+    _numbers,
+    decode_event,
+    encode_event,
+)
+from dgca_next.persistence.graph_codec import decode_production_graph, encode_production_graph
+from dgca_next.persistence.store import R_COLD, RootView, StoreView
+
+Hook = Callable[[str], None]
+
+
+def _sha(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def _checkpoint_digest(*parts: bytes) -> str:
+    digest = hashlib.sha256(b"DGCA-P01-CHECKPOINT\0")
+    for part in parts:
+        digest.update(len(part).to_bytes(8, "big"))
+        digest.update(part)
+    return digest.hexdigest()
+
+
+class ProductionRootStore:
+    """Exclusive external LEARN root and atomic sensory EVENT checkpoint."""
+
+    def __init__(self, path: Path, *, repository_root: Path, code_revision: str) -> None:
+        import re
+
+        if not isinstance(path, Path):
+            raise ValueError("INVALID_STORE_PATH")
+        if type(code_revision) is not str or not re.fullmatch(r"[0-9a-f]{40}", code_revision):
+            raise ValueError("INVALID_CODE_REVISION")
+        verify_specs(repository_root)
+        self._revision = code_revision
+        self._connection = sqlite3.connect(str(path), isolation_level=None)
+        self._connection.execute("PRAGMA foreign_keys=ON")
+        self._connection.execute("PRAGMA synchronous=FULL")
+        try:
+            tables = {
+                r[0]
+                for r in self._connection.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+                )
+            }
+            if not tables:
+                self._initialize()
+            elif tables != {"p01_metadata", "p01_roots", "p01_events"}:
+                raise ValueError("UNSUPPORTED_STORE_SCHEMA")
+            with self._read_snapshot():
+                self._validate()
+        except BaseException:
+            self._connection.close()
+            raise
+
+    @contextmanager
+    def _transaction(self) -> Iterator[None]:
+        self._connection.execute("BEGIN IMMEDIATE")
+        try:
+            yield
+            self._connection.execute("COMMIT")
+        except BaseException:
+            if self._connection.in_transaction:
+                self._connection.execute("ROLLBACK")
+            raise
+
+    @contextmanager
+    def _read_snapshot(self) -> Iterator[None]:
+        """Bind all validation and view reads to one SQLite snapshot."""
+        started = not self._connection.in_transaction
+        if started:
+            self._connection.execute("BEGIN")
+        try:
+            yield
+            if started:
+                self._connection.execute("COMMIT")
+        except BaseException:
+            if started and self._connection.in_transaction:
+                self._connection.execute("ROLLBACK")
+            raise
+
+    def _initialize(self) -> None:
+        with self._transaction():
+            self._connection.execute(
+                "CREATE TABLE p01_metadata (id INTEGER PRIMARY KEY CHECK(id=1), "
+                "schema_version INTEGER NOT NULL, config_hash TEXT NOT NULL, "
+                "core_hash TEXT NOT NULL, lla_hash TEXT NOT NULL, code_revision TEXT NOT NULL, "
+                "latent_version TEXT NOT NULL, h_state BLOB NOT NULL, r_state BLOB NOT NULL, "
+                "w_state BLOB NOT NULL, open_root INTEGER, high_watermark INTEGER NOT NULL, "
+                "event_high INTEGER NOT NULL)"
+            )
+            self._connection.execute(
+                "CREATE TABLE p01_roots (exposure_id INTEGER PRIMARY KEY, status TEXT NOT NULL, "
+                "next_order INTEGER NOT NULL, h_begin BLOB NOT NULL)"
+            )
+            self._connection.execute(
+                "CREATE TABLE p01_events (event_id INTEGER PRIMARY KEY, "
+                "exposure_id INTEGER NOT NULL REFERENCES p01_roots(exposure_id), "
+                "event_order INTEGER NOT NULL, record BLOB NOT NULL, w_before BLOB NOT NULL, "
+                "w_after BLOB NOT NULL, h_before BLOB NOT NULL, h_after BLOB NOT NULL, "
+                "checkpoint_hash TEXT NOT NULL, "
+                "UNIQUE(exposure_id,event_order))"
+            )
+            self._connection.execute(
+                "INSERT INTO p01_metadata VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    2,
+                    load_lab_config().sha256,
+                    EXPECTED_SPECS[0][1],
+                    EXPECTED_SPECS[1][1],
+                    self._revision,
+                    LATENT_POLICY_VERSION,
+                    LanguageHomeostasis.initial().encode(),
+                    R_COLD,
+                    encode_production_graph(SparseNetwork()),
+                    None,
+                    -1,
+                    -1,
+                ),
+            )
+
+    def _metadata(self) -> tuple[object, ...]:
+        row = self._connection.execute(
+            "SELECT schema_version,config_hash,core_hash,lla_hash,code_revision,latent_version,"
+            "h_state,r_state,w_state,open_root,high_watermark,event_high "
+            "FROM p01_metadata WHERE id=1"
+        ).fetchone()
+        if row is None:
+            raise ValueError("CORRUPT_STORE_METADATA")
+        return tuple(row)
+
+    @staticmethod
+    def _id(exposure_id: int) -> None:
+        if type(exposure_id) is not int or not 0 <= exposure_id <= 2**63 - 1:
+            raise ValueError("INVALID_EXPOSURE_ID")
+
+    def _validate(self) -> None:
+        row = self._metadata()
+        identity = (
+            2,
+            load_lab_config().sha256,
+            EXPECTED_SPECS[0][1],
+            EXPECTED_SPECS[1][1],
+            self._revision,
+            LATENT_POLICY_VERSION,
+        )
+        if row[:6] != identity:
+            raise ValueError("STORE_IDENTITY_MISMATCH")
+        h, runtime, w = row[6:9]
+        if type(h) is not bytes or type(runtime) is not bytes or type(w) is not bytes:
+            raise ValueError("CORRUPT_STORE_METADATA")
+        profile = LanguageHomeostasis.decode(h)
+        graph = decode_production_graph(w)
+        profile.materialize(frozenset(c.cell_id for c in graph.stored_cells()))
+        roots = self._connection.execute(
+            "SELECT exposure_id,status,next_order,h_begin FROM p01_roots ORDER BY exposure_id"
+        ).fetchall()
+        events = self._connection.execute(
+            "SELECT event_id,exposure_id,event_order,record,w_before,w_after,h_before,h_after,"
+            "checkpoint_hash "
+            "FROM p01_events ORDER BY event_id"
+        ).fetchall()
+        if row[10] != (roots[-1][0] if roots else -1) or row[11] != (
+            events[-1][0] if events else -1
+        ):
+            raise ValueError("INVALID_HIGH_WATERMARK")
+        event_map: dict[tuple[int, int], ExternalEventObservation] = {}
+        counts: dict[int, int] = {}
+        root_begins = {exposure: begin for exposure, _, _, begin in roots}
+        last_h: dict[int, bytes] = {}
+        expected_w_before = encode_production_graph(SparseNetwork())
+        previous_id = -1
+        previous_exposure = -1
+        for (
+            event_id,
+            exposure,
+            order,
+            raw,
+            before_w,
+            after_w,
+            before_h,
+            after_h,
+            checksum,
+        ) in events:
+            if (
+                event_id != previous_id + 1
+                or order != counts.get(exposure, 0)
+                or exposure < previous_exposure
+                or exposure not in root_begins
+                or before_w != expected_w_before
+                or before_h != last_h.get(exposure, root_begins.get(exposure))
+            ):
+                raise ValueError("INVALID_EVENT_JOURNAL_ORDER")
+            previous_id = event_id
+            previous_exposure = exposure
+            expected_w_before = after_w
+            last_h[exposure] = after_h
+            counts[exposure] = order + 1
+            if checksum != _checkpoint_digest(raw, before_w, after_w, before_h, after_h):
+                raise ValueError("EVENT_CHECKPOINT_HASH_MISMATCH")
+            observation = decode_event(raw)
+            if (observation.event_id, observation.exposure_id, observation.event_order) != (
+                event_id,
+                exposure,
+                order,
+            ):
+                raise ValueError("EVENT_IDENTITY_MISMATCH")
+            before = decode_production_graph(before_w)
+            after = decode_production_graph(after_w)
+            LanguageHomeostasis.decode(before_h)
+            LanguageHomeostasis.decode(after_h)
+            if observation.pre_w_hash != _sha(before_w) or observation.pre_h_hash != _sha(before_h):
+                raise ValueError("EVENT_PRESTATE_MISMATCH")
+            pre = frozenset(c.cell_id for c in before.stored_cells())
+            post = frozenset(c.cell_id for c in after.stored_cells())
+            if observation.pre_committed != tuple(sorted(pre)) or post - pre != frozenset(
+                observation.born
+            ):
+                raise ValueError("EVENT_BIRTH_MISMATCH")
+            x = dict(observation.X_fixed)
+            previous = (
+                event_map.get((exposure, order - 1)) if order and not observation.boundary else None
+            )
+            if (
+                observation.previous != (() if previous is None else previous.final)
+                or {i for i, _ in observation.pass1} != set(pre)
+                or {i for i, _ in observation.final} != set(pre)
+                or not set(observation.emitters) <= set(pre)
+                or not set(observation.learning_frontier) <= set(pre)
+                or not set(observation.frontier) <= (set(pre) & set(x))
+                or observation.temporal
+                or observation.synchronous
+            ):
+                raise ValueError("INVALID_EVENT_CAUSAL_TRACE")
+            eligible = sorted(
+                ((i, u) for i, u in x.items() if i not in pre and u > 1),
+                key=lambda p: (-p[1], p[0]),
+            )
+            if set(observation.born) != {i for i, _ in eligible[:12]} or set(
+                observation.deferred
+            ) != {i for i, _ in eligible[12:]}:
+                raise ValueError("EVENT_COHORT_MISMATCH")
+            admission = ProductionAdmission(exposure, event_id, order, observation.digest)
+            if any(
+                before.cell(i) != after.cell(i) or before.latent_slots(i) != after.latent_slots(i)
+                for i in pre
+            ) or any(after.cell(i).admission != admission for i in observation.born):
+                raise ValueError("EVENT_GRAPH_MISMATCH")
+            event_map[(exposure, order)] = observation
+        opened = []
+        expected_root_h = LanguageHomeostasis.initial().encode()
+        for exposure, status, order, h_begin in roots:
+            self._id(exposure)
+            LanguageHomeostasis.decode(h_begin)
+            if (
+                status not in ("OPEN", "ABORTED")
+                or type(order) is not int
+                or order != counts.get(exposure, 0)
+                or h_begin != expected_root_h
+            ):
+                raise ValueError("INVALID_ROOT_JOURNAL")
+            if status == "OPEN":
+                opened.append(exposure)
+        if len(opened) > 1 or row[9] != (opened[0] if opened else None):
+            raise ValueError("INVALID_OPEN_ROOT_JOURNAL")
+        if runtime != R_COLD:
+            last = decode_event(runtime)
+            if (
+                row[9] != last.exposure_id
+                or last.event_order != counts.get(last.exposure_id, 0) - 1
+                or event_map.get((last.exposure_id, last.event_order)) != last
+            ):
+                raise ValueError("INVALID_RUNTIME_CHECKPOINT")
+        elif opened and counts.get(opened[0], 0):
+            raise ValueError("MISSING_RUNTIME_CHECKPOINT")
+        if events and w != events[-1][5]:
+            raise ValueError("DURABLE_GRAPH_JOURNAL_MISMATCH")
+        if not events and graph.stored_cell_count:
+            raise ValueError("DURABLE_GRAPH_JOURNAL_MISMATCH")
+        if roots:
+            exposure, status, order, h_begin = roots[-1]
+            expected_h = last_h[exposure] if status == "OPEN" and order else h_begin
+            if h != expected_h:
+                raise ValueError("DURABLE_H_JOURNAL_MISMATCH")
+        elif h != expected_root_h:
+            raise ValueError("DURABLE_H_JOURNAL_MISMATCH")
+
+    def view(self) -> StoreView:
+        with self._read_snapshot():
+            self._validate()
+            row = self._metadata()
+            assert (
+                isinstance(row[6], bytes)
+                and isinstance(row[7], bytes)
+                and isinstance(row[8], bytes)
+            )
+            assert row[9] is None or isinstance(row[9], int)
+            assert isinstance(row[10], int)
+            return StoreView(
+                row[10], row[9], 0, LanguageHomeostasis.decode(row[6]).overrides, row[7], row[8]
+            )
+
+    def graph(self) -> SparseNetwork:
+        with self._read_snapshot():
+            self._validate()
+            value = self._metadata()[8]
+            assert isinstance(value, bytes)
+            return decode_production_graph(value)
+
+    def h_bytes(self) -> bytes:
+        with self._read_snapshot():
+            self._validate()
+            value = self._metadata()[6]
+            assert isinstance(value, bytes)
+            return value
+
+    def root(self, exposure_id: int) -> RootView | None:
+        self._id(exposure_id)
+        row = self._connection.execute(
+            "SELECT status,next_order,h_begin FROM p01_roots WHERE exposure_id=?", (exposure_id,)
+        ).fetchone()
+        return (
+            None
+            if row is None
+            else RootView(exposure_id, row[0], row[1], LanguageHomeostasis.decode(row[2]).overrides)
+        )
+
+    def observation(self, exposure_id: int, order: int) -> ExternalEventObservation | None:
+        self._id(exposure_id)
+        if type(order) is not int or order < 0:
+            raise ValueError("INVALID_EVENT_ORDER")
+        with self._read_snapshot():
+            self._validate()
+            row = self._connection.execute(
+                "SELECT record FROM p01_events WHERE exposure_id=? AND event_order=?",
+                (exposure_id, order),
+            ).fetchone()
+            return None if row is None else decode_event(row[0])
+
+    def begin(self, exposure_id: int, *, hook: Hook | None = None) -> RootView:
+        self._id(exposure_id)
+        with self._transaction():
+            self._validate()
+            row = self._metadata()
+            if row[9] == exposure_id:
+                result = self.root(exposure_id)
+                assert result is not None
+                return result
+            if row[9] is not None:
+                raise ValueError("EXPOSURE_ALREADY_OPEN")
+            assert isinstance(row[10], int)
+            if exposure_id <= row[10]:
+                raise ValueError("ROOT_ID_REUSED")
+            self._connection.execute(
+                "INSERT INTO p01_roots VALUES (?,'OPEN',0,?)", (exposure_id, row[6])
+            )
+            self._connection.execute(
+                "UPDATE p01_metadata SET open_root=?,high_watermark=?,r_state=? WHERE id=1",
+                (exposure_id, exposure_id, R_COLD),
+            )
+            if hook:
+                hook("BEFORE_COMMIT")
+        if hook:
+            hook("AFTER_COMMIT")
+        result = self.root(exposure_id)
+        assert result is not None
+        return result
+
+    def abort(self, exposure_id: int, *, hook: Hook | None = None) -> RootView:
+        self._id(exposure_id)
+        with self._transaction():
+            self._validate()
+            root = self.root(exposure_id)
+            if root is None:
+                raise ValueError("UNKNOWN_EXPOSURE")
+            if root.status == "ABORTED":
+                return root
+            if self._metadata()[9] != exposure_id:
+                raise ValueError("EXPOSURE_NOT_OPEN")
+            begin_h = self._connection.execute(
+                "SELECT h_begin FROM p01_roots WHERE exposure_id=?", (exposure_id,)
+            ).fetchone()[0]
+            self._connection.execute(
+                "UPDATE p01_roots SET status='ABORTED' WHERE exposure_id=?", (exposure_id,)
+            )
+            self._connection.execute(
+                "UPDATE p01_metadata SET h_state=?,r_state=?,open_root=NULL WHERE id=1",
+                (begin_h, R_COLD),
+            )
+            if hook:
+                hook("BEFORE_COMMIT")
+        if hook:
+            hook("AFTER_COMMIT")
+        result = self.root(exposure_id)
+        assert result is not None
+        return result
+
+    def event(
+        self,
+        exposure_id: int,
+        order: int,
+        features: tuple[tuple[str, str], ...],
+        *,
+        salience: str = "1.000000",
+        boundary: bool = False,
+        hook: Hook | None = None,
+    ) -> ExternalEventObservation:
+        self._id(exposure_id)
+        if type(order) is not int or order < 0:
+            raise ValueError("INVALID_EVENT_ORDER")
+        if type(features) is not tuple or type(boundary) is not bool:
+            raise ValueError("INVALID_FEATURE_EVENT")
+        with self._transaction():
+            self._validate()
+            row = self._metadata()
+            root = self.root(exposure_id)
+            if root is None or root.status != "OPEN" or row[9] != exposure_id:
+                raise ValueError("EXPOSURE_NOT_OPEN")
+            if order != root.next_order:
+                raise ValueError("EVENT_ORDER_MISMATCH")
+            before_h, runtime, before_w = row[6:9]
+            assert (
+                isinstance(before_h, bytes)
+                and isinstance(runtime, bytes)
+                and isinstance(before_w, bytes)
+            )
+            graph = decode_production_graph(before_w)
+            snapshot = GraphSnapshot.capture(graph)
+            profile = LanguageHomeostasis.decode(before_h)
+            h = profile.materialize(snapshot.committed_ids)
+            draft = preflight(snapshot, h, features, salience=salience)
+            effective_boundary = boundary or order == 0
+            previous = None if runtime == R_COLD or effective_boundary else decode_event(runtime)
+            prior_activity = {} if previous is None else dict(previous.final)
+            prior_frontier = frozenset() if previous is None else frozenset(previous.frontier)
+            temporal = aggregate(temporal_drives(snapshot, prior_activity, prior_frontier, {}))
+            passes = two_pass(snapshot, h, prior_activity, dict(draft.projection.X), temporal, {})
+            direct = frozenset(i for i, _ in draft.previously_committed)
+            frontiers = final_frontiers(passes.second.activity, h, direct)
+            assert isinstance(row[11], int)
+            event_id = row[11] + 1
+            admission = ProductionAdmission(exposure_id, event_id, order, draft.projection.digest)
+            frontier = {i: passes.second.activity[i] for i in frontiers.learning}
+            after_graph = _admit_sensory_cohort(
+                graph,
+                admission=admission,
+                born=draft.accepted,
+                frontier=frontier,
+                completed_closes=0,
+            )
+            after_w = encode_production_graph(after_graph)
+            after_h = preview_pre_event_adaptation(
+                profile, snapshot, passes.second.activity
+            ).encode()
+            p = draft.projection
+            payload: dict[str, object] = {
+                "exposure": exposure_id,
+                "event": event_id,
+                "order": order,
+                "digest": p.digest,
+                "features": [[feature.hex(), value] for feature, value in p.input_features],
+                "salience": p.salience_fixed,
+                "x": [list(x) for x in p.X_fixed],
+                "pre": sorted(snapshot.committed_ids),
+                "pre_w": _sha(before_w),
+                "pre_h": _sha(before_h),
+                "previous": _numbers(prior_activity),
+                "pass1_raw": _numbers(dict(passes.first.raw)),
+                "pass1_normalized": _numbers(dict(passes.first.normalized)),
+                "pass1": _numbers(dict(passes.first.activity)),
+                "final_raw": _numbers(dict(passes.second.raw)),
+                "final_normalized": _numbers(dict(passes.second.normalized)),
+                "final": _numbers(dict(passes.second.activity)),
+                "temporal": _numbers(temporal),
+                "synchronous": _numbers(aggregate(passes.synchronous)),
+                "emitters": sorted(passes.emitters),
+                "learning_frontier": sorted(frontiers.learning),
+                "frontier": sorted(frontiers.step),
+                "born": sorted(i for i, _ in draft.accepted),
+                "deferred": sorted(i for i, _ in draft.deferred),
+                "boundary": effective_boundary,
+                "origin": "EXTERNAL_DIRECT",
+                "mode": "LEARN",
+                "config": load_lab_config().sha256,
+                "core": EXPECTED_SPECS[0][1],
+                "lla": EXPECTED_SPECS[1][1],
+                "latent": LATENT_POLICY_VERSION,
+                "salt_hash": SALT_HASH,
+                "h_profile": PROFILE_VERSION,
+            }
+            raw = encode_event(payload)
+            observation = decode_event(raw, _verified_projection=p)
+            self._connection.execute(
+                "INSERT INTO p01_events VALUES (?,?,?,?,?,?,?,?,?)",
+                (
+                    event_id,
+                    exposure_id,
+                    order,
+                    raw,
+                    before_w,
+                    after_w,
+                    before_h,
+                    after_h,
+                    _checkpoint_digest(raw, before_w, after_w, before_h, after_h),
+                ),
+            )
+            self._connection.execute(
+                "UPDATE p01_roots SET next_order=? WHERE exposure_id=?", (order + 1, exposure_id)
+            )
+            self._connection.execute(
+                "UPDATE p01_metadata SET h_state=?,r_state=?,w_state=?,event_high=? WHERE id=1",
+                (after_h, raw, after_w, event_id),
+            )
+            if hook:
+                hook("BEFORE_COMMIT")
+        if hook:
+            hook("AFTER_COMMIT")
+        return observation
+
+    def end(self, exposure_id: int) -> None:
+        self._id(exposure_id)
+        if self.view().open_root != exposure_id:
+            raise ValueError("EXPOSURE_NOT_OPEN")
+        raise SpecBlocked("I3-R03: END evidence publication is not implemented")
+
+    def assert_read_only_allowed(self) -> None:
+        if self.view().open_root is not None:
+            raise ValueError("READ_ONLY_FORBIDDEN_WHILE_EXPOSURE_OPEN")
+
+    def close(self) -> None:
+        self._connection.close()

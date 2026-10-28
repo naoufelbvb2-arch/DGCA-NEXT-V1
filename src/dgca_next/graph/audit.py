@@ -46,7 +46,7 @@ def _validate(state: _State) -> AuditReport:
         _require(type(cell) is Cell, "INVALID_CELL_TYPE")
         replace(cell)
         _require(CellAddress.from_cell_id(cell_id) == cell.address, "CELL_ID_ADDRESS_MISMATCH")
-        _require(cell.committed and cell.fixture_only, "INVALID_STORED_COMMITMENT")
+        _require(cell.committed, "INVALID_STORED_COMMITMENT")
 
     expected_reverse: dict[int, set[SlotRef]] = defaultdict(set)
     pairs: set[tuple[int, int]] = set()
@@ -93,6 +93,11 @@ def _validate(state: _State) -> AuditReport:
         _require(
             state.cells[owner].committed_event == record.assignment.event_id,
             "INITIALIZATION_COMMITMENT_TIMING",
+        )
+        _require(
+            state.cells[owner].fixture_only == record.assignment.fixture_only
+            and state.cells[owner].admission == record.assignment.admission,
+            "INITIALIZATION_ORIGIN_MISMATCH",
         )
         initialized_slots = state.slots.get(owner)
         _require(initialized_slots is not None, "MISSING_INITIALIZED_SLOTS")

@@ -210,8 +210,6 @@ def test_restore_rejects_corrupted_metadata(tmp_path, column, value):
 
 def test_explicit_initial_H_and_code_identity_required(tmp_path):
     db = tmp_path / "roots.sqlite"
-    with pytest.raises(ValueError, match="EXPLICIT_INITIAL_H_REQUIRED"):
-        store(db)
     with pytest.raises(ValueError, match="INVALID_CODE_REVISION"):
         store(db, initial=h_fixture(), revision="unversioned")
     engine = store(db, initial=h_fixture())

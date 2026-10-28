@@ -8,9 +8,10 @@ The code revision is a caller-declared identifier, not remote authentication.
 import re
 import sqlite3
 from collections.abc import Callable, Iterator
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from dgca_next.config import load_lab_config
 from dgca_next.dynamics.numeric import SpecBlocked
@@ -45,7 +46,7 @@ class StoreView:
     W: bytes
 
 
-class RootStore:
+class _LegacyRootStore:
     """SQLite-backed exclusive root marker; only BEGIN and ABORT are enabled."""
 
     def __init__(
@@ -297,3 +298,48 @@ class RootStore:
 
     def close(self) -> None:
         self._connection.close()
+
+
+class RootStore:
+    """Root API: approved production store or an explicitly legacy fixture store.
+
+    Passing explicit H selects the old fail-closed fixture-only schema. It can
+    never admit production EVENTs. A new store without explicit H uses only
+    the immutable approved RC4.4 LANGUAGE profile.
+    """
+
+    def __init__(
+        self,
+        path: Path,
+        *,
+        repository_root: Path,
+        code_revision: str,
+        initial_homeostasis: Homeostasis | None = None,
+    ) -> None:
+        legacy = initial_homeostasis is not None
+        if isinstance(path, Path) and path.exists() and not legacy:
+            with closing(sqlite3.connect(str(path))) as db:
+                names = {
+                    row[0]
+                    for row in db.execute(
+                        "SELECT name FROM sqlite_master WHERE type='table' "
+                        "AND name NOT LIKE 'sqlite_%'"
+                    )
+                }
+            legacy = names == {"metadata", "roots"}
+        if legacy:
+            self._backend: Any = _LegacyRootStore(
+                path,
+                repository_root=repository_root,
+                code_revision=code_revision,
+                initial_homeostasis=initial_homeostasis,
+            )
+        else:
+            from dgca_next.persistence.production_store import ProductionRootStore
+
+            self._backend = ProductionRootStore(
+                path, repository_root=repository_root, code_revision=code_revision
+            )
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._backend, name)

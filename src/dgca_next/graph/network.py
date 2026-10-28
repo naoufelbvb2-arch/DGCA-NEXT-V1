@@ -293,6 +293,8 @@ class _Editor:
     def __init__(
         self, network: SparseNetwork, hook: Callable[[MutationStage], None] | None = None
     ) -> None:
+        if any(not cell.fixture_only for cell in network._state.cells.values()):
+            raise ValueError("FIXTURE_EDITOR_REJECTS_PRODUCTION_GRAPH")
         self.network = network
         self.hook = hook
         self.base = network._state
