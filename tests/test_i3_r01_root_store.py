@@ -115,9 +115,9 @@ def test_event_and_end_are_fail_closed_without_changing_checkpoint(tmp_path):
     engine = store(tmp_path / "roots.sqlite", initial=h_fixture())
     engine.begin(7)
     before, root = engine.view(), engine.root(7)
-    with pytest.raises(SpecBlocked, match="I3-S01"):
+    with pytest.raises(SpecBlocked, match="I3-R02"):
         engine.event(7, 0, tuple((f, "1") for f in ("a", "ab", "c", "d")))
-    with pytest.raises(SpecBlocked, match="I3-S02"):
+    with pytest.raises(SpecBlocked, match="I3-R02"):
         engine.event(7, 0, (("a", "1"),))
     with pytest.raises(SpecBlocked, match="I3-R02"):
         engine.event(7, 0, ())

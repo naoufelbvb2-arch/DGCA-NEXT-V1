@@ -5,11 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from dgca_next.config import load_lab_config
-from dgca_next.contracts import Region
 from dgca_next.dynamics.numeric import SpecBlocked
-from dgca_next.dynamics.state import Homeostasis
 from dgca_next.graph import SparseNetwork
+from dgca_next.learning.homeostasis_profile import LanguageHomeostasis
 from dgca_next.peripheral.sic import project
 from dgca_next.persistence.store import EMPTY_W, RootStore
 
@@ -17,12 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_cold_start_ingress_reports_blockers_without_fabricating_learning(tmp_path):
-    h = Homeostasis(
-        {},
-        {},
-        {Region.LANGUAGE: float(load_lab_config().parameter("theta_active_init_LANGUAGE").value)},
-        {},
-    )
+    h = LanguageHomeostasis.initial().overrides
     network = SparseNetwork()
     assert network.stored_cell_count == 0 and network.synapses() == ()
     engine = RootStore(
@@ -35,7 +28,7 @@ def test_cold_start_ingress_reports_blockers_without_fabricating_learning(tmp_pa
     assert before.W == EMPTY_W and before.completed_closes == 0
     engine.begin(1)
     first = (("a", "1"),)
-    with pytest.raises(SpecBlocked, match="I3-S02") as initial:
+    with pytest.raises(SpecBlocked, match="I3-R02") as initial:
         engine.event(1, 0, first)
     first_state = engine.view()
     assert engine.root(1).next_order == 0 and first_state.W == before.W
@@ -43,7 +36,7 @@ def test_cold_start_ingress_reports_blockers_without_fabricating_learning(tmp_pa
     engine.abort(1)
     engine.begin(2)
     overflow = tuple((f, "1") for f in ("a", "ab", "c", "d"))
-    with pytest.raises(SpecBlocked, match="I3-S01") as selection:
+    with pytest.raises(SpecBlocked, match="I3-R02") as selection:
         engine.event(2, 0, overflow)
     second_state = engine.view()
     assert engine.root(2).next_order == 0 and second_state.W == before.W
@@ -52,7 +45,7 @@ def test_cold_start_ingress_reports_blockers_without_fabricating_learning(tmp_pa
     final = engine.view()
     engine.close()
     report = {
-        "status": "SPEC_BLOCKED",
+        "status": "PARTIAL: production EVENT unavailable",
         "attempt_type": "uncommitted synthetic test ingress; no validated external EVENT",
         "initial_W": "EMPTY_W",
         "initial_committed_cells": 0,

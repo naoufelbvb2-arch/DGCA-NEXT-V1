@@ -329,15 +329,16 @@ results and current gate disposition.
 `docs/implementation/I3-R00-PRODUCTION-PREFLIGHT.md` records the graph,
 provenance and transaction boundaries at the earlier review. The owner approved
 the sensory selection and newborn slow-state policies, now recorded in RC4.4;
-the current fail-closed skeleton has not yet implemented those production paths.
-An explicitly supplied H in the skeleton is not the RC4.4 production profile.
+pure diagnostic selection and a versioned sparse LANGUAGE H profile are
+implemented, but they are not connected to a production EVENT path. An
+explicitly supplied H in the skeleton is not the RC4.4 production profile.
 
 `RootStore` durably exercises BEGIN, exclusive OPEN state, monotonic root IDs,
 canonical binary H snapshots, ABORT and recovery with explicit H/code identity.
 It rejects EVENT and END, so it cannot publish observations, admissions,
 synapses or evidence. `learning.observation` is an uncommitted ingress preflight;
 `learning.evidence` performs explicitly synthetic arithmetic only. Neither is
-a production witness or learning engine. The initial cold-start ingress attempt
-stops at the documented guards; the genuine external-learning experiment has
-not run. See `docs/implementation/I3-VERIFICATION-REPORT.md` for executed
-checks and remaining gates. Production recycling remains disabled.
+a production witness or learning engine. The store validates the SIC input but
+does not pretend to evaluate it against a durable W, which it cannot yet load.
+The genuine external-learning experiment has not run. Production recycling
+remains disabled.

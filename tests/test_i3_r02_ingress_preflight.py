@@ -5,7 +5,6 @@ from dataclasses import replace
 import pytest
 
 from dgca_next.contracts import Region
-from dgca_next.dynamics.numeric import SpecBlocked
 from dgca_next.dynamics.state import GraphSnapshot, Homeostasis
 from dgca_next.graph import SparseNetwork
 from dgca_next.learning.observation import preflight
@@ -21,22 +20,22 @@ def explicit_fixture_H(cells):
     )
 
 
-def test_all_sixteen_qualify_but_capacity_selection_is_unspecified():
+def test_all_sixteen_qualify_with_rc44_capacity_selection():
     graph = GraphSnapshot.capture(SparseNetwork())
     features = tuple((f, "1") for f in ("a", "ab", "c", "d"))
     p = project(features)
     assert len(p.X_fixed) == 16 and all(u == 1_000_000 for _, u in p.X_fixed)
     h = explicit_fixture_H(i for i, _ in p.X_fixed)
-    with pytest.raises(SpecBlocked, match="I3-S01"):
-        preflight(graph, h, features)
+    draft = preflight(graph, h, features)
+    assert draft.accepted == p.X_fixed[:12]
+    assert draft.deferred == p.X_fixed[12:]
     assert not graph.committed_ids and not graph.synapses()
 
 
-def test_newborn_homeostasis_must_be_explicit_and_draft_not_an_admission():
+def test_newborn_homeostasis_is_virtual_and_draft_not_an_admission():
     graph = GraphSnapshot.capture(SparseNetwork())
     p = project((("a", "1"),))
-    with pytest.raises(SpecBlocked, match="I3-S02"):
-        preflight(graph, explicit_fixture_H(()), (("a", "1"),))
+    assert preflight(graph, explicit_fixture_H(()), (("a", "1"),)).accepted == p.X_fixed
     h = explicit_fixture_H(tuple(i for i, _ in p.X_fixed))
     draft = preflight(graph, h, (("a", "1"),))
     assert draft.eligible_uncommitted == p.X_fixed
@@ -49,8 +48,7 @@ def test_exact_admission_epsilon_and_separate_salience():
     h = explicit_fixture_H(())
     result = preflight(graph, h, (("a", "0.000001"),))
     assert result.projection.X_fixed and result.eligible_uncommitted == ()
-    with pytest.raises(SpecBlocked, match="I3-S02"):
-        preflight(graph, h, (("a", "0.000002"),))
+    assert len(preflight(graph, h, (("a", "0.000002"),)).accepted) == 4
     assert preflight(graph, h, (("a", "1"),), salience="0").eligible_uncommitted == ()
 
 

@@ -180,9 +180,41 @@ def test_rc43_archival_bytes_and_rc44_preservation(path, digest, blob_sha):
     added_start = new.index(b"**RC4.4 I3-S01")
     added_end = new.index(marker, added_start)
     assert new[added_end:] == old[old.index(marker) :]
-    assert new.split(b"## 0.", 1)[1][: added_start - new.index(b"## 0.")].startswith(
-        old.split(b"## 0.", 1)[1].split(marker, 1)[0]
-    )
+    assert new[new.index(b"## 0.") : added_start] == old[old.index(b"## 0.") : old.index(marker)]
+
+
+def test_rc44_adds_only_approved_initial_profile_parameters():
+    old_source = subprocess.check_output(
+        ["git", "show", f"{RC4_4_MIGRATION_PARENT}:src/dgca_next/config.py"], cwd=ROOT
+    ).decode("utf-8")
+    new_source = (ROOT / "src/dgca_next/config.py").read_text("utf-8")
+
+    def entries(source):
+        tree = ast.parse(source)
+        assignment = next(
+            node
+            for node in tree.body
+            if isinstance(node, ast.AnnAssign)
+            and isinstance(node.target, ast.Name)
+            and node.target.id == "_DEFAULTS"
+        )
+        assert isinstance(assignment.value, ast.Call)
+        mapping = assignment.value.args[0]
+        assert isinstance(mapping, ast.Dict)
+        return {
+            ast.literal_eval(key): ast.dump(value)
+            for key, value in zip(mapping.keys, mapping.values, strict=True)
+        }
+
+    old, new = entries(old_source), entries(new_source)
+    added = {
+        "h_profile_version",
+        "g_initial_LANGUAGE",
+        "r_bar_initial_LANGUAGE",
+        "rho_bar_initial_LANGUAGE",
+    }
+    assert set(new) - set(old) == added
+    assert {key: value for key, value in new.items() if key not in added} == old
 
 
 @pytest.mark.parametrize("path,digest,blob_sha", EXPECTED_SPECS)

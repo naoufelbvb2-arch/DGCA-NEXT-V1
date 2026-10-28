@@ -1,9 +1,9 @@
 """Non-authoritative external-ingress preflight; no witnessed EVENT is minted."""
 
 from dataclasses import dataclass
+from fractions import Fraction
 
 from dgca_next.config import load_lab_config
-from dgca_next.dynamics.numeric import SpecBlocked
 from dgca_next.dynamics.state import GraphSnapshot, Homeostasis
 from dgca_next.peripheral.sic import SICProjection, project
 
@@ -15,6 +15,12 @@ class IngressDraft:
     projection: SICProjection
     eligible_uncommitted: tuple[tuple[int, int], ...]
     previously_committed: tuple[tuple[int, int], ...]
+    accepted: tuple[tuple[int, int], ...]
+    deferred: tuple[tuple[int, int], ...]
+
+    @property
+    def diagnostics(self) -> tuple[tuple[str, int], ...]:
+        return tuple(("SENSORY_BIRTH_CAPACITY_DEFERRED", cell) for cell, _ in self.deferred)
 
 
 def preflight(
@@ -24,10 +30,10 @@ def preflight(
     *,
     salience: str = "1.000000",
 ) -> IngressDraft:
-    """Validate inputs and determine whether explicit unresolved rules apply.
+    """Compute an unauthoritative RC4.4 cohort draft over an audited snapshot.
 
-    Returns possible receivers only; it does not choose or commit a cohort.
-    I3 has no actual EVENT authority or persisted observation witness yet.
+    This is a diagnostic selection, not a committed cohort or a witness. The
+    legacy store does not load durable W and must not use this as an EVENT.
     """
     if type(graph) is not GraphSnapshot:
         raise ValueError("UNVERIFIED_PRE_EVENT_GRAPH")
@@ -36,19 +42,13 @@ def preflight(
     graph.validate()
     projection = project(features, salience=salience)
     committed = graph.committed_ids
-    epsilon = float(load_lab_config().parameter("eps_p").value)
+    epsilon = Fraction(str(load_lab_config().parameter("eps_p").value))
     newborn = tuple(
         (cell, support)
         for cell, support in projection.X_fixed
-        if cell not in committed and support / 1_000_000 > epsilon
+        if cell not in committed and Fraction(support, 1_000_000) > epsilon
     )
     observed = tuple((cell, support) for cell, support in projection.X_fixed if cell in committed)
-    if len(newborn) > int(load_lab_config().parameter("K_R").value):
-        raise SpecBlocked("I3-S01: sensory cohort selection is undefined above K_R")
-    if newborn and (
-        any(cell not in homeostasis.gains or cell not in homeostasis.rates for cell, _ in newborn)
-        or projection.region not in homeostasis.thresholds
-        or projection.region not in homeostasis.region_rates
-    ):
-        raise SpecBlocked("I3-S02: cold/newborn homeostatic initialization is unspecified")
-    return IngressDraft(projection, newborn, observed)
+    ranked = tuple(sorted(newborn, key=lambda item: (-item[1], item[0])))
+    capacity = int(load_lab_config().parameter("K_R").value)
+    return IngressDraft(projection, newborn, observed, ranked[:capacity], ranked[capacity:])

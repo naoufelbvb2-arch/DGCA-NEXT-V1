@@ -14,11 +14,11 @@ from pathlib import Path
 
 from dgca_next.config import load_lab_config
 from dgca_next.dynamics.numeric import SpecBlocked
-from dgca_next.dynamics.state import GraphSnapshot, Homeostasis
+from dgca_next.dynamics.state import Homeostasis
 from dgca_next.graph import SparseNetwork
 from dgca_next.graph.latent import LATENT_POLICY_VERSION
 from dgca_next.integrity import EXPECTED_SPECS, verify_specs
-from dgca_next.learning.observation import preflight
+from dgca_next.peripheral.sic import project
 from dgca_next.persistence.codec import decode_homeostasis, encode_homeostasis
 
 SCHEMA_VERSION = 1
@@ -279,9 +279,9 @@ class RootStore:
             raise ValueError("EVENT_ORDER_MISMATCH")
         if type(features) is not tuple or type(boundary) is not bool:
             raise ValueError("INVALID_FEATURE_EVENT")
-        preflight(
-            GraphSnapshot.capture(SparseNetwork()), state.homeostasis, features, salience=salience
-        )
+        # Validate the external input only. The skeleton has no durable graph
+        # codec, so it cannot safely evaluate admission against a fresh empty W.
+        project(features, salience=salience)
         raise SpecBlocked("I3-R02: EVENT production graph authority is not implemented")
 
     def end(self, exposure_id: int) -> None:

@@ -69,9 +69,9 @@ class GraphSnapshot:
 class Homeostasis:
     """Sparse explicit H; missing gains and adaptive thresholds fail closed.
 
-    The initial g/r_bar and region EMA are explicit caller quantities, not
-    scientific initial defaults. Helpers require these maps for adapted cells.
-    Unit gain is supplied explicitly by uniform_language(), a synthetic fixture.
+    This snapshot requires explicit values. RC4.4 production defaults must be
+    materialized through the separate versioned sparse LANGUAGE profile.
+    uniform_language() remains a synthetic I2 comparator, not that profile.
     """
 
     gains: Mapping[int, float]
