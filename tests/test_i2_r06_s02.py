@@ -92,6 +92,8 @@ def test_invalid_or_stale_generation_rejected_and_no_scalar_override():
         cohesion_from_graph_and_fresh(snapshot, replace(assembly, generation=2), fresh)
     with pytest.raises(ValueError, match="UNVERIFIED_ASSEMBLY_GENERATION"):
         cohesion_from_graph_and_fresh(snapshot, AssemblyFixture(7, assembly.members), fresh)
+    with pytest.raises(ValueError, match="UNVERIFIED_GRAPH_SNAPSHOT"):
+        cohesion_from_graph_and_fresh(replace(snapshot, structural_hash="forged"), assembly, fresh)
     with pytest.raises(TypeError):
         read_only_episode(
             snapshot, h, (), session_id=1, assemblies=(assembly,), fixture_cohesion={7: 1.0}

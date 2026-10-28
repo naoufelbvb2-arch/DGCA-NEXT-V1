@@ -42,6 +42,7 @@ class AssemblyFixture:
         bindings: Mapping[int, ContextBindingFixture] | None = None,
     ) -> AssemblyFixture:
         """Freeze a synthetic Assembly identity and generation against one I1 W."""
+        graph.validate()
         validate_assembly(graph, self, bindings)
         return replace(
             self,
@@ -104,6 +105,7 @@ def cohesion_from_graph_and_fresh(
     """Core §2.1 ordered reciprocal fresh weighting on a frozen fixture W."""
     if assembly.bound_identity is None or assembly.bound_graph_hash is None:
         raise ValueError("UNVERIFIED_ASSEMBLY_GENERATION")
+    graph.validate()
     validate_assembly(graph, assembly, bindings)
     numerator, denominator = 0.0, 0.0
     for position, i in enumerate(assembly.members):
