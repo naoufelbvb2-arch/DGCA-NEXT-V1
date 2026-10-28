@@ -1,11 +1,11 @@
 """Pure fixture Attractor transitions (Core §2.1); no Assembly formation."""
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from dgca_next.contracts import SynapseScope
 from dgca_next.dynamics.context_gate import ContextBindingFixture, _key, structural_diagnostic
-from dgca_next.dynamics.numeric import SpecBlocked, finite, parameter, support
+from dgca_next.dynamics.numeric import finite, parameter, support
 from dgca_next.dynamics.state import GraphSnapshot
 from dgca_next.graph import SynapseState
 from dgca_next.graph.synapse import quality
@@ -16,11 +16,16 @@ class AssemblyFixture:
     assembly_id: int
     members: tuple[int, ...]
     fixture_only: bool = True
+    generation: int = 1
+    bound_graph_hash: str | None = None
+    bound_identity: tuple[int, int, tuple[int, ...]] | None = None
 
     def __post_init__(self) -> None:
         if (
             type(self.assembly_id) is not int
             or self.assembly_id < 0
+            or type(self.generation) is not int
+            or self.generation < 1
             or self.fixture_only is not True
         ):
             raise ValueError("I2_ASSEMBLY_FIXTURE_ONLY")
@@ -31,12 +36,30 @@ class AssemblyFixture:
         ):
             raise ValueError("INVALID_ASSEMBLY_FIXTURE")
 
+    def bind(
+        self,
+        graph: GraphSnapshot,
+        bindings: Mapping[int, ContextBindingFixture] | None = None,
+    ) -> AssemblyFixture:
+        """Freeze a synthetic Assembly identity and generation against one I1 W."""
+        validate_assembly(graph, self, bindings)
+        return replace(
+            self,
+            bound_graph_hash=graph.structural_hash,
+            bound_identity=(self.assembly_id, self.generation, self.members),
+        )
+
 
 def validate_assembly(
     graph: GraphSnapshot,
     assembly: AssemblyFixture,
     bindings: Mapping[int, ContextBindingFixture] | None = None,
 ) -> None:
+    if assembly.bound_identity is not None and (
+        assembly.bound_identity != (assembly.assembly_id, assembly.generation, assembly.members)
+        or assembly.bound_graph_hash != graph.structural_hash
+    ):
+        raise ValueError("STALE_ASSEMBLY_FIXTURE")
     members = assembly.members
     if not set(members) <= graph.committed_ids or any(i < 8192 for i in members):
         raise ValueError("INVALID_ASSEMBLY_MEMBERS")
@@ -72,15 +95,54 @@ def validate_assembly(
             raise ValueError("UNQUALIFIED_ASSEMBLY_FIXTURE")
 
 
+def cohesion_from_graph_and_fresh(
+    graph: GraphSnapshot,
+    assembly: AssemblyFixture,
+    fresh: Mapping[int, float],
+    bindings: Mapping[int, ContextBindingFixture] | None = None,
+) -> float:
+    """Core §2.1 ordered reciprocal fresh weighting on a frozen fixture W."""
+    if assembly.bound_identity is None or assembly.bound_graph_hash is None:
+        raise ValueError("UNVERIFIED_ASSEMBLY_GENERATION")
+    validate_assembly(graph, assembly, bindings)
+    numerator, denominator = 0.0, 0.0
+    for position, i in enumerate(assembly.members):
+        first = support(fresh.get(i, 0.0))
+        for j in assembly.members[position + 1 :]:
+            forward = graph.synapse(_key(i, j, SynapseScope.LOCAL))
+            reverse = graph.synapse(_key(j, i, SynapseScope.LOCAL))
+            if (
+                forward is None
+                or reverse is None
+                or forward.state is not SynapseState.CONSOLIDATED
+                or reverse.state is not SynapseState.CONSOLIDATED
+            ):
+                continue
+            weight = min(quality(forward), quality(reverse))
+            if weight < parameter("theta_A"):
+                continue
+            numerator += weight * min(first, support(fresh.get(j, 0.0)))
+            denominator += weight
+    if denominator <= 0.0:
+        raise ValueError("INVALID_ASSEMBLY_RECIPROCAL_STRUCTURE")
+    return support(numerator / denominator)
+
+
 @dataclass(frozen=True, slots=True)
 class AttractorState:
     assembly_id: int
     strength: float
     age: int
     error: float
+    generation: int = 1
 
     def __post_init__(self) -> None:
-        if type(self.assembly_id) is not int or self.assembly_id < 0:
+        if (
+            type(self.assembly_id) is not int
+            or self.assembly_id < 0
+            or type(self.generation) is not int
+            or self.generation < 1
+        ):
             raise ValueError("INVALID_ATTRACTOR_ID")
         support(self.strength)
         if (
@@ -94,37 +156,37 @@ class AttractorState:
 def transition(
     previous: AttractorState | None,
     *,
-    assembly_id: int,
-    fresh_mean: float,
+    graph: GraphSnapshot,
+    assembly: AssemblyFixture,
+    fresh: Mapping[int, float],
+    bindings: Mapping[int, ContextBindingFixture] | None = None,
     boundary: bool = False,
-    cohesion: float | None = None,
     comparable: tuple[tuple[float, float], ...] = (),
 ) -> tuple[AttractorState | None, str | None]:
-    """Cohesion, if supplied, is an explicit synthetic scalar; not inferred.
+    """Fixture-only Attractor calculation; no scalar can authorize cohesion.
 
-    RC4.2 names a cohesion threshold but gives no cohesion formula. Automatic
-    admission requiring that score therefore raises I2-S02 instead of choosing
-    mean pair quality/density/specificity. Existing qualified states can decay.
-    Comparable pairs are explicit externally comparable (prediction,observation)
-    fixture measurements, not an I2 certificate for external outcomes.
+    Comparable outcome pairs are synthetic fixture data, not real external proof.
     """
-    support(fresh_mean)
     if type(boundary) is not bool or type(comparable) is not tuple:
         raise ValueError("INVALID_ATTRACTOR_INPUT")
-    if previous and previous.assembly_id != assembly_id:
+    if previous and (previous.assembly_id, previous.generation) != (
+        assembly.assembly_id,
+        assembly.generation,
+    ):
         raise ValueError("ATTRACTOR_ID_MISMATCH")
+    cohesion = cohesion_from_graph_and_fresh(graph, assembly, fresh, bindings)
+    fresh_total = 0.0
+    for member in assembly.members:
+        fresh_total += support(fresh.get(member, 0.0))
+    fresh_mean = fresh_total / len(assembly.members)
     if boundary:
         return None, "ATTRACTOR_BOUNDARY_COLLAPSE"
     if previous is None:
         if fresh_mean < parameter("theta_in"):
             return None, None
-        if cohesion is None:
-            raise SpecBlocked(
-                "I2-S02: Core §2.1 cohesion>=theta_ctx_form has no executable cohesion definition"
-            )
-        if support(cohesion) < parameter("theta_ctx_form"):
+        if cohesion < parameter("theta_ctx_form"):
             return None, "ATTRACTOR_INSUFFICIENT_COHESION"
-        return AttractorState(assembly_id, fresh_mean, 0, 0.0), None
+        return AttractorState(assembly.assembly_id, fresh_mean, 0, 0.0, assembly.generation), None
     age = previous.age + 1
     if age >= int(parameter("T_max")):
         return None, "ATTRACTOR_AGE_COLLAPSE"
@@ -139,4 +201,4 @@ def transition(
     if error > parameter("Theta_err"):
         return None, "ATTRACTOR_ERROR_COLLAPSE"
     strength = max(parameter("rho_s") * previous.strength, fresh_mean)
-    return AttractorState(assembly_id, strength, age, error), None
+    return AttractorState(assembly.assembly_id, strength, age, error, assembly.generation), None

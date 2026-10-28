@@ -128,5 +128,5 @@ def assembly_fixture():
         builder,
         frozen,
         Homeostasis.uniform_language(frozen.committed_ids),
-        AssemblyFixture(7, members),
+        AssemblyFixture(7, members).bind(frozen),
     )

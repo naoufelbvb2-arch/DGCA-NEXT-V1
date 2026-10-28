@@ -26,7 +26,6 @@ def test_T25_fresh_zero_without_input_even_with_residual_and_attractor():
         (FeatureEvent((("a", "1"),)), FeatureEvent(())),
         session_id=1,
         assemblies=(assembly,),
-        fixture_cohesion={7: 0.8},
     )
     assert first.fresh is not None and second.fresh is not None
     assert first.state.attractors
@@ -44,7 +43,6 @@ def test_T26_previous_only_sigma_and_decay():
         (FeatureEvent((("a", "1"),)), FeatureEvent(())),
         session_id=1,
         assemblies=(assembly,),
-        fixture_cohesion={7: 0.8},
     )
     assert first.sigma == {}
     strength = first.state.attractors[0].strength
@@ -55,46 +53,71 @@ def test_T26_previous_only_sigma_and_decay():
 
 
 def test_T26_error_and_collapse_precedence():
+    _, _, graph, _, assembly = assembly_fixture()
+    fresh = dict.fromkeys(assembly.members, 1.0)
     old = AttractorState(7, 0.7, 29, 1.5)
     assert (
-        transition(old, assembly_id=7, fresh_mean=1.0, boundary=True, comparable=((1.0, 0.0),))[1]
+        transition(
+            old,
+            graph=graph,
+            assembly=assembly,
+            fresh=fresh,
+            boundary=True,
+            comparable=((1.0, 0.0),),
+        )[1]
         == "ATTRACTOR_BOUNDARY_COLLAPSE"
     )
     assert (
-        transition(old, assembly_id=7, fresh_mean=1.0, comparable=((1.0, 0.0),))[1]
+        transition(old, graph=graph, assembly=assembly, fresh=fresh, comparable=((1.0, 0.0),))[1]
         == "ATTRACTOR_AGE_COLLAPSE"
     )
     assert (
-        transition(replace(old, age=0), assembly_id=7, fresh_mean=1.0, comparable=((1.0, 0.0),))[1]
+        transition(
+            replace(old, age=0),
+            graph=graph,
+            assembly=assembly,
+            fresh=fresh,
+            comparable=((1.0, 0.0),),
+        )[1]
         == "ATTRACTOR_ERROR_COLLAPSE"
     )
-    unchanged, _ = transition(replace(old, age=0), assembly_id=7, fresh_mean=0.8)
+    unchanged, _ = transition(
+        replace(old, age=0),
+        graph=graph,
+        assembly=assembly,
+        fresh=dict.fromkeys(assembly.members, 0.8),
+    )
     assert unchanged.error == 1.5
-    assert unchanged.strength == 0.8
+    assert unchanged.strength == pytest.approx(0.8)
     updated, _ = transition(
         AttractorState(7, 0.7, 0, 0.2),
-        assembly_id=7,
-        fresh_mean=1.0,
+        graph=graph,
+        assembly=assembly,
+        fresh=fresh,
         comparable=((0.5, 0.0), (0.8, 1.0), (0.24, 0.0)),
     )
     assert updated.error == 0.45  # Two eligible comparables; no error reset on fresh.
 
 
-def test_T26_admission_thresholds_explicit_synthetic_cohesion():
-    assert transition(None, assembly_id=7, fresh_mean=0.399999) == (None, None)
-    assert transition(None, assembly_id=7, fresh_mean=0.4, cohesion=0.499999)[0] is None
-    admitted, _ = transition(None, assembly_id=7, fresh_mean=0.4, cohesion=0.5)
-    assert admitted == AttractorState(7, 0.4, 0, 0.0)
+def test_T26_admission_thresholds_derived_from_physical_fresh_activity():
+    _, _, graph, _, assembly = assembly_fixture()
+    assert transition(
+        None, graph=graph, assembly=assembly, fresh=dict.fromkeys(assembly.members, 0.399999)
+    ) == (None, None)
+    partial = dict(zip(assembly.members, (1.0, 1.0, 0.0), strict=True))
+    assert transition(None, graph=graph, assembly=assembly, fresh=partial)[0] is None
+    admitted, _ = transition(
+        None, graph=graph, assembly=assembly, fresh=dict.fromkeys(assembly.members, 0.5)
+    )
+    assert admitted == AttractorState(7, 0.5, 0, 0.0)
 
 
-def test_SPEC_BLOCKED_S02_missing_cohesion_definition():
-    with pytest.raises(SpecBlocked, match="I2-S02"):
-        transition(None, assembly_id=7, fresh_mean=0.4)
+def test_S02_real_fresh_cohesion_admission_with_read_only_input():
     _, _, graph, h, assembly = assembly_fixture()
-    with pytest.raises(SpecBlocked, match="I2-S02"):
-        read_only_episode(
-            graph, h, (FeatureEvent((("a", "1"),)),), session_id=1, assemblies=(assembly,)
-        )
+    trace = read_only_episode(
+        graph, h, (FeatureEvent((("a", "1"),)),), session_id=1, assemblies=(assembly,)
+    )[0]
+    assert trace.state.attractors and trace.state.attractors[0].strength >= 0.5
 
 
 def test_assembly_requires_actual_reciprocity_and_membership():

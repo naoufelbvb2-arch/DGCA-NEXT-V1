@@ -35,7 +35,6 @@ def test_T28_preserve_attractor_residual_and_homeostasis():
         (FeatureEvent((("a", "1"),)),),
         session_id=1,
         assemblies=(assembly,),
-        fixture_cohesion={7: 0.8},
     )[0]
     before = graph.structural_hash
     result = full_control(frozen, trace.state)

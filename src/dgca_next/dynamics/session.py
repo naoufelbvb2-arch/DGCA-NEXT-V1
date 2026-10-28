@@ -15,7 +15,7 @@ from dgca_next.dynamics.attractor import (
 from dgca_next.dynamics.context_gate import ContextBindingFixture, gate
 from dgca_next.dynamics.drive import Drive, aggregate, temporal_drives
 from dgca_next.dynamics.frontier import Frontiers, final_frontiers
-from dgca_next.dynamics.numeric import parameter, q6, support
+from dgca_next.dynamics.numeric import parameter, q6
 from dgca_next.dynamics.provenance import Contribution, Lane, RuntimeSupport, SourceKind
 from dgca_next.dynamics.routing import contextual_targets, source_mask
 from dgca_next.dynamics.state import GraphSnapshot, Homeostasis, frozen_numbers
@@ -63,7 +63,6 @@ class RuntimeState:
     bindings: tuple[ContextBindingFixture, ...] = ()
     assemblies: tuple[AssemblyFixture, ...] = ()
     attractors: tuple[AttractorState, ...] = ()
-    fixture_cohesion: Mapping[int, float] = field(default_factory=dict)
     _authority: object = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
@@ -93,11 +92,6 @@ class RuntimeState:
             raise ValueError("DUPLICATE_CONTEXT_DESCRIPTOR")
         if len({a.assembly_id for a in self.assemblies}) != len(self.assemblies):
             raise ValueError("DUPLICATE_ASSEMBLY_FIXTURE")
-        object.__setattr__(
-            self,
-            "fixture_cohesion",
-            MappingProxyType({i: support(v) for i, v in sorted(self.fixture_cohesion.items())}),
-        )
 
 
 def cold_state(
@@ -107,10 +101,11 @@ def cold_state(
     session_id: int,
     bindings: tuple[ContextBindingFixture, ...] = (),
     assemblies: tuple[AssemblyFixture, ...] = (),
-    fixture_cohesion: Mapping[int, float] | None = None,
 ) -> RuntimeState:
     context_by_cell = {binding.z: binding for binding in bindings}
     for assembly in assemblies:
+        if assembly.bound_identity is None or assembly.bound_graph_hash is None:
+            raise ValueError("UNVERIFIED_ASSEMBLY_GENERATION")
         validate_assembly(graph, assembly, context_by_cell)
     return RuntimeState(
         session_id,
@@ -119,7 +114,6 @@ def cold_state(
         homeostasis,
         bindings=bindings,
         assemblies=assemblies,
-        fixture_cohesion={} if fixture_cohesion is None else fixture_cohesion,
         _authority=_issue_permit(),
     )
 
@@ -133,7 +127,6 @@ def cold_reset(state: RuntimeState) -> RuntimeState:
         state.homeostasis,
         bindings=state.bindings,
         assemblies=state.assemblies,
-        fixture_cohesion=state.fixture_cohesion,
         _authority=_issue_permit(),
     )
 
@@ -341,13 +334,13 @@ def read_only_step(
     prior_attractors = {a.assembly_id: a for a in previous.attractors}
     for assembly in state.assemblies:
         assert fresh is not None
-        mean = sum(fresh.second.activity[i] for i in assembly.members) / len(assembly.members)
         attractor, diagnostic = transition(
             prior_attractors.get(assembly.assembly_id),
-            assembly_id=assembly.assembly_id,
-            fresh_mean=mean,
+            graph=graph,
+            assembly=assembly,
+            fresh=fresh.second.activity,
+            bindings={b.z: b for b in state.bindings},
             boundary=event.boundary,
-            cohesion=state.fixture_cohesion.get(assembly.assembly_id),
         )
         if attractor:
             attractors.append(attractor)
@@ -369,7 +362,6 @@ def read_only_step(
         bindings=state.bindings,
         assemblies=state.assemblies,
         attractors=tuple(attractors),
-        fixture_cohesion=state.fixture_cohesion,
         _authority=_issue_permit(),
     )
     if fail_hook:
@@ -400,7 +392,6 @@ def read_only_episode(
     session_id: int,
     bindings: tuple[ContextBindingFixture, ...] = (),
     assemblies: tuple[AssemblyFixture, ...] = (),
-    fixture_cohesion: Mapping[int, float] | None = None,
 ) -> tuple[EventTrace, ...]:
     state = cold_state(
         graph,
@@ -408,7 +399,6 @@ def read_only_episode(
         session_id=session_id,
         bindings=bindings,
         assemblies=assemblies,
-        fixture_cohesion=fixture_cohesion,
     )
     traces = []
     for event in events:
