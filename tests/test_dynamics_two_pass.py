@@ -88,13 +88,14 @@ def test_T31_same_state_bit_identical_and_immutable():
 
 
 @pytest.mark.parametrize("state", [SynapseState.CANDIDATE, SynapseState.EPISODIC_INDEXED])
-def test_SPEC_BLOCKED_S01_live_versus_consolidated_pass2(state):
+def test_S01_live_nonconsolidated_pass2_propagates_own_quality(state):
     graph, _, frozen, h = fixture_graph(
         ((8192, 8200, SynapseScope.LOCAL, 0.6, 1.0, 0.0, state),), cells=tuple(range(8192, 8202))
     )
     before = graph.debug_dump()
-    with pytest.raises(SpecBlocked, match="I2-S01"):
-        two_pass(frozen, h, {}, {8192: 1.0}, {}, {})
+    result = two_pass(frozen, h, {}, {8192: 1.0}, {}, {})
+    assert result.synchronous[0].value == result.first.activity[8192] * 0.06
+    assert result.second.activity[8200] > 0
     assert graph.debug_dump() == before
 
 

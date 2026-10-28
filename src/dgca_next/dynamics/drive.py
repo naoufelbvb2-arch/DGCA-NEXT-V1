@@ -4,9 +4,9 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 
 from dgca_next.contracts import SynapseScope
-from dgca_next.dynamics.numeric import SpecBlocked, noisy_or, support
+from dgca_next.dynamics.numeric import noisy_or, support
 from dgca_next.dynamics.state import GraphSnapshot
-from dgca_next.graph import Synapse, SynapseState
+from dgca_next.graph import Synapse
 from dgca_next.graph.synapse import quality
 
 
@@ -53,16 +53,15 @@ def synchronous_drives(
     graph: GraphSnapshot, activity: Mapping[int, float], emitters: frozenset[int]
 ) -> tuple[Drive, ...]:
     drives = []
+    committed = graph.committed_ids
     for synapse in sorted(graph.synapses(), key=contributor_order):
         key = synapse.key
         source, target = key.source.cell_id, key.target.cell_id
         if key.scope is not SynapseScope.ASSOCIATIVE and source in emitters:
-            if synapse.state is not SynapseState.CONSOLIDATED:
-                raise SpecBlocked(
-                    "I2-S01: Core §1.4/§5 and LLA §4.1 use live Q; "
-                    "I2 contract §3 requires consolidated pass-2 Q: "
-                    f"{source}->{target}/{key.scope.value}/{synapse.state.value}"
-                )
+            if source not in committed or target not in committed:
+                raise ValueError("INVALID_LIVE_SYNAPSE_COMMITMENT")
+            if not graph.eligible(source, target):
+                raise ValueError("INVALID_LIVE_SYNAPSE_ELIGIBILITY")
             value = support(activity[source]) * quality(synapse)
             if value:
                 drives.append(Drive(source, target, key.scope, value))
