@@ -1,6 +1,5 @@
 """Witnessed P02 proposal derivation from frozen production EVENT records."""
 
-import json
 from dataclasses import dataclass
 
 from dgca_next.contracts import CellAddress, Region, SynapseKey, SynapseScope
@@ -8,9 +7,11 @@ from dgca_next.dynamics.state import GraphSnapshot
 from dgca_next.graph.synapse import ProductionCredit
 from dgca_next.learning.evidence import preview_positive_numbers
 from dgca_next.learning.production_event import ExternalEventObservation
+from dgca_next.persistence.binary_records import decode_record, encode_record
 from dgca_next.persistence.graph_codec import _float, _key, _read_key
 
-_TAG = b"DGCA-P02-P\x01\0"
+_TAG = 0x50
+_VERSION = 2
 
 
 @dataclass(frozen=True, slots=True)
@@ -127,25 +128,23 @@ def encode_proposals(proposals: tuple[LinkProposal, ...]) -> bytes:
                 c.source_event_id,
                 c.source_digest,
                 c.target_digest,
-                c.source_activity.hex(),
-                c.target_activity.hex(),
-                c.target_threshold.hex(),
-                c.q.hex(),
-                c.y.hex(),
-                p.coactivity.hex(),
+                c.source_activity,
+                c.target_activity,
+                c.target_threshold,
+                c.q,
+                c.y,
+                p.coactivity,
                 p.event_graph_hash,
                 p.source_x_fixed,
                 p.target_x_fixed,
             ]
         )
-    return _TAG + json.dumps(rows, separators=(",", ":"), ensure_ascii=True).encode("ascii")
+    return encode_record(_TAG, _VERSION, rows)
 
 
 def decode_proposals(data: bytes) -> tuple[LinkProposal, ...]:
-    if type(data) is not bytes or not data.startswith(_TAG):
-        raise ValueError("UNSUPPORTED_PROPOSAL_SCHEMA")
     try:
-        rows = json.loads(data[len(_TAG) :].decode("ascii"))
+        rows = decode_record(data, _TAG, _VERSION)
         if type(rows) is not list:
             raise ValueError("INVALID_PROPOSAL_JOURNAL")
         result = []
@@ -160,5 +159,5 @@ def decode_proposals(data: bytes) -> tuple[LinkProposal, ...]:
         if encode_proposals(proposals) != data:
             raise ValueError("NONCANONICAL_PROPOSAL_JOURNAL")
         return proposals
-    except (KeyError, TypeError, IndexError, UnicodeError, json.JSONDecodeError) as exc:
+    except (KeyError, TypeError, IndexError, UnicodeError) as exc:
         raise ValueError("INVALID_PROPOSAL_JOURNAL") from exc

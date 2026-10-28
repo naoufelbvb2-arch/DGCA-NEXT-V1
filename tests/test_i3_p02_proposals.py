@@ -1,10 +1,14 @@
 """Production EVENT witness staging; OPEN/ABORT cannot publish evidence."""
 
+from dataclasses import replace
 from pathlib import Path
+from types import MappingProxyType
 
 import pytest
 
 from dgca_next.contracts import SynapseScope
+from dgca_next.graph import SparseNetwork
+from dgca_next.learning.settlement import _select_root_max, _settle
 from dgca_next.persistence.store import RootStore
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -68,3 +72,62 @@ def test_empty_or_boundary_event_does_not_mint_temporal_witness(tmp_path):
     )
     store.abort(1)
     store.close()
+
+
+def test_full_binary64_near_tie_keeps_the_larger_q_and_its_paired_y(tmp_path):
+    """Synthetic numbers exercise the comparator only, never publication."""
+    engine = open_store(tmp_path / "root.sqlite")
+    engine.begin(1)
+    engine.event(1, 0, (("a", "1"),))
+    engine.event(1, 1, (("a", "1"),))
+    genuine = engine.pending_proposals(1)[0]
+    earlier = replace(genuine, credit=replace(genuine.credit, q=0.5, y=0.8, ordinal=0))
+    later = replace(genuine, credit=replace(genuine.credit, q=0.5000001, y=0.7, ordinal=1))
+    assert _select_root_max((earlier, later), 1)[genuine.key] == later
+    assert _select_root_max((earlier, later), 1)[genuine.key].credit.y == 0.7
+    with pytest.raises(TypeError):
+        engine.end(1, proposals=(later,))
+    assert engine.graph().synapses() == ()
+    engine.abort(1)
+    engine.close()
+
+
+def test_close_refuses_a_physically_stale_pair_in_an_isolated_shadow(tmp_path):
+    """Synthetic deletion exercises a refusal; it is never published to RootStore."""
+    engine = open_store(tmp_path / "stale.sqlite")
+    engine.begin(1)
+    engine.event(1, 0, (("a", "1"),))
+    engine.event(1, 1, (("a", "1"),))
+    proposal = engine.pending_proposals(1)[0]
+    graph = engine.graph()
+    base = graph._state
+    slots, reverse, wiring = dict(base.slots), dict(base.reverse), list(base.wiring_log)
+    source, target = proposal.key.source.cell_id, proposal.key.target.cell_id
+    for owner, other in ((source, target), (target, source)):
+        layout = list(slots[owner])
+        for slot in layout:
+            if slot.target_id != other:
+                continue
+            assert slot.recyclable_category
+            layout[slot.index] = replace(slot, target_id=None, assignment=None)
+            remaining = reverse[other] - {(owner, slot.index)}
+            if remaining:
+                reverse[other] = remaining
+            else:
+                del reverse[other]
+            wiring.append((owner, slot.index, other, -1))
+        slots[owner] = tuple(layout)
+    isolated = SparseNetwork()
+    isolated._state = replace(
+        base,
+        slots=MappingProxyType(slots),
+        reverse=MappingProxyType(reverse),
+        wiring_log=tuple(wiring),
+    )
+    isolated.validate_graph()
+    assert not isolated.structurally_eligible(source, target)
+    after, close = _settle(isolated, 1, 1, (proposal,))
+    assert not close.accepted and close.refused[0].reason == "STALE_LATENT_ELIGIBILITY"
+    assert after.synapses() == () and engine.graph().synapses() == ()
+    engine.abort(1)
+    engine.close()

@@ -238,6 +238,37 @@ class SparseNetwork:
                     ]
                     for s in self.synapses()
                 ],
+                **(
+                    {
+                        "production_evidence": [
+                            [
+                                key_order(s.key),
+                                s.candidate_deadline,
+                                [
+                                    [
+                                        c.root_id,
+                                        c.event_id,
+                                        c.event_order,
+                                        c.ordinal,
+                                        c.source_event_id,
+                                        c.source_digest,
+                                        c.target_digest,
+                                        number(c.source_activity),
+                                        number(c.target_activity),
+                                        number(c.target_threshold),
+                                        number(c.q),
+                                        number(c.y),
+                                    ]
+                                    for c in s.credits
+                                ],
+                            ]
+                            for s in self.synapses()
+                            if not s.fixture_only
+                        ]
+                    }
+                    if any(not s.fixture_only for s in self.synapses())
+                    else {}
+                ),
                 "reservations": [
                     [key_order(key), sorted(state.reservations[key])]
                     for key in self.reserved_keys()

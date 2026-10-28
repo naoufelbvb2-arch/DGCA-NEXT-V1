@@ -1,7 +1,6 @@
 """Immutable, serialized production event observations, not evidence updates."""
 
 import hashlib
-import json
 import math
 from dataclasses import InitVar, dataclass
 
@@ -11,8 +10,21 @@ from dgca_next.graph.latent import LATENT_POLICY_VERSION
 from dgca_next.integrity import EXPECTED_SPECS
 from dgca_next.learning.homeostasis_profile import PROFILE_VERSION
 from dgca_next.peripheral.sic import SICProjection, project
+from dgca_next.persistence.binary_records import decode_record, encode_record
 
-_TAG = b"DGCA-P01-E\x01\0"
+_TAG = 0x45
+_VERSION = 2
+_NUMERIC_FIELDS = (
+    "previous",
+    "pass1_raw",
+    "pass1_normalized",
+    "pass1",
+    "final_raw",
+    "final_normalized",
+    "final",
+    "temporal",
+    "synchronous",
+)
 _PERMIT = object()
 SALT_HASH = hashlib.sha256(
     b"".join(
@@ -84,18 +96,32 @@ class ExternalEventObservation:
 
 
 def encode_event(payload: dict[str, object]) -> bytes:
-    return _TAG + json.dumps(
-        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
-    ).encode("ascii")
+    packed = dict(payload)
+    for name in _NUMERIC_FIELDS:
+        rows = payload[name]
+        if type(rows) is not list:
+            raise ValueError("INVALID_EVENT_NUMERIC_TRACE")
+        values: dict[int, float] = {}
+        for row in rows:
+            if (
+                type(row) is not list
+                or len(row) != 2
+                or type(row[0]) is not int
+                or type(row[1]) is not str
+            ):
+                raise ValueError("INVALID_EVENT_NUMERIC_TRACE")
+            values[row[0]] = float.fromhex(row[1])
+        if _numbers(values) != rows:
+            raise ValueError("NONCANONICAL_EVENT_NUMBERS")
+        packed[name] = [[key, value] for key, value in sorted(values.items())]
+    return encode_record(_TAG, _VERSION, packed)
 
 
 def decode_event(
     raw: bytes, *, _verified_projection: SICProjection | None = None
 ) -> ExternalEventObservation:
-    if type(raw) is not bytes or not raw.startswith(_TAG):
-        raise ValueError("UNSUPPORTED_EVENT_SCHEMA")
     try:
-        doc = json.loads(raw[len(_TAG) :].decode("ascii"))
+        doc = decode_record(raw, _TAG, _VERSION)
         expected = {
             "exposure",
             "event",
@@ -131,7 +157,24 @@ def decode_event(
             "salt_hash",
             "h_profile",
         }
-        if type(doc) is not dict or set(doc) != expected or encode_event(doc) != raw:
+        if type(doc) is not dict or set(doc) != expected:
+            raise ValueError("NONCANONICAL_EVENT")
+        for name in _NUMERIC_FIELDS:
+            rows = doc[name]
+            if type(rows) is not list:
+                raise ValueError("INVALID_EVENT_NUMERIC_TRACE")
+            converted = []
+            for row in rows:
+                if (
+                    type(row) is not list
+                    or len(row) != 2
+                    or type(row[0]) is not int
+                    or type(row[1]) is not float
+                ):
+                    raise ValueError("INVALID_EVENT_NUMERIC_TRACE")
+                converted.append([row[0], row[1].hex()])
+            doc[name] = converted
+        if encode_event(doc) != raw:
             raise ValueError("NONCANONICAL_EVENT")
         for name in ("exposure", "event", "order", "salience"):
             if type(doc[name]) is not int or doc[name] < 0:
@@ -257,5 +300,5 @@ def decode_event(
             doc["h_profile"],
             _authority=_PERMIT,
         )
-    except (KeyError, TypeError, UnicodeError, json.JSONDecodeError, OverflowError) as exc:
+    except (KeyError, TypeError, UnicodeError, OverflowError) as exc:
         raise ValueError("INVALID_EVENT_RECORD") from exc

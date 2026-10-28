@@ -1,6 +1,5 @@
 """Canonical P02 production W encoding; fixture graph records are forbidden."""
 
-import json
 import math
 from dataclasses import replace
 from types import MappingProxyType
@@ -11,8 +10,10 @@ from dgca_next.graph.latent import LATENT_POLICY_VERSION, SlotAssignment, empty_
 from dgca_next.graph.network import SparseNetwork, _State
 from dgca_next.graph.policy import InitializationRecord
 from dgca_next.graph.synapse import ProductionCredit, Synapse, SynapseState
+from dgca_next.persistence.binary_records import decode_record, encode_record
 
-_TAG = b"DGCA-P02-W\x02\0"
+_TAG = 0x57
+_VERSION = 2
 
 
 def _key(key: SynapseKey) -> list[object]:
@@ -31,12 +32,11 @@ def _read_key(row: list[object]) -> SynapseKey:
 
 
 def _float(value: object) -> float:
-    if type(value) is not str:
+    if type(value) is not float:
         raise ValueError("INVALID_PRODUCTION_NUMBER")
-    result = float.fromhex(value)
-    if not math.isfinite(result) or result < 0 or (0.0 if result == 0 else result).hex() != value:
+    if not math.isfinite(value) or value < 0:
         raise ValueError("NONCANONICAL_PRODUCTION_NUMBER")
-    return result
+    return value
 
 
 def encode_production_graph(network: SparseNetwork) -> bytes:
@@ -91,9 +91,9 @@ def encode_production_graph(network: SparseNetwork) -> bytes:
                 _key(s.key),
                 s.delta,
                 s.state.value,
-                s.S.hex(),
-                s.E_ext.hex(),
-                s.E_int.hex(),
+                s.S,
+                s.E_ext,
+                s.E_int,
                 s.external_root_count,
                 s.created_event,
                 s.protected,
@@ -107,11 +107,11 @@ def encode_production_graph(network: SparseNetwork) -> bytes:
                         c.source_event_id,
                         c.source_digest,
                         c.target_digest,
-                        c.source_activity.hex(),
-                        c.target_activity.hex(),
-                        c.target_threshold.hex(),
-                        c.q.hex(),
-                        c.y.hex(),
+                        c.source_activity,
+                        c.target_activity,
+                        c.target_threshold,
+                        c.q,
+                        c.y,
                     ]
                     for c in s.credits
                 ],
@@ -128,17 +128,12 @@ def encode_production_graph(network: SparseNetwork) -> bytes:
     }
     if any(s.fixture_only for s in network.synapses()):
         raise ValueError("FIXTURE_GRAPH_FORBIDDEN")
-    return (
-        _TAG
-        + json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()
-    )
+    return encode_record(_TAG, _VERSION, payload)
 
 
 def decode_production_graph(data: bytes) -> SparseNetwork:
-    if type(data) is not bytes or not data.startswith(_TAG):
-        raise ValueError("UNSUPPORTED_PRODUCTION_W_SCHEMA")
     try:
-        doc = json.loads(data[len(_TAG) :].decode("ascii"))
+        doc = decode_record(data, _TAG, _VERSION)
         if type(doc) is not dict or set(doc) != {
             "cells",
             "reverse",
@@ -249,5 +244,5 @@ def decode_production_graph(data: bytes) -> SparseNetwork:
         if encode_production_graph(network) != data:
             raise ValueError("NONCANONICAL_PRODUCTION_W")
         return network
-    except (UnicodeError, json.JSONDecodeError, KeyError, TypeError, IndexError) as exc:
+    except (UnicodeError, KeyError, TypeError, IndexError) as exc:
         raise ValueError("INVALID_PRODUCTION_W") from exc
