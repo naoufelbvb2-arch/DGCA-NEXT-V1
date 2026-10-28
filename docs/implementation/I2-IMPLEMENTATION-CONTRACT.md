@@ -1,3 +1,10 @@
+> **2026-10-27 approved supersession:** RC4.3 and
+> `I2-S01-S03-APPROVED-EXECUTION-CONTRACT.md` resolve S01–S03. In §3 below,
+> the historical phrase requiring consolidated Q in pass 2 is superseded by
+> propagation through every structurally legal live link using actual Q; the
+> separate consolidated reciprocal Assembly requirement remains. Historical
+> RC4.2 source references and original wording below are retained for audit.
+
 # DGCA NEXT — I2 Neural Dynamics Implementation Contract
 
 **ID:** I2-IMPLEMENTATION-CONTRACT · **Revision:** R01 (2026-10-27)

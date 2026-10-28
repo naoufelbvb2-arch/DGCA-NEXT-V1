@@ -4,14 +4,14 @@ Research implementation of the **Dynamic Graph Cognitive Architecture — DCR**.
 
 ## Project status
 
-**I0 and I1 accepted. I2 neural dynamics are partial pending scientific decisions.**
+**I0 and I1 accepted. I2 RC4.3 remediation is in progress.**
 
 The foundation refers to two design-candidate specifications under `docs/specs/`:
 
-- `DGCA_CORE_RC4_2.md` — Core anatomy, dynamics, assemblies, contextual memory and bounded generation.
-- `DGCA_LLA_RC4_2.md` — local learning, evidence, consolidation and derived context witnesses.
+- `DGCA_CORE_RC4_3.md` — Core anatomy, dynamics, assemblies, contextual memory and bounded generation.
+- `DGCA_LLA_RC4_3.md` — local learning, evidence, consolidation and derived context witnesses.
 
-Both specifications are **RC4.2 / NOT FROZEN / NOT EMPIRICALLY VERIFIED**. I2 adds SIC projection and read-only numerical mechanics over physical fixtures; unresolved rules fail closed. These contracts do not prove model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
+Both specifications are **RC4.3 / NOT FROZEN / NOT EMPIRICALLY VERIFIED**. I2 adds SIC projection and read-only numerical mechanics over physical fixtures. The approved S01–S03 resolutions are being integrated. These contracts do not prove model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
 
 ## Implementation direction
 
@@ -53,7 +53,7 @@ git status --porcelain
 
 On Linux/macOS, substitute `.venv/bin/python` for the Windows interpreter path.
 Fetching `main` only updates the remote tracking ref; it does not switch branches
-or merge. Tests verify archival RC4.1 provenance at immutable commit fdcd3ea3c85b9c7484e89d043188a59d49907b71 and current RC4.2 bytes without network calls.
+or merge. Tests verify archival RC4.1 provenance at immutable commit fdcd3ea3c85b9c7484e89d043188a59d49907b71, archival RC4.2 at the RC4.3 migration parent, and current RC4.3 bytes without network calls.
 For a shallow clone, also fetch the archival object explicitly with
 `git fetch origin fdcd3ea3c85b9c7484e89d043188a59d49907b71`. The dedicated
 `.pytest-tmp` directory is disposable: pytest clears it each run. After committing
@@ -90,7 +90,7 @@ persistent reference. These are ownership contracts, not implementations of
 graph storage, scratch execution, adaptation, checkpointing, or rollback. Future
 runtime payload schemas and their binary field order/version remain to be defined.
 
-`dgca_next.config.load_lab_config()` returns the fixed RC4.2 baseline registry.
+`dgca_next.config.load_lab_config()` returns the fixed RC4.3 baseline registry.
 Every value has an exact Core/LLA section in `Parameter.origins`. It includes
 declared future-engine constants for traceability; it activates no scientific
 mechanism. `parameter(name)` raises `UnresolvedParameter` for an unregistered
@@ -123,7 +123,7 @@ All I0 tests are **contract tests**. Neural learning, Assembly formation, probes
 learned hierarchy, generation, surface attestation, and scientific success remain
 unimplemented. LLA-T01–T41, LG-T01–T16, and the Core
 scientific validation program are **NOT_RUN**. The first scientific gate remains
-I3/I4. Neither these tests nor a CI success freezes or empirically validates RC4.2.
+I3/I4. Neither these tests nor a CI success freezes or empirically validates RC4.3.
 
 The GitHub Actions workflow runs these checks on CPython 3.14 on Ubuntu and
 Windows. See `docs/implementation/I0-VERIFICATION-REPORT.md` for the executed
@@ -215,7 +215,7 @@ fixture wiring-log deltas; they are not persistence or save/load formats.
 
 The owner-approved policy is integrated into Core RC4.2 §1.3 and LLA RC4.2 §5.1.
 RC4.1 remains byte-reproducible at the immutable historical commits recorded in
-the source manifest. Only the two RC4.2 files are current scientific authorities.
+the source manifest. Only the two RC4.3 files are current scientific authorities.
 
 `initialize_layout()` is a pure explicit-input selector. The graph fixture API
 applies one simultaneous frozen co-birth snapshot with `initialize_cohort()`:
@@ -290,7 +290,7 @@ authorized on its feature branch; no I3 work is authorized by this I1 report.
 
 The migration record is `docs/implementation/I1-L01-SOURCE-MIGRATION.md`; old
 reports remain historical evidence. Automatic production recycling remains
-disabled until genuine I2/I3 novelty verification exists. RC4.2 remains
+disabled until genuine I2/I3 novelty verification exists. RC4.3 remains
 **NOT FROZEN / NOT EMPIRICALLY VERIFIED**.
 
 ## I2 read-only numerical reference and known blockers

@@ -1,4 +1,4 @@
-"""One fixed RC4.2 lab profile, with source origins on every value.
+"""One fixed RC4.3 lab profile, with source origins on every value.
 
 I0 validates declarations only; registry entries do not enable any engine.
 External TOML is a complete [lab] snapshot, never an implicit partial override.
@@ -16,8 +16,8 @@ from types import MappingProxyType
 from typing import Final
 
 Scalar = bool | int | float | str
-CORE: Final = "docs/specs/DGCA_CORE_RC4_2.md"
-LLA: Final = "docs/specs/DGCA_LLA_RC4_2.md"
+CORE: Final = "docs/specs/DGCA_CORE_RC4_3.md"
+LLA: Final = "docs/specs/DGCA_LLA_RC4_3.md"
 
 
 class ConfigurationError(ValueError):

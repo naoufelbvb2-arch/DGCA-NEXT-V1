@@ -1,3 +1,7 @@
+> Historical RC4.2 I2 checkpoint. The owner-approved RC4.3 S01–S03 migration
+> and its separate remediation report supersede the blocker status below;
+> original results are retained as historical execution evidence.
+
 # I2 neural dynamics verification
 
 Date: 2026-10-27 (America/New_York). Status: **I2 PARTIAL / SPEC_BLOCKED**.

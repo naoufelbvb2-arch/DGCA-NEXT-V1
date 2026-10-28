@@ -7,6 +7,7 @@ from typing import Final
 
 HISTORICAL_I0_COMMIT: Final = "fdcd3ea3c85b9c7484e89d043188a59d49907b71"
 RC4_2_MIGRATION_PARENT: Final = "673451ca905911931c60e3bece47e37e0e3d1e7a"
+RC4_3_MIGRATION_PARENT: Final = "ba36cab417574c7ee416e358f448bec54d0006f2"
 ARCHIVAL_SPECS: Final = (
     (
         "docs/specs/DGCA_CORE_RC4_1.md",
@@ -20,8 +21,7 @@ ARCHIVAL_SPECS: Final = (
     ),
 )
 
-# Updated with both raw RC4.2 artifacts in the atomic science-migration commit.
-EXPECTED_SPECS: Final = (
+ARCHIVAL_RC42_SPECS: Final = (
     (
         "docs/specs/DGCA_CORE_RC4_2.md",
         "570570a2a57c3b859ed3745c8812711cf36de89a47be50bdbf5f415a1b8dbc59",
@@ -31,6 +31,20 @@ EXPECTED_SPECS: Final = (
         "docs/specs/DGCA_LLA_RC4_2.md",
         "47ad994cbda467ae1ce0ffd6c2868522f5502897f6c4d2d1f3ab68b69ac1df30",
         "889025d76d70167de3070ffd8945878d37bf3dde",
+    ),
+)
+
+# Updated with both raw RC4.3 artifacts in the atomic science-migration commit.
+EXPECTED_SPECS: Final = (
+    (
+        "docs/specs/DGCA_CORE_RC4_3.md",
+        "41764eea3ddccdbd692325ecf7f03c243bf259bb46cc2b1820f7648125f3a53a",
+        "37a226f5d81b3c72685015ae7125f9d5d24af9f4",
+    ),
+    (
+        "docs/specs/DGCA_LLA_RC4_3.md",
+        "4c70fd84a8356e7871e6ac5bd14eeb800bf2347342512c4901e1e2191a89e958",
+        "4fbaef7f3922d41604bd649b1217fe2741d58b3e",
     ),
 )
 
@@ -50,12 +64,16 @@ def verify_specs(repository_root: Path) -> tuple[str, ...]:
         )
         if sorted(rows) != sorted(EXPECTED_SPECS):
             raise SpecIntegrityError(
-                "source manifest does not match the pinned current RC4.2 sources"
+                "source manifest does not match the pinned current RC4.3 sources"
             )
         if (
             HISTORICAL_I0_COMMIT not in manifest
             or RC4_2_MIGRATION_PARENT not in manifest
-            or any(sha not in manifest or blob not in manifest for _, sha, blob in ARCHIVAL_SPECS)
+            or RC4_3_MIGRATION_PARENT not in manifest
+            or any(
+                sha not in manifest or blob not in manifest
+                for _, sha, blob in (*ARCHIVAL_SPECS, *ARCHIVAL_RC42_SPECS)
+            )
         ):
             raise SpecIntegrityError("source manifest archival provenance changed")
         current = sorted(
