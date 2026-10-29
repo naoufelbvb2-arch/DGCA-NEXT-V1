@@ -9,6 +9,7 @@ from dgca_next.contracts import SynapseKey, SynapseScope
 from dgca_next.graph.audit import validate_state
 from dgca_next.graph.network import SparseNetwork, _eligible
 from dgca_next.graph.synapse import Synapse, SynapseState
+from dgca_next.learning.evidence import _positive_external_update
 from dgca_next.learning.proposals import LinkProposal, decode_proposals, encode_proposals
 from dgca_next.persistence.binary_records import decode_record, encode_record
 from dgca_next.persistence.graph_codec import _key, _read_key, encode_production_graph
@@ -28,6 +29,7 @@ class Refusal:
 class CloseResult:
     exposure_id: int
     close_serial: int
+    event_clock: int
     accepted: tuple[LinkProposal, ...]
     refused: tuple[Refusal, ...]
     graph_hash: str
@@ -52,10 +54,20 @@ def _select_root_max(
 
 
 def _settle(
-    graph: SparseNetwork, exposure_id: int, close_serial: int, proposals: tuple[LinkProposal, ...]
+    graph: SparseNetwork,
+    exposure_id: int,
+    close_serial: int,
+    proposals: tuple[LinkProposal, ...],
+    *,
+    event_clock: int,
 ) -> tuple[SparseNetwork, CloseResult]:
     """Reduce, check and apply in a shadow; caller owns atomic root authority."""
-    if type(graph) is not SparseNetwork or type(proposals) is not tuple:
+    if (
+        type(graph) is not SparseNetwork
+        or type(proposals) is not tuple
+        or type(event_clock) is not int
+        or event_clock < 0
+    ):
         raise ValueError("INVALID_CLOSE_INPUT")
     graph.validate_graph()
     if any(c.fixture_only for c in graph.stored_cells()) or any(
@@ -108,6 +120,14 @@ def _settle(
         ):
             refused.append(Refusal(key, "ROOT_ALREADY_CREDITED"))
             continue
+        if (
+            old is not None
+            and old.state is SynapseState.CANDIDATE
+            and old.candidate_deadline is not None
+            and event_clock > old.candidate_deadline
+        ):
+            refused.append(Refusal(key, "CANDIDATE_CONFIRMATION_EXPIRED"))
+            continue
         current_keys = outgoing.get(source, frozenset())
         if key not in current_keys and len(current_keys) >= int(_CONFIG.parameter("B_i").value):
             refused.append(Refusal(key, "SOURCE_OUTGOING_CAPACITY"))
@@ -133,12 +153,12 @@ def _settle(
                 False,
                 False,
                 (c,),
-                c.event_id + int(_CONFIG.parameter("W_conf").value),
+                event_clock + int(_CONFIG.parameter("W_conf").value),
             )
         else:
-            mass = old.E_ext + old.E_int
-            strength = (mass * old.S + c.q * c.y) / (mass + c.q)
-            external = min(limit, old.E_ext + c.q)
+            strength, external, internal = _positive_external_update(
+                old.S, old.E_ext, old.E_int, c.q, c.y
+            )
             credits = (*old.credits, c)
             state = old.state
             if (
@@ -151,7 +171,7 @@ def _settle(
                 old,
                 S=strength,
                 E_ext=external,
-                E_int=0.0,
+                E_int=internal,
                 external_root_count=len(credits),
                 credits=credits,
                 state=state,
@@ -171,7 +191,7 @@ def _settle(
     result_graph._state = shadow_state
     graph_hash = hashlib.sha256(encode_production_graph(result_graph)).hexdigest()
     return result_graph, CloseResult(
-        exposure_id, close_serial, tuple(accepted), tuple(refused), graph_hash
+        exposure_id, close_serial, event_clock, tuple(accepted), tuple(refused), graph_hash
     )
 
 
@@ -179,6 +199,7 @@ def encode_close(close: CloseResult) -> bytes:
     doc = {
         "root": close.exposure_id,
         "serial": close.close_serial,
+        "event_clock": close.event_clock,
         "accepted": encode_proposals(close.accepted),
         "refused": [[_key(r.key), r.reason] for r in close.refused],
         "W": close.graph_hash,
@@ -189,13 +210,22 @@ def encode_close(close: CloseResult) -> bytes:
 def decode_close(data: bytes) -> CloseResult:
     try:
         doc = decode_record(data, _TAG, _VERSION)
-        if type(doc) is not dict or set(doc) != {"root", "serial", "accepted", "refused", "W"}:
+        if type(doc) is not dict or set(doc) != {
+            "root",
+            "serial",
+            "event_clock",
+            "accepted",
+            "refused",
+            "W",
+        }:
             raise ValueError("INVALID_CLOSE_RECORD")
         if (
             type(doc["root"]) is not int
             or doc["root"] < 0
             or type(doc["serial"]) is not int
             or doc["serial"] < 1
+            or type(doc["event_clock"]) is not int
+            or doc["event_clock"] < 1
         ):
             raise ValueError("INVALID_CLOSE_RECORD")
         if (
@@ -208,6 +238,7 @@ def decode_close(data: bytes) -> CloseResult:
         result = CloseResult(
             doc["root"],
             doc["serial"],
+            doc["event_clock"],
             decode_proposals(doc["accepted"]),
             refused,
             doc["W"],

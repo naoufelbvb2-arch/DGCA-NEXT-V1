@@ -9,7 +9,7 @@ from dgca_next.graph.cell import Cell, ProductionAdmission
 from dgca_next.graph.latent import LATENT_POLICY_VERSION, SlotAssignment, empty_slots
 from dgca_next.graph.network import SparseNetwork, _State
 from dgca_next.graph.policy import InitializationRecord
-from dgca_next.graph.synapse import ProductionCredit, Synapse, SynapseState
+from dgca_next.graph.synapse import Synapse, SynapseState, _production_credit
 from dgca_next.persistence.binary_records import decode_record, encode_record
 
 _TAG = 0x57
@@ -202,7 +202,7 @@ def decode_production_graph(data: bytes) -> SparseNetwork:
                 if type(credit) is not list or len(credit) != 12:
                     raise ValueError("INVALID_PRODUCTION_CREDIT")
                 credits.append(
-                    ProductionCredit(*credit[:7], *(_float(value) for value in credit[7:]))
+                    _production_credit(*credit[:7], *(_float(value) for value in credit[7:]))
                 )
             synapses[key] = Synapse(
                 key,

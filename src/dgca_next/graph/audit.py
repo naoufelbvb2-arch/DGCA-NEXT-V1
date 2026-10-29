@@ -149,6 +149,11 @@ def _validate(state: _State) -> AuditReport:
         replace(synapse)
         _require(key == synapse.key, "SYNAPSE_KEY_RECORD_MISMATCH")
         check_key(key)
+        _require(
+            state.cells[key.source.cell_id].fixture_only == synapse.fixture_only
+            and state.cells[key.target.cell_id].fixture_only == synapse.fixture_only,
+            "SYNAPSE_ORIGIN_MISMATCH",
+        )
         source_event = state.cells[key.source.cell_id].committed_event
         target_event = state.cells[key.target.cell_id].committed_event
         _require(source_event is not None and target_event is not None, "MISSING_COMMITMENT_EVENT")

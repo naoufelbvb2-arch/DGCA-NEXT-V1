@@ -1,14 +1,16 @@
 """Production EVENT witness staging; OPEN/ABORT cannot publish evidence."""
 
-from dataclasses import replace
+from dataclasses import asdict, replace
 from pathlib import Path
 from types import MappingProxyType
 
 import pytest
 
 from dgca_next.contracts import SynapseScope
-from dgca_next.graph import SparseNetwork
+from dgca_next.graph import FixtureBuilder, SparseNetwork
+from dgca_next.graph.synapse import ProductionCredit, _production_credit
 from dgca_next.learning.settlement import _select_root_max, _settle
+from dgca_next.persistence.graph_codec import encode_production_graph
 from dgca_next.persistence.store import RootStore
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -81,8 +83,15 @@ def test_full_binary64_near_tie_keeps_the_larger_q_and_its_paired_y(tmp_path):
     engine.event(1, 0, (("a", "1"),))
     engine.event(1, 1, (("a", "1"),))
     genuine = engine.pending_proposals(1)[0]
-    earlier = replace(genuine, credit=replace(genuine.credit, q=0.5, y=0.8, ordinal=0))
-    later = replace(genuine, credit=replace(genuine.credit, q=0.5000001, y=0.7, ordinal=1))
+    values = asdict(genuine.credit)
+    with pytest.raises(ValueError, match="UNVERIFIED_PRODUCTION_CREDIT"):
+        ProductionCredit(**values)
+    earlier = replace(
+        genuine, credit=_production_credit(**(values | {"q": 0.5, "y": 0.8, "ordinal": 0}))
+    )
+    later = replace(
+        genuine, credit=_production_credit(**(values | {"q": 0.5000001, "y": 0.7, "ordinal": 1}))
+    )
     assert _select_root_max((earlier, later), 1)[genuine.key] == later
     assert _select_root_max((earlier, later), 1)[genuine.key].credit.y == 0.7
     with pytest.raises(TypeError):
@@ -126,8 +135,63 @@ def test_close_refuses_a_physically_stale_pair_in_an_isolated_shadow(tmp_path):
     )
     isolated.validate_graph()
     assert not isolated.structurally_eligible(source, target)
-    after, close = _settle(isolated, 1, 1, (proposal,))
+    after, close = _settle(isolated, 1, 1, (proposal,), event_clock=2)
     assert not close.accepted and close.refused[0].reason == "STALE_LATENT_ELIGIBILITY"
     assert after.synapses() == () and engine.graph().synapses() == ()
     engine.abort(1)
+    engine.close()
+
+
+def test_fixture_writer_cannot_publish_a_real_production_synapse(tmp_path):
+    engine = open_store(tmp_path / "separation.sqlite")
+    engine.begin(1)
+    engine.event(1, 0, (("a", "1"),))
+    engine.event(1, 1, (("a", "1"),))
+    engine.end(1)
+    link = engine.graph().synapses()[0]
+    fixture = SparseNetwork()
+    builder = FixtureBuilder(fixture)
+    builder.commit_cells((link.key.source.cell_id, link.key.target.cell_id), committed_event=0)
+    with pytest.raises(ValueError, match="FIXTURE_EDITOR_REJECTS_PRODUCTION_SYNAPSE"):
+        builder.add_synapse(link)
+    with pytest.raises(ValueError):
+        encode_production_graph(fixture)
+    assert fixture.synapses() == ()
+    engine.close()
+
+
+def test_empty_root_cannot_fabricate_a_completed_external_observation(tmp_path):
+    engine = open_store(tmp_path / "empty.sqlite")
+    engine.begin(1)
+    before = engine.view()
+    with pytest.raises(ValueError, match="EMPTY_EXTERNAL_EXPOSURE"):
+        engine.end(1)
+    assert engine.view() == before and engine.view().completed_closes == 0
+    engine.abort(1)
+    engine.close()
+
+
+def test_completed_event_clock_ignores_aborted_events_and_guards_expired_candidates(tmp_path):
+    engine = open_store(tmp_path / "clock.sqlite")
+    engine.begin(1)
+    engine.event(1, 0, (("a", "1"),))
+    engine.event(1, 1, ())
+    engine.event(1, 2, ())
+    engine.abort(1)
+    engine.begin(2)
+    actual = engine.event(2, 0, (("a", "1"),))
+    close = engine.end(2)
+    assert actual.event_id == 3 and close.event_clock == 1
+    graph = engine.graph()
+    assert graph.synapses() and all(s.candidate_deadline == 101 for s in graph.synapses())
+    engine.begin(3)
+    engine.event(3, 0, (("a", "1"),))
+    proposals = engine.pending_proposals(3)
+    assert proposals
+    # Synthetic future clock is used only to exercise the refusal, never to publish evidence.
+    shadow, simulated = _settle(graph, 3, 2, proposals, event_clock=102)
+    assert not simulated.accepted
+    assert all(r.reason == "CANDIDATE_CONFIRMATION_EXPIRED" for r in simulated.refused)
+    assert shadow.synapses() == graph.synapses()
+    engine.abort(3)
     engine.close()

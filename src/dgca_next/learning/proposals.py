@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from dgca_next.contracts import CellAddress, Region, SynapseKey, SynapseScope
 from dgca_next.dynamics.state import GraphSnapshot
-from dgca_next.graph.synapse import ProductionCredit
+from dgca_next.graph.synapse import ProductionCredit, _production_credit
 from dgca_next.learning.evidence import preview_positive_numbers
 from dgca_next.learning.production_event import ExternalEventObservation
 from dgca_next.persistence.binary_records import decode_record, encode_record
@@ -94,7 +94,7 @@ def _derive_proposals(
         numbers = preview_positive_numbers(key.scope, source_a, target_a, threshold)
         if not numbers.threshold_passed or numbers.q <= 0:
             continue
-        credit = ProductionCredit(
+        credit = _production_credit(
             event.exposure_id,
             event.event_id,
             event.event_order,
@@ -151,7 +151,7 @@ def decode_proposals(data: bytes) -> tuple[LinkProposal, ...]:
         for row in rows:
             if type(row) is not list or len(row) != 17:
                 raise ValueError("INVALID_PROPOSAL_JOURNAL")
-            credit = ProductionCredit(*row[1:8], *(_float(x) for x in row[8:13]))
+            credit = _production_credit(*row[1:8], *(_float(x) for x in row[8:13]))
             result.append(
                 LinkProposal(_read_key(row[0]), credit, _float(row[13]), row[14], row[15], row[16])
             )

@@ -1,7 +1,7 @@
 """Immutable synapse records; production credits are checked against root journals."""
 
 import math
-from dataclasses import dataclass
+from dataclasses import InitVar, dataclass
 from enum import Enum
 
 from dgca_next.config import load_lab_config
@@ -10,6 +10,7 @@ from dgca_next.graph.cell import nonnegative_integer
 
 _CONFIG = load_lab_config()
 E_MAX = float(_CONFIG.parameter("E_max").value)
+_CREDIT_TOKEN = object()
 
 
 class SynapseState(Enum):
@@ -38,8 +39,11 @@ class ProductionCredit:
     target_threshold: float
     q: float
     y: float
+    _authority: InitVar[object] = None
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, _authority: object) -> None:
+        if _authority is not _CREDIT_TOKEN:
+            raise ValueError("UNVERIFIED_PRODUCTION_CREDIT")
         for name in ("root_id", "event_id", "event_order", "ordinal", "source_event_id"):
             nonnegative_integer(getattr(self, name), name)
         for name in ("source_digest", "target_digest"):
@@ -56,6 +60,38 @@ class ProductionCredit:
                 raise ValueError("INVALID_CREDIT_VALUE")
         if self.q <= 0 or self.y < float(_CONFIG.parameter("theta_S").value):
             raise ValueError("INVALID_POSITIVE_CREDIT")
+
+
+def _production_credit(
+    root_id: int,
+    event_id: int,
+    event_order: int,
+    ordinal: int,
+    source_event_id: int,
+    source_digest: str,
+    target_digest: str,
+    source_activity: float,
+    target_activity: float,
+    target_threshold: float,
+    q: float,
+    y: float,
+) -> ProductionCredit:
+    """Internal decoding/derivation only; root journal validates the provenance."""
+    return ProductionCredit(
+        root_id,
+        event_id,
+        event_order,
+        ordinal,
+        source_event_id,
+        source_digest,
+        target_digest,
+        source_activity,
+        target_activity,
+        target_threshold,
+        q,
+        y,
+        _authority=_CREDIT_TOKEN,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -103,8 +139,8 @@ class Synapse:
                 != tuple(sorted({c.root_id for c in self.credits}))
                 or self.created_event != self.credits[0].event_id
                 or self.E_int != 0.0
-                or self.candidate_deadline
-                != self.created_event + int(_CONFIG.parameter("W_conf").value)
+                or type(self.candidate_deadline) is not int
+                or self.candidate_deadline < int(_CONFIG.parameter("W_conf").value)
             ):
                 raise ValueError("INVALID_PRODUCTION_CREDITS")
             strength = self.credits[0].y

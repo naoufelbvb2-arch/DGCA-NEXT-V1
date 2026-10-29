@@ -679,6 +679,8 @@ class _Editor:
     def add_synapse(self, synapse: Synapse) -> None:
         if type(synapse) is not Synapse:
             raise ValueError("INVALID_SYNAPSE_SCHEMA")
+        if not synapse.fixture_only:
+            raise ValueError("FIXTURE_EDITOR_REJECTS_PRODUCTION_SYNAPSE")
         self._require_key(synapse.key)
         key = synapse.key
         if key in self.synapses:

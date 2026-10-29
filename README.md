@@ -4,7 +4,7 @@ Research implementation of the **Dynamic Graph Cognitive Architecture — DCR**.
 
 ## Project status
 
-**I0, I1 and I2 accepted. I3 EVENT admission is implemented; learning remains incomplete.**
+**I0, I1 and I2 accepted. I3 ordinary local learning is under review.**
 
 The foundation refers to two design-candidate specifications under `docs/specs/`:
 
@@ -310,8 +310,8 @@ final activity, frontiers and typed support lanes. `full_control` and
 `pred_score` are isolated measurements; evaluator footprints never feed input.
 Context and Assembly descriptors are marked **synthetic fixtures**. They do not
 constitute learned owners, Assemblies, novelty or evidence. Production automatic
-recycling remains disabled. No I3 learning, generation or real owner recruitment
-is implemented.
+recycling remains disabled. These I2 fixtures do not create learned owners,
+Assemblies or generation.
 
 The owner-approved RC4.3 rules resolve the former I2-S01–S03 blockers. Every
 legal live synchronous key propagates its actual Q; Assembly reciprocity remains
@@ -328,15 +328,16 @@ results and current gate disposition.
 
 `docs/implementation/I3-R00-PRODUCTION-PREFLIGHT.md` records the graph,
 provenance and transaction boundaries at the earlier review. The owner approved
-the sensory selection and newborn slow-state policies, now recorded in RC4.4;
+the sensory selection and newborn slow-state policies, now recorded in RC4.4.
 The production EVENT path uses the approved selector and versioned sparse
 LANGUAGE H profile. The original explicit-H skeleton remains fixture-only and
 cannot admit production EVENTs.
 
 `RootStore` creates a production database with the approved profile when no
 explicit initial H is passed. It durably checkpoints ordered external EVENTs,
-their frozen two-pass traces, physical sensory admissions and latent topology,
-and restores exact BEGIN H on ABORT while retaining lawful sensory births.
-An explicitly supplied H selects the old fail-closed fixture skeleton. END,
-synaptic learning and evidence publication remain unavailable; sensory birth
-does not prove learning. Production recycling remains disabled.
+their frozen two-pass traces, physical sensory admissions and latent topology.
+END atomically publishes witnessed LOCAL and one-step ASSOCIATIVE evidence;
+ABORT restores exact BEGIN H while retaining lawful sensory births. An explicitly
+supplied H selects the old fail-closed fixture skeleton. Production recycling
+remains disabled, and ordinary link formation does not prove contextual or
+language learning.

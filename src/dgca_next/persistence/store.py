@@ -1,4 +1,4 @@
-"""I3-R01 SQLite root skeleton. EVENT/END explicitly fail closed.
+"""RootStore dispatch and the original fail-closed I3-R01 fixture skeleton.
 
 This persists an explicit caller H image and root administration, but does not
 mint external witnesses, commit sensory cells, or create learned graph records.

@@ -124,6 +124,28 @@ class SyntheticEvidence:
             raise ValueError("INVALID_CONSOLIDATED_RECORD")
 
 
+def _positive_external_update(
+    strength: float, external: float, internal: float, q: float, y: float
+) -> tuple[float, float, float]:
+    """Apply the shared bounded external-credit arithmetic to existing evidence."""
+    limit = parameter("E_max")
+    total = external + internal
+    if (
+        support(strength) != strength
+        or any(type(v) is not float or not math.isfinite(v) or v < 0 for v in (external, internal))
+        or total <= 0
+        or total > limit
+        or internal > parameter("phi") * limit
+        or support(q) <= 0
+        or support(y) < parameter("theta_S")
+    ):
+        raise ValueError("INVALID_EXTERNAL_EVIDENCE_UPDATE")
+    next_strength = (total * strength + q * y) / (total + q)
+    next_external = min(limit, external + q)
+    next_internal = min(internal, parameter("phi") * limit, limit - next_external)
+    return next_strength, next_external, next_internal
+
+
 def apply_fixture_proposal(
     current: SyntheticEvidence | None, proposal: SyntheticProposal
 ) -> SyntheticEvidence:
@@ -144,10 +166,9 @@ def apply_fixture_proposal(
         raise ValueError("SYNTHETIC_EVIDENCE_ONLY")
     if proposal.root_id <= current.roots[-1]:
         raise ValueError("ROOT_ID_REUSED")
-    old_mass = current.E_ext + current.E_int
-    S = (old_mass * current.S + proposal.q * proposal.y) / (old_mass + proposal.q)
-    external = min(limit, current.E_ext + proposal.q)
-    internal = min(current.E_int, parameter("phi") * limit, limit - external)
+    S, external, internal = _positive_external_update(
+        current.S, current.E_ext, current.E_int, proposal.q, proposal.y
+    )
     roots = (*current.roots, proposal.root_id)
     eligible = (
         len(roots) >= 2

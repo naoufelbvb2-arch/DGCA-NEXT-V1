@@ -317,6 +317,7 @@ class ProductionRootStore:
         expected_root_h = LanguageHomeostasis.initial().encode()
         expected_root_w = encode_production_graph(SparseNetwork())
         completed_closes = 0
+        completed_event_clock = 0
         for (
             exposure,
             status,
@@ -359,6 +360,7 @@ class ProductionRootStore:
                 expected_root_w, expected_root_h = w_end, h_end
             else:
                 completed_closes += 1
+                completed_event_clock += order
                 if not order or close_serial != completed_closes or h_end != last_h.get(exposure):
                     raise ValueError("INVALID_COMPLETED_ROOT")
                 before_close = decode_production_graph(last_w[exposure])
@@ -367,6 +369,7 @@ class ProductionRootStore:
                     exposure,
                     completed_closes,
                     tuple(staged_by_root.get(exposure, [])),
+                    event_clock=completed_event_clock,
                 )
                 if (
                     w_end != encode_production_graph(after_close)
@@ -684,13 +687,22 @@ class ProductionRootStore:
             assert isinstance(before_w, bytes) and isinstance(h_end, bytes)
             assert isinstance(row[12], int)
             serial = row[12] + 1
+            completed_events = self._connection.execute(
+                "SELECT COALESCE(SUM(next_order),0) FROM p01_roots WHERE status='COMPLETED'"
+            ).fetchone()[0]
+            assert isinstance(completed_events, int)
+            event_clock = completed_events + root.next_order
             rows = self._connection.execute(
                 "SELECT proposals FROM p01_events WHERE exposure_id=? ORDER BY event_order",
                 (exposure_id,),
             ).fetchall()
             proposals = tuple(proposal for item in rows for proposal in decode_proposals(item[0]))
             after, result = _settle(
-                decode_production_graph(before_w), exposure_id, serial, proposals
+                decode_production_graph(before_w),
+                exposure_id,
+                serial,
+                proposals,
+                event_clock=event_clock,
             )
             w_end = encode_production_graph(after)
             close_record = encode_close(result)
