@@ -76,6 +76,16 @@ def main():
         local = next(s for s in links if s.key.scope is SynapseScope.LOCAL)
         assoc = next(s for s in links if s.key.scope is SynapseScope.ASSOCIATIVE)
         first = [_info(s, _event_eligible(path, s.credits[-1], s.key)) for s in (local, assoc)]
+        witnesses = [
+            {
+                "key": _key(s),
+                "source_X_fixed": proposal.source_x_fixed,
+                "target_X_fixed": proposal.target_x_fixed,
+            }
+            for s in (local, assoc)
+            for proposal in close.accepted
+            if proposal.key == s.key
+        ]
 
         engine.begin(3)
         engine.event(3, 0, FEATURE_A)
@@ -102,6 +112,7 @@ def main():
             "root2_accepted_count": len(close.accepted),
             "link_count": len(links),
             "root2": first,
+            "root2_witnesses": witnesses,
             "root3": second,
             "D_close": [
                 graph.structurally_eligible(s.key.source.cell_id, s.key.target.cell_id)
@@ -138,6 +149,10 @@ def main():
         result["abort5"] = {
             "born": later.born,
             "H_restored": engine.h_bytes() == completed_h,
+            "H_BEGIN_sha256": hashlib.sha256(completed_h).hexdigest(),
+            "H_ABORT_sha256": hashlib.sha256(engine.h_bytes()).hexdigest(),
+            "H_BEGIN_bytes": completed_h.hex(),
+            "H_ABORT_bytes": engine.h_bytes().hex(),
             "links_unchanged": engine.graph().synapses() == after_four.synapses(),
         }
         engine.close()
