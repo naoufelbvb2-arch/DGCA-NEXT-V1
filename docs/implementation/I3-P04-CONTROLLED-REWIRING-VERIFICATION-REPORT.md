@@ -5,8 +5,9 @@ Branch `feature/i3-local-learning`; accepted P03 delivery
 `78b242b8a3586a6ba5b8f0790aef1741bcf3c189`.
 
 Implementation commit `7712593416ce8710918027b8f287c8e9ae1abd47` and additional
-ABORT crash tests commit `a175f27ca670ccb3fa546af63afdac18776565e5` precede
-this report's documentation commit. The branch head identifies the delivery;
+ABORT crash tests commit `a175f27ca670ccb3fa546af63afdac18776565e5` and
+initial report commit `215413338d22ae7eff4f6fb5c08067be1de70135` precede
+this report's status update. The branch head identifies the delivery;
 the [branch workflow](https://github.com/naoufelbvb2-arch/DGCA-NEXT-V1/actions/workflows/validate.yml?query=branch%3Afeature%2Fi3-local-learning)
 shows the final-head Ubuntu and Windows results.
 
@@ -144,8 +145,8 @@ Commands use `.venv/Scripts/python.exe` in this Windows workspace:
 | G04 | PASS: actual bilateral and separate one-sided production replacements, persisted and independently reopened. |
 | G05 | PASS: no-candidate, age, fixed, stale, duplicate, read-only, ABORT and subprocess END/ABORT rollback controls. |
 | G06 | PASS: cold replay, recovered W/H and records, unchanged post-evidence live links and read-only neural behavior. |
-| G07 | Local checks and final-head CI must all pass; see command results and final-head workflow. |
-| G08 | PASS for the trace and explicit limitations here, subject to final verification results. |
+| G07 | NOT_RUN / PENDING: local checks pass; GitHub has kept both Ubuntu and Windows jobs queued without assigning runners. Final-head CI must complete successfully. |
+| G08 | PARTIAL: the physical and numerical evidence is recorded; final-head CI results remain pending. |
 
 ## Limitations and NOT_RUN
 
