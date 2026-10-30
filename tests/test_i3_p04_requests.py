@@ -1,6 +1,8 @@
 """Production request staging and transaction controls; no fixture graph."""
 
 import sqlite3
+import subprocess
+import sys
 from contextlib import closing
 from pathlib import Path
 
@@ -115,3 +117,39 @@ def test_altered_close_disposition_is_rejected_on_reopen(tmp_path):
             connection.execute("UPDATE p04_requests SET disposition='RECYCLED' WHERE exposure_id=2")
     with pytest.raises(ValueError, match="RECYCLING_DISPOSITION_MISMATCH"):
         _store(path)
+
+
+@pytest.mark.parametrize("stage", ["BEFORE_COMMIT", "AFTER_COMMIT"])
+def test_abort_process_crash_preserves_request_and_h_atomicity(tmp_path, stage):
+    path = tmp_path / "abort-crash.sqlite"
+    store, owner, slot = _prepare(path)
+    store.begin(2)
+    h_begin = store.h_bytes()
+    store.event(2, 0, (("a", "0.2"),))
+    store.request_recycling(2, 0, owner, slot)
+    before = store.view()
+    store.close()
+    script = """
+import os, sys
+from pathlib import Path
+from dgca_next.persistence.store import RootStore
+s = RootStore(Path(sys.argv[1]), repository_root=Path(sys.argv[2]), code_revision='a' * 40)
+def crash(stage):
+    if stage == sys.argv[3]:
+        os._exit(31)
+s.abort(2, hook=crash)
+"""
+    process = subprocess.run(
+        [sys.executable, "-c", script, str(path), str(ROOT), stage], check=False
+    )
+    assert process.returncode == 31
+    store = _store(path)
+    if stage == "BEFORE_COMMIT":
+        assert store.view() == before and store.recycling_request(2)[-1] is None
+        store.abort(2)
+    else:
+        assert store.root(2).status == "ABORTED"
+    assert store.recycling_request(2)[-1] == "ABORTED"
+    assert store.h_bytes() == h_begin and store.view().W == before.W
+    assert store.view().completed_closes == 1 and not store.graph().recycling_log()
+    store.close()
