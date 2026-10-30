@@ -116,7 +116,7 @@ tests reject corruption; no synthetic graph is presented as evidence here.
 | F03 | PASS for witnessed LOCAL/ASSOC production q/y, paired root max, prior F_step and no newborn evidence; stale D_close and capacity refusals also have isolated operator tests. |
 | F04 | PASS: the actual LOCAL link meets all three consolidation predicates; read-only leaves W/H/evidence unchanged; negative learning is disabled. |
 | F05 | PASS: ABORT, completed-root serial, H_BEGIN and idempotent END; resumed order and subprocess controls in P01/P02/P04 tests. |
-| F06 | PASS: P04 real same-END/live-pair protection and 100-root guard; candidate expiration never authorizes deletion. |
+| F06 | PASS: P04 real same-END/live-pair protection and 100-root guard. In the integrated database, root 105 completed at event clock 108; the genuine `8606→9345 ASSOCIATIVE` candidate remained live with deadline 103, E_ext 1.6154612164973288 and three credits, despite expiry. No automatic deletion occurred. |
 | F07 | PASS: actual bilateral and separate one-sided changes, reverse/wiring/recycle audit and new age. |
 | F08 | PASS within scope: no native Assembly/owner/generation/Replay or auto recycling implemented. `GraphSnapshot.capture` can inspect learned post-I3 W; persistent native Assembly state and its compatibility require a separately reviewed I4 implementation. |
 | F09 | PASS: schema-3 journal is explicitly rejected without modification; existing schema-3 user data cannot be opened by schema 4 until separately approved migration or compatibility support exists. |
