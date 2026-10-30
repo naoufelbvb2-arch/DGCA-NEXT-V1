@@ -8,6 +8,19 @@ from typing import Final
 HISTORICAL_I0_COMMIT: Final = "fdcd3ea3c85b9c7484e89d043188a59d49907b71"
 RC4_2_MIGRATION_PARENT: Final = "673451ca905911931c60e3bece47e37e0e3d1e7a"
 RC4_3_MIGRATION_PARENT: Final = "ba36cab417574c7ee416e358f448bec54d0006f2"
+RC4_4_MIGRATION_PARENT: Final = "c0c860a1a00b24c5e796a512c5b77beb022a079a"
+ARCHIVAL_RC43_SPECS: Final = (
+    (
+        "docs/specs/DGCA_CORE_RC4_3.md",
+        "41764eea3ddccdbd692325ecf7f03c243bf259bb46cc2b1820f7648125f3a53a",
+        "37a226f5d81b3c72685015ae7125f9d5d24af9f4",
+    ),
+    (
+        "docs/specs/DGCA_LLA_RC4_3.md",
+        "4c70fd84a8356e7871e6ac5bd14eeb800bf2347342512c4901e1e2191a89e958",
+        "4fbaef7f3922d41604bd649b1217fe2741d58b3e",
+    ),
+)
 ARCHIVAL_SPECS: Final = (
     (
         "docs/specs/DGCA_CORE_RC4_1.md",
@@ -34,17 +47,17 @@ ARCHIVAL_RC42_SPECS: Final = (
     ),
 )
 
-# Updated with both raw RC4.3 artifacts in the atomic science-migration commit.
+# Updated together with both RC4.4 scientific sources.
 EXPECTED_SPECS: Final = (
     (
-        "docs/specs/DGCA_CORE_RC4_3.md",
-        "41764eea3ddccdbd692325ecf7f03c243bf259bb46cc2b1820f7648125f3a53a",
-        "37a226f5d81b3c72685015ae7125f9d5d24af9f4",
+        "docs/specs/DGCA_CORE_RC4_4.md",
+        "3829494e85b85c1421379324a1702013bed3c970e353ad3b71c08da1901eb93c",
+        "1207be632b6f8aa5839a30c0570ce844724faf0f",
     ),
     (
-        "docs/specs/DGCA_LLA_RC4_3.md",
-        "4c70fd84a8356e7871e6ac5bd14eeb800bf2347342512c4901e1e2191a89e958",
-        "4fbaef7f3922d41604bd649b1217fe2741d58b3e",
+        "docs/specs/DGCA_LLA_RC4_4.md",
+        "ba38b7916add57090f088460adb0baa351111cc1757c4a062c89a9d35ca6f2e0",
+        "7c81d4dd6ea98650856cb87cf02ddce3bce5048d",
     ),
 )
 
@@ -64,15 +77,16 @@ def verify_specs(repository_root: Path) -> tuple[str, ...]:
         )
         if sorted(rows) != sorted(EXPECTED_SPECS):
             raise SpecIntegrityError(
-                "source manifest does not match the pinned current RC4.3 sources"
+                "source manifest does not match the pinned current RC4.4 sources"
             )
         if (
             HISTORICAL_I0_COMMIT not in manifest
             or RC4_2_MIGRATION_PARENT not in manifest
             or RC4_3_MIGRATION_PARENT not in manifest
+            or RC4_4_MIGRATION_PARENT not in manifest
             or any(
                 sha not in manifest or blob not in manifest
-                for _, sha, blob in (*ARCHIVAL_SPECS, *ARCHIVAL_RC42_SPECS)
+                for _, sha, blob in (*ARCHIVAL_SPECS, *ARCHIVAL_RC42_SPECS, *ARCHIVAL_RC43_SPECS)
             )
         ):
             raise SpecIntegrityError("source manifest archival provenance changed")

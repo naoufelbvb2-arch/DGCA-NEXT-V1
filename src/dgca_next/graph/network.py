@@ -27,6 +27,7 @@ from dgca_next.graph.policy import (
 )
 from dgca_next.graph.recycling import (
     FixtureLocalNovelty,
+    ProductionRecyclingRecord,
     RecyclingRecord,
     VerifiedLocalNovelty,
     bilateral_occurrences,
@@ -67,7 +68,7 @@ class _State:
     # -1 denotes empty only in this administrative log, never a physical ID.
     wiring_log: tuple[tuple[int, int, int, int], ...] = ()
     initializations: Mapping[int, InitializationRecord] = field(default_factory=_empty_mapping)
-    recycling_log: tuple[RecyclingRecord, ...] = ()
+    recycling_log: tuple[RecyclingRecord | ProductionRecyclingRecord, ...] = ()
 
 
 def _slots(state: _State, cell_id: int) -> tuple[LatentSlot, ...]:
@@ -175,7 +176,7 @@ class SparseNetwork:
         CellAddress.from_cell_id(owner_id)
         return self._state.initializations.get(owner_id)
 
-    def recycling_log(self) -> tuple[RecyclingRecord, ...]:
+    def recycling_log(self) -> tuple[RecyclingRecord | ProductionRecyclingRecord, ...]:
         return self._state.recycling_log
 
     def validate_graph(self) -> AuditReport:
@@ -238,6 +239,37 @@ class SparseNetwork:
                     ]
                     for s in self.synapses()
                 ],
+                **(
+                    {
+                        "production_evidence": [
+                            [
+                                key_order(s.key),
+                                s.candidate_deadline,
+                                [
+                                    [
+                                        c.root_id,
+                                        c.event_id,
+                                        c.event_order,
+                                        c.ordinal,
+                                        c.source_event_id,
+                                        c.source_digest,
+                                        c.target_digest,
+                                        number(c.source_activity),
+                                        number(c.target_activity),
+                                        number(c.target_threshold),
+                                        number(c.q),
+                                        number(c.y),
+                                    ]
+                                    for c in s.credits
+                                ],
+                            ]
+                            for s in self.synapses()
+                            if not s.fixture_only
+                        ]
+                    }
+                    if any(not s.fixture_only for s in self.synapses())
+                    else {}
+                ),
                 "reservations": [
                     [key_order(key), sorted(state.reservations[key])]
                     for key in self.reserved_keys()
@@ -293,6 +325,8 @@ class _Editor:
     def __init__(
         self, network: SparseNetwork, hook: Callable[[MutationStage], None] | None = None
     ) -> None:
+        if any(not cell.fixture_only for cell in network._state.cells.values()):
+            raise ValueError("FIXTURE_EDITOR_REJECTS_PRODUCTION_GRAPH")
         self.network = network
         self.hook = hook
         self.base = network._state
@@ -646,6 +680,8 @@ class _Editor:
     def add_synapse(self, synapse: Synapse) -> None:
         if type(synapse) is not Synapse:
             raise ValueError("INVALID_SYNAPSE_SCHEMA")
+        if not synapse.fixture_only:
+            raise ValueError("FIXTURE_EDITOR_REJECTS_PRODUCTION_SYNAPSE")
         self._require_key(synapse.key)
         key = synapse.key
         if key in self.synapses:

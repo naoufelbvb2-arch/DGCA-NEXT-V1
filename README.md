@@ -4,14 +4,14 @@ Research implementation of the **Dynamic Graph Cognitive Architecture — DCR**.
 
 ## Project status
 
-**I0 and I1 accepted. I2 RC4.3 targeted remediation is ready for review.**
+**I0, I1 and I2 accepted. I3 ordinary local learning is under review.**
 
 The foundation refers to two design-candidate specifications under `docs/specs/`:
 
-- `DGCA_CORE_RC4_3.md` — Core anatomy, dynamics, assemblies, contextual memory and bounded generation.
-- `DGCA_LLA_RC4_3.md` — local learning, evidence, consolidation and derived context witnesses.
+- `DGCA_CORE_RC4_4.md` — Core anatomy, dynamics, assemblies, contextual memory and bounded generation.
+- `DGCA_LLA_RC4_4.md` — local learning, evidence, consolidation and derived context witnesses.
 
-Both specifications are **RC4.3 / NOT FROZEN / NOT EMPIRICALLY VERIFIED**. I2 adds SIC projection and read-only numerical mechanics over physical fixtures, including the approved S01–S03 resolutions. These contracts do not prove model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
+Both specifications are **RC4.4 / NOT FROZEN / NOT EMPIRICALLY VERIFIED**. I2 adds SIC projection and read-only numerical mechanics over physical fixtures, including the approved S01–S03 resolutions. These contracts do not prove model capabilities. Scientific or numerical changes require explicit documentation and tests; coding agents must not tune thresholds to make tests pass.
 
 ## Implementation direction
 
@@ -34,7 +34,7 @@ chosen because it is the available local validation runtime; broader Python
 compatibility is untested. The package has no runtime dependencies. Development
 tools are pinned in `pyproject.toml`.
 
-Run from the repository root on `feature/i2-neural-dynamics`:
+Run from the repository root on `feature/i3-local-learning`:
 
 ```powershell
 git fetch origin main:refs/remotes/origin/main
@@ -53,7 +53,7 @@ git status --porcelain
 
 On Linux/macOS, substitute `.venv/bin/python` for the Windows interpreter path.
 Fetching `main` only updates the remote tracking ref; it does not switch branches
-or merge. Tests verify archival RC4.1 provenance at immutable commit fdcd3ea3c85b9c7484e89d043188a59d49907b71, archival RC4.2 at the RC4.3 migration parent, and current RC4.3 bytes without network calls.
+or merge. Tests verify archival RC4.1 provenance at immutable commit fdcd3ea3c85b9c7484e89d043188a59d49907b71, archival RC4.2 at the RC4.3 migration parent, archival RC4.3 at the RC4.4 migration parent, and current RC4.4 bytes without network calls.
 For a shallow clone, also fetch the archival object explicitly with
 `git fetch origin fdcd3ea3c85b9c7484e89d043188a59d49907b71`. The dedicated
 `.pytest-tmp` directory is disposable: pytest clears it each run. After committing
@@ -90,7 +90,7 @@ persistent reference. These are ownership contracts, not implementations of
 graph storage, scratch execution, adaptation, checkpointing, or rollback. Future
 runtime payload schemas and their binary field order/version remain to be defined.
 
-`dgca_next.config.load_lab_config()` returns the fixed RC4.3 baseline registry.
+`dgca_next.config.load_lab_config()` returns the fixed RC4.4 baseline registry.
 Every value has an exact Core/LLA section in `Parameter.origins`. It includes
 declared future-engine constants for traceability; it activates no scientific
 mechanism. `parameter(name)` raises `UnresolvedParameter` for an unregistered
@@ -123,7 +123,7 @@ All I0 tests are **contract tests**. Neural learning, Assembly formation, probes
 learned hierarchy, generation, surface attestation, and scientific success remain
 unimplemented. LLA-T01–T41, LG-T01–T16, and the Core
 scientific validation program are **NOT_RUN**. The first scientific gate remains
-I3/I4. Neither these tests nor a CI success freezes or empirically validates RC4.3.
+I3/I4. Neither these tests nor a CI success freezes or empirically validates RC4.4.
 
 The GitHub Actions workflow runs these checks on CPython 3.14 on Ubuntu and
 Windows. See `docs/implementation/I0-VERIFICATION-REPORT.md` for the executed
@@ -215,7 +215,7 @@ fixture wiring-log deltas; they are not persistence or save/load formats.
 
 The owner-approved policy is integrated into Core RC4.2 §1.3 and LLA RC4.2 §5.1.
 RC4.1 remains byte-reproducible at the immutable historical commits recorded in
-the source manifest. Only the two RC4.3 files are current scientific authorities.
+the source manifest. Only the two RC4.4 files are current scientific authorities.
 
 `initialize_layout()` is a pure explicit-input selector. The graph fixture API
 applies one simultaneous frozen co-birth snapshot with `initialize_cohort()`:
@@ -290,7 +290,7 @@ authorized on its feature branch; no I3 work is authorized by this I1 report.
 
 The migration record is `docs/implementation/I1-L01-SOURCE-MIGRATION.md`; old
 reports remain historical evidence. Automatic production recycling remains
-disabled until genuine I2/I3 novelty verification exists. RC4.3 remains
+disabled until genuine I2/I3 novelty verification exists. RC4.4 remains
 **NOT FROZEN / NOT EMPIRICALLY VERIFIED**.
 
 ## I2 read-only numerical reference
@@ -310,8 +310,8 @@ final activity, frontiers and typed support lanes. `full_control` and
 `pred_score` are isolated measurements; evaluator footprints never feed input.
 Context and Assembly descriptors are marked **synthetic fixtures**. They do not
 constitute learned owners, Assemblies, novelty or evidence. Production automatic
-recycling remains disabled. No I3 lifecycle, LLA, generation or real owner
-recruitment is implemented.
+recycling remains disabled. These I2 fixtures do not create learned owners,
+Assemblies or generation.
 
 The owner-approved RC4.3 rules resolve the former I2-S01–S03 blockers. Every
 legal live synchronous key propagates its actual Q; Assembly reciprocity remains
@@ -323,3 +323,21 @@ state; those remain I3 obligations. VISION/AUDIO initial thresholds remain
 unspecified. The historical `I2-VERIFICATION-REPORT.md` records the prior
 blockers; `I2-S01-S03-REMEDIATION-VERIFICATION-REPORT.md` records the remediation
 results and current gate disposition.
+
+## I3 production-learning preflight
+
+`docs/implementation/I3-R00-PRODUCTION-PREFLIGHT.md` records the graph,
+provenance and transaction boundaries at the earlier review. The owner approved
+the sensory selection and newborn slow-state policies, now recorded in RC4.4.
+The production EVENT path uses the approved selector and versioned sparse
+LANGUAGE H profile. The original explicit-H skeleton remains fixture-only and
+cannot admit production EVENTs.
+
+`RootStore` creates a production database with the approved profile when no
+explicit initial H is passed. It durably checkpoints ordered external EVENTs,
+their frozen two-pass traces, physical sensory admissions and latent topology.
+END atomically publishes witnessed LOCAL and one-step ASSOCIATIVE evidence;
+ABORT restores exact BEGIN H while retaining lawful sensory births. An explicitly
+supplied H selects the old fail-closed fixture skeleton. Production recycling
+remains disabled, and ordinary link formation does not prove contextual or
+language learning.

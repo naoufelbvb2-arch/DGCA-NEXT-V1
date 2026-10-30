@@ -9,7 +9,7 @@ from dgca_next.graph.geometry import microcolumn_neighborhood, microcolumn_of
 from dgca_next.graph.latent import LatentSlot, SlotAssignment, SlotCategory, empty_slots
 from dgca_next.graph.network import SlotRef, SparseNetwork, _State
 from dgca_next.graph.policy import InitializationRecord, local_targets, topographic_targets
-from dgca_next.graph.recycling import RecyclingRecord
+from dgca_next.graph.recycling import ProductionRecyclingRecord, RecyclingRecord
 from dgca_next.graph.synapse import Synapse, SynapseState, key_order
 
 
@@ -46,7 +46,7 @@ def _validate(state: _State) -> AuditReport:
         _require(type(cell) is Cell, "INVALID_CELL_TYPE")
         replace(cell)
         _require(CellAddress.from_cell_id(cell_id) == cell.address, "CELL_ID_ADDRESS_MISMATCH")
-        _require(cell.committed and cell.fixture_only, "INVALID_STORED_COMMITMENT")
+        _require(cell.committed, "INVALID_STORED_COMMITMENT")
 
     expected_reverse: dict[int, set[SlotRef]] = defaultdict(set)
     pairs: set[tuple[int, int]] = set()
@@ -93,6 +93,11 @@ def _validate(state: _State) -> AuditReport:
         _require(
             state.cells[owner].committed_event == record.assignment.event_id,
             "INITIALIZATION_COMMITMENT_TIMING",
+        )
+        _require(
+            state.cells[owner].fixture_only == record.assignment.fixture_only
+            and state.cells[owner].admission == record.assignment.admission,
+            "INITIALIZATION_ORIGIN_MISMATCH",
         )
         initialized_slots = state.slots.get(owner)
         _require(initialized_slots is not None, "MISSING_INITIALIZED_SLOTS")
@@ -144,6 +149,11 @@ def _validate(state: _State) -> AuditReport:
         replace(synapse)
         _require(key == synapse.key, "SYNAPSE_KEY_RECORD_MISMATCH")
         check_key(key)
+        _require(
+            state.cells[key.source.cell_id].fixture_only == synapse.fixture_only
+            and state.cells[key.target.cell_id].fixture_only == synapse.fixture_only,
+            "SYNAPSE_ORIGIN_MISMATCH",
+        )
         source_event = state.cells[key.source.cell_id].committed_event
         target_event = state.cells[key.target.cell_id].committed_event
         _require(source_event is not None and target_event is not None, "MISSING_COMMITMENT_EVENT")
@@ -205,7 +215,10 @@ def _validate(state: _State) -> AuditReport:
     _require(type(state.recycling_log) is tuple, "MUTABLE_RECYCLING_LOG")
     recorded: Counter[tuple[int, int, int, int]] = Counter()
     for recycling_entry in state.recycling_log:
-        _require(type(recycling_entry) is RecyclingRecord, "INVALID_RECYCLING_RECORD")
+        _require(
+            type(recycling_entry) in (RecyclingRecord, ProductionRecyclingRecord),
+            "INVALID_RECYCLING_RECORD",
+        )
         replace(recycling_entry)
         recorded.update(recycling_entry.changes)
     actual_replacements = Counter(
