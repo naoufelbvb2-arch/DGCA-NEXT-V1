@@ -95,7 +95,12 @@ class RecyclingDecision:
 
 
 def _verified_novelty(
-    connection: sqlite3.Connection, exposure_id: int, order: int, receiver_id: int
+    connection: sqlite3.Connection,
+    exposure_id: int,
+    order: int,
+    receiver_id: int,
+    *,
+    verify_activation: bool = True,
 ) -> tuple[VerifiedLocalNovelty, ExternalEventObservation]:
     """Verify the stored event and frozen prediction, never caller-provided scalars."""
     for value in (exposure_id, order, receiver_id):
@@ -149,25 +154,26 @@ def _verified_novelty(
         sorted(prior_activity.items())
     ):
         raise ValueError("UNVERIFIED_NOVELTY: TEMPORAL_LANE_MISMATCH")
-    profile = LanguageHomeostasis.decode(row[2])
-    homeostasis = profile.materialize(pre_graph.committed_ids)
-    projection = dict((i, value / 1_000_000) for i, value in event.X_fixed)
-    passes = two_pass(pre_graph, homeostasis, prior_activity, projection, temporal, {})
-    direct = frozenset(i for i, _ in event.X_fixed if i in pre_graph.committed_ids)
-    frontiers = final_frontiers(passes.second.activity, homeostasis, direct)
-    if (
-        tuple(sorted(passes.first.raw.items())) != event.pass1_raw
-        or tuple(sorted(passes.first.normalized.items())) != event.pass1_normalized
-        or tuple(sorted(passes.first.activity.items())) != event.pass1
-        or tuple(sorted(passes.second.raw.items())) != event.final_raw
-        or tuple(sorted(passes.second.normalized.items())) != event.final_normalized
-        or tuple(sorted(passes.second.activity.items())) != event.final
-        or tuple(sorted(aggregate(passes.synchronous).items())) != event.synchronous
-        or tuple(sorted(passes.emitters)) != event.emitters
-        or tuple(sorted(frontiers.learning)) != event.learning_frontier
-        or tuple(sorted(frontiers.step)) != event.frontier
-    ):
-        raise ValueError("UNVERIFIED_NOVELTY: NEURAL_LANE_MISMATCH")
+    if verify_activation:
+        profile = LanguageHomeostasis.decode(row[2])
+        homeostasis = profile.materialize(pre_graph.committed_ids)
+        projection = dict((i, value / 1_000_000) for i, value in event.X_fixed)
+        passes = two_pass(pre_graph, homeostasis, prior_activity, projection, temporal, {})
+        direct = frozenset(i for i, _ in event.X_fixed if i in pre_graph.committed_ids)
+        frontiers = final_frontiers(passes.second.activity, homeostasis, direct)
+        if (
+            tuple(sorted(passes.first.raw.items())) != event.pass1_raw
+            or tuple(sorted(passes.first.normalized.items())) != event.pass1_normalized
+            or tuple(sorted(passes.first.activity.items())) != event.pass1
+            or tuple(sorted(passes.second.raw.items())) != event.final_raw
+            or tuple(sorted(passes.second.normalized.items())) != event.final_normalized
+            or tuple(sorted(passes.second.activity.items())) != event.final
+            or tuple(sorted(aggregate(passes.synchronous).items())) != event.synchronous
+            or tuple(sorted(passes.emitters)) != event.emitters
+            or tuple(sorted(frontiers.learning)) != event.learning_frontier
+            or tuple(sorted(frontiers.step)) != event.frontier
+        ):
+            raise ValueError("UNVERIFIED_NOVELTY: NEURAL_LANE_MISMATCH")
     prediction = temporal.get(receiver_id, 0.0)
     residual = local_residual_novelty(x_fixed, prediction)
     status = "COMPLETED" if root[0] == "COMPLETED" else "PROVISIONAL"
@@ -200,6 +206,8 @@ def _inspect_recycling(
     novelty: VerifiedLocalNovelty | None,
     event: ExternalEventObservation | None,
     latest_event_id: int,
+    *,
+    staged_at_end: bool = False,
 ) -> RecyclingDecision:
     """Inspect physical topology and ranked replacements without publishing a shadow."""
     if (
@@ -273,9 +281,9 @@ def _inspect_recycling(
     elif (
         type(novelty) is not VerifiedLocalNovelty
         or event is None
-        or novelty.status != "COMPLETED"
-        or novelty.close_serial is None
-        or novelty.close_serial > completed_serial
+        or novelty.status not in (("COMPLETED", "PROVISIONAL") if staged_at_end else ("COMPLETED",))
+        or (novelty.status == "COMPLETED" and novelty.close_serial is None)
+        or (novelty.close_serial is not None and novelty.close_serial > completed_serial)
         or novelty.exposure_id != event.exposure_id
         or novelty.event_id != event.event_id
         or novelty.event_order != event.event_order

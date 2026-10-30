@@ -27,6 +27,7 @@ from dgca_next.graph.policy import (
 )
 from dgca_next.graph.recycling import (
     FixtureLocalNovelty,
+    ProductionRecyclingRecord,
     RecyclingRecord,
     VerifiedLocalNovelty,
     bilateral_occurrences,
@@ -67,7 +68,7 @@ class _State:
     # -1 denotes empty only in this administrative log, never a physical ID.
     wiring_log: tuple[tuple[int, int, int, int], ...] = ()
     initializations: Mapping[int, InitializationRecord] = field(default_factory=_empty_mapping)
-    recycling_log: tuple[RecyclingRecord, ...] = ()
+    recycling_log: tuple[RecyclingRecord | ProductionRecyclingRecord, ...] = ()
 
 
 def _slots(state: _State, cell_id: int) -> tuple[LatentSlot, ...]:
@@ -175,7 +176,7 @@ class SparseNetwork:
         CellAddress.from_cell_id(owner_id)
         return self._state.initializations.get(owner_id)
 
-    def recycling_log(self) -> tuple[RecyclingRecord, ...]:
+    def recycling_log(self) -> tuple[RecyclingRecord | ProductionRecyclingRecord, ...]:
         return self._state.recycling_log
 
     def validate_graph(self) -> AuditReport:

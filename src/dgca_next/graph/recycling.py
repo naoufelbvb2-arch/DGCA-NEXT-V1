@@ -128,6 +128,53 @@ class RecyclingRecord:
                 raise ValueError("INVALID_SNAPSHOT_DIGEST")
 
 
+@dataclass(frozen=True, slots=True)
+class ProductionRecyclingRecord:
+    """Auditable physical replacement; journal replay supplies its authority."""
+
+    exposure_id: int
+    event_id: int
+    event_order: int
+    completed_close_serial: int
+    changes: tuple[tuple[int, int, int, int], ...]
+    snapshot_digest: str
+    novelty_digest: str
+    policy_version: str
+    receiver_id: int
+    x_fixed: int
+    prediction: float
+    novelty_q6: int
+    reason: str = "RECYCLED"
+    fixture_only: bool = False
+
+    def __post_init__(self) -> None:
+        # Reuse the fixture record's structural checks, not its authority.
+        RecyclingRecord(
+            self.exposure_id,
+            self.event_id,
+            self.event_order,
+            self.completed_close_serial,
+            self.changes,
+            self.snapshot_digest,
+            self.novelty_digest,
+            self.policy_version,
+        )
+        CellAddress.from_cell_id(self.receiver_id)
+        if (
+            self.fixture_only is not False
+            or self.reason != "RECYCLED"
+            or type(self.x_fixed) is not int
+            or not 0 < self.x_fixed <= 1_000_000
+            or type(self.prediction) is not float
+            or not math.isfinite(self.prediction)
+            or not 0 <= self.prediction <= 1
+            or type(self.novelty_q6) is not int
+            or not 0 <= self.novelty_q6 <= 1_000_000
+            or self.receiver_id not in {self.changes[0][0], self.changes[0][2]}
+        ):
+            raise ValueError("INVALID_PRODUCTION_RECYCLING_RECORD")
+
+
 def completed_close_credit(mode: EventMode, origin: EventOrigin, *, completed: bool) -> int:
     """Pure clock-credit rule, not a root executor or mutable counter."""
     if (

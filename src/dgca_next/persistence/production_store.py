@@ -4,6 +4,7 @@ import hashlib
 import sqlite3
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
+from dataclasses import replace
 from pathlib import Path
 
 from dgca_next.config import load_lab_config
@@ -36,6 +37,7 @@ from dgca_next.learning.production_event import (
     decode_event,
     encode_event,
 )
+from dgca_next.learning.production_rewiring import _rewire_at_end
 from dgca_next.learning.proposals import (
     LinkProposal,
     _derive_proposals,
@@ -86,14 +88,16 @@ class ProductionRootStore:
             }
             if not tables:
                 self._initialize()
-            elif tables != {"p01_metadata", "p01_roots", "p01_events"}:
+            elif tables == {"p01_metadata", "p01_roots", "p01_events"}:
+                raise ValueError("UNSUPPORTED_PRODUCTION_SCHEMA: P04 requires version 4")
+            elif tables != {"p01_metadata", "p01_roots", "p01_events", "p04_requests"}:
                 raise ValueError("UNSUPPORTED_STORE_SCHEMA")
             else:
                 version = self._connection.execute(
                     "SELECT schema_version FROM p01_metadata WHERE id=1"
                 ).fetchone()
-                if version is None or version[0] != 3:
-                    raise ValueError("UNSUPPORTED_PRODUCTION_SCHEMA: P02 requires version 3")
+                if version is None or version[0] != 4:
+                    raise ValueError("UNSUPPORTED_PRODUCTION_SCHEMA: P04 requires version 4")
             with self._read_snapshot():
                 self._validate()
         except BaseException:
@@ -151,9 +155,14 @@ class ProductionRootStore:
                 "UNIQUE(exposure_id,event_order))"
             )
             self._connection.execute(
+                "CREATE TABLE p04_requests (exposure_id INTEGER PRIMARY KEY "
+                "REFERENCES p01_roots(exposure_id), event_order INTEGER NOT NULL, "
+                "owner_id INTEGER NOT NULL, slot_index INTEGER NOT NULL, disposition TEXT)"
+            )
+            self._connection.execute(
                 "INSERT INTO p01_metadata VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
-                    3,
+                    4,
                     load_lab_config().sha256,
                     EXPECTED_SPECS[0][1],
                     EXPECTED_SPECS[1][1],
@@ -212,7 +221,7 @@ class ProductionRootStore:
         if self._validated == (row, version):
             return
         identity = (
-            3,
+            4,
             load_lab_config().sha256,
             EXPECTED_SPECS[0][1],
             EXPECTED_SPECS[1][1],
@@ -236,6 +245,14 @@ class ProductionRootStore:
             "proposals,checkpoint_hash "
             "FROM p01_events ORDER BY event_id"
         ).fetchall()
+        requests = {
+            item[0]: item[1:]
+            for item in self._connection.execute(
+                "SELECT exposure_id,event_order,owner_id,slot_index,disposition FROM p04_requests"
+            )
+        }
+        if not set(requests) <= {root[0] for root in roots}:
+            raise ValueError("INVALID_RECYCLING_REQUEST_JOURNAL")
         if row[10] != (roots[-1][0] if roots else -1) or row[11] != (
             events[-1][0] if events else -1
         ):
@@ -372,6 +389,20 @@ class ProductionRootStore:
                 or w_begin != expected_root_w
             ):
                 raise ValueError("INVALID_ROOT_JOURNAL")
+            request = requests.get(exposure)
+            if request is not None:
+                request_order, owner, index, disposition = request
+                if (
+                    type(request_order) is not int
+                    or not 0 <= request_order < order
+                    or type(owner) is not int
+                    or type(index) is not int
+                    or not 0 <= index < 24
+                    or (status == "OPEN" and disposition is not None)
+                    or (status == "ABORTED" and disposition != "ABORTED")
+                    or (status == "COMPLETED" and type(disposition) is not str)
+                ):
+                    raise ValueError("INVALID_RECYCLING_REQUEST_JOURNAL")
             if status == "OPEN":
                 opened.append(exposure)
                 if any(
@@ -403,6 +434,21 @@ class ProductionRootStore:
                     tuple(staged_by_root.get(exposure, [])),
                     event_clock=completed_event_clock,
                 )
+                if request is not None:
+                    after_close, disposition_actual = _rewire_at_end(
+                        self._connection,
+                        after_close,
+                        exposure,
+                        order - 1,
+                        request[0],
+                        request[1],
+                        request[2],
+                        completed_closes,
+                        replay=True,
+                    )
+                    if request[3] != disposition_actual:
+                        raise ValueError("RECYCLING_DISPOSITION_MISMATCH")
+                    result = replace(result, graph_hash=_sha(encode_production_graph(after_close)))
                 if (
                     w_end != encode_production_graph(after_close)
                     or close_record != encode_close(result)
@@ -528,6 +574,55 @@ class ProductionRootStore:
                 row[11],
             )
 
+    def request_recycling(
+        self, exposure_id: int, event_order: int, owner_id: int, slot_index: int
+    ) -> None:
+        """Journal one physical nomination; this grants no mutation authority."""
+        self._id(exposure_id)
+        if type(event_order) is not int or event_order < 0:
+            raise ValueError("INVALID_EVENT_ORDER")
+        if type(owner_id) is not int or type(slot_index) is not int or not 0 <= slot_index < 24:
+            raise ValueError("INVALID_RECYCLING_REQUEST")
+        with self._transaction():
+            self._validate()
+            root = self.root(exposure_id)
+            row = self._metadata()
+            if root is None or root.status != "OPEN" or row[9] != exposure_id:
+                raise ValueError("EXPOSURE_NOT_OPEN")
+            if event_order != root.next_order - 1 or root.next_order == 0:
+                raise ValueError("STALE_TRIGGER_EVENT")
+            assert isinstance(row[8], bytes)
+            graph = decode_production_graph(row[8])
+            if (
+                not graph.cell(owner_id).committed
+                or graph.latent_slots(owner_id)[slot_index].target_id is None
+            ):
+                raise ValueError("EMPTY_SLOT")
+            prior = self._connection.execute(
+                "SELECT event_order,owner_id,slot_index FROM p04_requests WHERE exposure_id=?",
+                (exposure_id,),
+            ).fetchone()
+            if prior is not None:
+                if prior != (event_order, owner_id, slot_index):
+                    raise ValueError("CONFLICTING_RECYCLING_REQUEST")
+                return
+            self._connection.execute(
+                "INSERT INTO p04_requests VALUES (?,?,?,?,NULL)",
+                (exposure_id, event_order, owner_id, slot_index),
+            )
+        self._remember_current()
+
+    def recycling_request(self, exposure_id: int) -> tuple[object, ...] | None:
+        self._id(exposure_id)
+        with self._read_snapshot():
+            self._validate()
+            row = self._connection.execute(
+                "SELECT event_order,owner_id,slot_index,disposition FROM p04_requests "
+                "WHERE exposure_id=?",
+                (exposure_id,),
+            ).fetchone()
+            return None if row is None else tuple(row)
+
     def pending_proposals(self, exposure_id: int) -> tuple[LinkProposal, ...]:
         """Read staged proposals; their values alone cannot publish evidence."""
         self._id(exposure_id)
@@ -593,6 +688,10 @@ class ProductionRootStore:
                 "UPDATE p01_roots SET status='ABORTED',h_end=?,w_end=?,close_hash=? "
                 "WHERE exposure_id=?",
                 (begin_h, current_w, _checkpoint_digest(begin_h, current_w), exposure_id),
+            )
+            self._connection.execute(
+                "UPDATE p04_requests SET disposition='ABORTED' WHERE exposure_id=?",
+                (exposure_id,),
             )
             self._connection.execute(
                 "UPDATE p01_metadata SET h_state=?,r_state=?,open_root=NULL WHERE id=1",
@@ -775,6 +874,26 @@ class ProductionRootStore:
                 proposals,
                 event_clock=event_clock,
             )
+            request = self._connection.execute(
+                "SELECT event_order,owner_id,slot_index FROM p04_requests WHERE exposure_id=?",
+                (exposure_id,),
+            ).fetchone()
+            if request is not None:
+                after, disposition = _rewire_at_end(
+                    self._connection,
+                    after,
+                    exposure_id,
+                    root.next_order - 1,
+                    request[0],
+                    request[1],
+                    request[2],
+                    serial,
+                )
+                self._connection.execute(
+                    "UPDATE p04_requests SET disposition=? WHERE exposure_id=?",
+                    (disposition, exposure_id),
+                )
+                result = replace(result, graph_hash=_sha(encode_production_graph(after)))
             w_end = encode_production_graph(after)
             close_record = encode_close(result)
             self._connection.execute(

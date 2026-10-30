@@ -9,7 +9,7 @@ from dgca_next.graph.geometry import microcolumn_neighborhood, microcolumn_of
 from dgca_next.graph.latent import LatentSlot, SlotAssignment, SlotCategory, empty_slots
 from dgca_next.graph.network import SlotRef, SparseNetwork, _State
 from dgca_next.graph.policy import InitializationRecord, local_targets, topographic_targets
-from dgca_next.graph.recycling import RecyclingRecord
+from dgca_next.graph.recycling import ProductionRecyclingRecord, RecyclingRecord
 from dgca_next.graph.synapse import Synapse, SynapseState, key_order
 
 
@@ -215,7 +215,10 @@ def _validate(state: _State) -> AuditReport:
     _require(type(state.recycling_log) is tuple, "MUTABLE_RECYCLING_LOG")
     recorded: Counter[tuple[int, int, int, int]] = Counter()
     for recycling_entry in state.recycling_log:
-        _require(type(recycling_entry) is RecyclingRecord, "INVALID_RECYCLING_RECORD")
+        _require(
+            type(recycling_entry) in (RecyclingRecord, ProductionRecyclingRecord),
+            "INVALID_RECYCLING_RECORD",
+        )
         replace(recycling_entry)
         recorded.update(recycling_entry.changes)
     actual_replacements = Counter(

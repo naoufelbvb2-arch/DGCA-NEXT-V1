@@ -9,11 +9,77 @@ from dgca_next.graph.cell import Cell, ProductionAdmission
 from dgca_next.graph.latent import LATENT_POLICY_VERSION, SlotAssignment, empty_slots
 from dgca_next.graph.network import SparseNetwork, _State
 from dgca_next.graph.policy import InitializationRecord
+from dgca_next.graph.recycling import ProductionRecyclingRecord
 from dgca_next.graph.synapse import Synapse, SynapseState, _production_credit
 from dgca_next.persistence.binary_records import decode_record, encode_record
 
 _TAG = 0x57
 _VERSION = 2
+_REWIRED_VERSION = 3
+
+
+def _assignment_row(a: SlotAssignment | None) -> list[object] | None:
+    if a is None:
+        return None
+    admission = a.admission
+    if a.fixture_only or admission is None:
+        raise ValueError("FIXTURE_GRAPH_FORBIDDEN")
+    return [
+        a.completed_close_serial,
+        a.exposure_id,
+        a.event_id,
+        a.event_order,
+        a.pending_birth,
+        admission.observation_digest,
+    ]
+
+
+def _read_assignment(row: object) -> SlotAssignment | None:
+    if row is None:
+        return None
+    if type(row) is not list or len(row) != 6:
+        raise ValueError("INVALID_PRODUCTION_ASSIGNMENT")
+    serial, exposure, event, order, pending, digest = row
+    admission = ProductionAdmission(exposure, event, order, digest)
+    return SlotAssignment(
+        serial, exposure, event, order, pending, LATENT_POLICY_VERSION, False, admission
+    )
+
+
+def _recycling_row(record: ProductionRecyclingRecord) -> list[object]:
+    return [
+        record.exposure_id,
+        record.event_id,
+        record.event_order,
+        record.completed_close_serial,
+        [list(c) for c in record.changes],
+        record.snapshot_digest,
+        record.novelty_digest,
+        record.policy_version,
+        record.receiver_id,
+        record.x_fixed,
+        record.prediction,
+        record.novelty_q6,
+    ]
+
+
+def _read_recycling(row: object) -> ProductionRecyclingRecord:
+    if type(row) is not list or len(row) != 12 or type(row[4]) is not list:
+        raise ValueError("INVALID_PRODUCTION_RECYCLING_RECORD")
+    return ProductionRecyclingRecord(
+        row[0],
+        row[1],
+        row[2],
+        row[3],
+        tuple(tuple(c) for c in row[4]),
+        row[5],
+        row[6],
+        row[7],
+        row[8],
+        row[9],
+        row[10],
+        row[11],
+    )
 
 
 def _key(key: SynapseKey) -> list[object]:
@@ -44,11 +110,7 @@ def encode_production_graph(network: SparseNetwork) -> bytes:
         raise ValueError("INVALID_PRODUCTION_GRAPH")
     network.validate_graph()
     state = network._state
-    if (
-        state.recycling_log
-        or set(state.cells) != set(state.slots)
-        or set(state.cells) != set(state.initializations)
-    ):
+    if set(state.cells) != set(state.slots) or set(state.cells) != set(state.initializations):
         raise ValueError("UNSUPPORTED_PRODUCTION_W")
     rows = []
     for cell in network.stored_cells():
@@ -65,21 +127,26 @@ def encode_production_graph(network: SparseNetwork) -> bytes:
         if record.seed_targets or assignment.admission != a or assignment.fixture_only:
             raise ValueError("INVALID_PRODUCTION_INITIALIZATION")
         layout = state.slots[cell.cell_id]
-        if any(s.target_id is not None and s.assignment != assignment for s in layout):
+        if not state.recycling_log and any(
+            s.target_id is not None and s.assignment != assignment for s in layout
+        ):
             raise ValueError("INVALID_PRODUCTION_SLOT_ASSIGNMENT")
+        if any(not s.recyclable_category and s.assignment != assignment for s in layout):
+            raise ValueError("INVALID_FIXED_SLOT_ASSIGNMENT")
         if any(s.protected or s.pin_owners for s in layout):
             raise ValueError("UNSUPPORTED_PRODUCTION_SLOT")
-        rows.append(
-            [
-                cell.cell_id,
-                a.exposure_id,
-                a.event_id,
-                a.event_order,
-                a.observation_digest,
-                assignment.completed_close_serial,
-                [slot.target_id for slot in layout],
-            ]
-        )
+        row = [
+            cell.cell_id,
+            a.exposure_id,
+            a.event_id,
+            a.event_order,
+            a.observation_digest,
+            assignment.completed_close_serial,
+            [slot.target_id for slot in layout],
+        ]
+        if state.recycling_log:
+            row.append([_assignment_row(slot.assignment) for slot in layout])
+        rows.append(row)
     payload = {
         "cells": rows,
         "reverse": [
@@ -128,12 +195,24 @@ def encode_production_graph(network: SparseNetwork) -> bytes:
     }
     if any(s.fixture_only for s in network.synapses()):
         raise ValueError("FIXTURE_GRAPH_FORBIDDEN")
+    if state.recycling_log:
+        if any(type(r) is not ProductionRecyclingRecord for r in state.recycling_log):
+            raise ValueError("FIXTURE_GRAPH_FORBIDDEN")
+        payload["recycling"] = [
+            _recycling_row(r)
+            for r in state.recycling_log
+            if isinstance(r, ProductionRecyclingRecord)
+        ]
+        return encode_record(_TAG, _REWIRED_VERSION, payload)
     return encode_record(_TAG, _VERSION, payload)
 
 
 def decode_production_graph(data: bytes) -> SparseNetwork:
     try:
-        doc = decode_record(data, _TAG, _VERSION)
+        version = data[1] if len(data) >= 2 else -1
+        if version not in (_VERSION, _REWIRED_VERSION):
+            raise ValueError("UNSUPPORTED_RECORD_SCHEMA")
+        doc = decode_record(data, _TAG, version)
         if type(doc) is not dict or set(doc) != {
             "cells",
             "reverse",
@@ -141,16 +220,16 @@ def decode_production_graph(data: bytes) -> SparseNetwork:
             "links",
             "reservations",
             "outgoing",
-        }:
+        } | ({"recycling"} if version == _REWIRED_VERSION else set()):
             raise ValueError("INVALID_PRODUCTION_W")
         if any(type(doc[k]) is not list for k in doc):
             raise ValueError("INVALID_PRODUCTION_W")
         cells, slots, initializations = {}, {}, {}
         last = -1
         for row in doc["cells"]:
-            if type(row) is not list or len(row) != 7:
+            if type(row) is not list or len(row) != (8 if version == _REWIRED_VERSION else 7):
                 raise ValueError("INVALID_PRODUCTION_CELL")
-            owner, exposure, event, order, digest, closes, targets = row
+            owner, exposure, event, order, digest, closes, targets = row[:7]
             if (
                 type(owner) is not int
                 or owner <= last
@@ -167,11 +246,16 @@ def decode_production_graph(data: bytes) -> SparseNetwork:
                 CellAddress.from_cell_id(owner), True, event, False, frozenset(), admission
             )
             layout = empty_slots(cells[owner].address.region)
+            assignments = (
+                [_read_assignment(a) for a in row[7]]
+                if version == _REWIRED_VERSION
+                else [assignment if target is not None else None for target in targets]
+            )
+            if len(assignments) != 24:
+                raise ValueError("INVALID_PRODUCTION_ASSIGNMENT")
             slots[owner] = tuple(
-                replace(
-                    slot, target_id=target, assignment=assignment if target is not None else None
-                )
-                for slot, target in zip(layout, targets, strict=True)
+                replace(slot, target_id=target, assignment=slot_assignment)
+                for slot, target, slot_assignment in zip(layout, targets, assignments, strict=True)
             )
             initializations[owner] = InitializationRecord(
                 owner, digest, False, (), assignment, LATENT_POLICY_VERSION
@@ -238,6 +322,7 @@ def decode_production_graph(data: bytes) -> SparseNetwork:
             outgoing=MappingProxyType(outgoing),
             wiring_log=wiring,
             initializations=MappingProxyType(initializations),
+            recycling_log=tuple(_read_recycling(r) for r in doc.get("recycling", [])),
         )
         network = SparseNetwork()
         network._state = state
