@@ -22,6 +22,12 @@ from dgca_next.learning.homeostasis_profile import (
     LanguageHomeostasis,
     preview_pre_event_adaptation,
 )
+from dgca_next.learning.novelty import (
+    RecyclingDecision,
+    VerifiedLocalNovelty,
+    _inspect_recycling,
+    _verified_novelty,
+)
 from dgca_next.learning.observation import preflight
 from dgca_next.learning.production_event import (
     SALT_HASH,
@@ -70,6 +76,7 @@ class ProductionRootStore:
         self._connection = sqlite3.connect(str(path), isolation_level=None)
         self._connection.execute("PRAGMA foreign_keys=ON")
         self._connection.execute("PRAGMA synchronous=FULL")
+        self._validated: tuple[tuple[object, ...], int] | None = None
         try:
             tables = {
                 r[0]
@@ -172,6 +179,28 @@ class ProductionRootStore:
             raise ValueError("CORRUPT_STORE_METADATA")
         return tuple(row)
 
+    def _data_version(self) -> int:
+        value = self._connection.execute("PRAGMA data_version").fetchone()
+        if value is None or type(value[0]) is not int:
+            raise ValueError("INVALID_DATABASE_VERSION")
+        return value[0]
+
+    def _remember_current(self) -> None:
+        """Cache only a state generated from a validated transaction snapshot.
+
+        Another connection's commit invalidates this cache through SQLite's
+        data_version. Reopening always performs a full journal audit.
+        """
+        if self._validated is None:
+            return
+        before = self._data_version()
+        metadata = self._metadata()
+        after = self._data_version()
+        if before == after == self._validated[1]:
+            self._validated = (metadata, after)
+        else:
+            self._validated = None
+
     @staticmethod
     def _id(exposure_id: int) -> None:
         if type(exposure_id) is not int or not 0 <= exposure_id <= 2**63 - 1:
@@ -179,6 +208,9 @@ class ProductionRootStore:
 
     def _validate(self) -> None:
         row = self._metadata()
+        version = self._data_version()
+        if self._validated == (row, version):
+            return
         identity = (
             3,
             load_lab_config().sha256,
@@ -401,6 +433,7 @@ class ProductionRootStore:
             raise ValueError("DURABLE_GRAPH_JOURNAL_MISMATCH")
         if h != expected_root_h:
             raise ValueError("DURABLE_H_JOURNAL_MISMATCH")
+        self._validated = (row, self._data_version())
 
     def view(self) -> StoreView:
         with self._read_snapshot():
@@ -460,6 +493,41 @@ class ProductionRootStore:
             ).fetchone()
             return None if row is None else decode_event(row[0])
 
+    def verified_local_novelty(
+        self, exposure_id: int, order: int, receiver_id: int
+    ) -> VerifiedLocalNovelty:
+        """Derive a provisional/completed authority from the validated root journal."""
+        with self._read_snapshot():
+            self._validate()
+            novelty, _ = _verified_novelty(self._connection, exposure_id, order, receiver_id)
+            return novelty
+
+    def inspect_recycling(
+        self, exposure_id: int, order: int, receiver_id: int, owner_id: int, slot_index: int
+    ) -> RecyclingDecision:
+        """Inspect an actual pair only; never mutate a slot, root, H or evidence."""
+        with self._read_snapshot():
+            self._validate()
+            row = self._metadata()
+            assert (
+                isinstance(row[8], bytes) and isinstance(row[11], int) and isinstance(row[12], int)
+            )
+            try:
+                novelty, event = _verified_novelty(
+                    self._connection, exposure_id, order, receiver_id
+                )
+            except ValueError:
+                novelty, event = None, None
+            return _inspect_recycling(
+                decode_production_graph(row[8]),
+                row[12],
+                owner_id,
+                slot_index,
+                novelty,
+                event,
+                row[11],
+            )
+
     def pending_proposals(self, exposure_id: int) -> tuple[LinkProposal, ...]:
         """Read staged proposals; their values alone cannot publish evidence."""
         self._id(exposure_id)
@@ -498,6 +566,7 @@ class ProductionRootStore:
             )
             if hook:
                 hook("BEFORE_COMMIT")
+        self._remember_current()
         if hook:
             hook("AFTER_COMMIT")
         result = self.root(exposure_id)
@@ -531,6 +600,7 @@ class ProductionRootStore:
             )
             if hook:
                 hook("BEFORE_COMMIT")
+        self._remember_current()
         if hook:
             hook("AFTER_COMMIT")
         result = self.root(exposure_id)
@@ -661,6 +731,7 @@ class ProductionRootStore:
             )
             if hook:
                 hook("BEFORE_COMMIT")
+        self._remember_current()
         if hook:
             hook("AFTER_COMMIT")
         return observation
@@ -725,6 +796,7 @@ class ProductionRootStore:
             )
             if hook:
                 hook("BEFORE_COMMIT")
+        self._remember_current()
         if hook:
             hook("AFTER_COMMIT")
         return result
