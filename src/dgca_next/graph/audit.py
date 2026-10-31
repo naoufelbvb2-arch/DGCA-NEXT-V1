@@ -225,6 +225,9 @@ def _validate(state: _State) -> AuditReport:
         change for change in state.wiring_log if change[2] != -1 and change[3] != -1
     )
     _require(recorded == actual_replacements, "RECYCLING_LOG_MISMATCH")
+    from dgca_next.graph.native_assembly import validate_native_state
+
+    validate_native_state(state)
     return AuditReport(
         12288, len(state.cells), len(pairs), len(state.synapses), len(state.reservations)
     )

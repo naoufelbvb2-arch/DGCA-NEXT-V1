@@ -13,11 +13,16 @@ from enum import Enum
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 
-from dgca_next.contracts import CellAddress, SynapseKey
+from dgca_next.contracts import CellAddress, Region, SynapseKey
 from dgca_next.graph.budget import OutgoingUsage, outgoing_usage, validate_usage
 from dgca_next.graph.cell import Cell
 from dgca_next.graph.geometry import microcolumn_neighborhood, microcolumn_of
 from dgca_next.graph.latent import LATENT_POLICY_VERSION, LatentSlot, SlotCategory, empty_slots
+from dgca_next.graph.native_assembly import (
+    NativeAssemblyRecord,
+    NativeFormRecord,
+    native_hash_payload,
+)
 from dgca_next.graph.policy import (
     FixtureEventSnapshot,
     InitializationRecord,
@@ -69,6 +74,10 @@ class _State:
     wiring_log: tuple[tuple[int, int, int, int], ...] = ()
     initializations: Mapping[int, InitializationRecord] = field(default_factory=_empty_mapping)
     recycling_log: tuple[RecyclingRecord | ProductionRecyclingRecord, ...] = ()
+    native_assemblies: Mapping[int, NativeAssemblyRecord] = field(default_factory=_empty_mapping)
+    assembly_high_watermarks: Mapping[Region, int] = field(default_factory=_empty_mapping)
+    member_assemblies: Mapping[int, frozenset[int]] = field(default_factory=_empty_mapping)
+    native_form_log: tuple[NativeFormRecord, ...] = ()
 
 
 def _slots(state: _State, cell_id: int) -> tuple[LatentSlot, ...]:
@@ -179,6 +188,16 @@ class SparseNetwork:
     def recycling_log(self) -> tuple[RecyclingRecord | ProductionRecyclingRecord, ...]:
         return self._state.recycling_log
 
+    def native_assemblies(self) -> tuple[NativeAssemblyRecord, ...]:
+        return tuple(record for _, record in sorted(self._state.native_assemblies.items()))
+
+    def native_form_log(self) -> tuple[NativeFormRecord, ...]:
+        return self._state.native_form_log
+
+    def member_assemblies(self, cell_id: int) -> frozenset[int]:
+        CellAddress.from_cell_id(cell_id)
+        return self._state.member_assemblies.get(cell_id, frozenset())
+
     def validate_graph(self) -> AuditReport:
         from dgca_next.graph.audit import validate_graph
 
@@ -197,7 +216,7 @@ class SparseNetwork:
         state = self._state
         return json.dumps(
             {
-                "fixture_only": True,
+                "fixture_only": not bool(state.assembly_high_watermarks),
                 "cells": [
                     [
                         c.cell_id,
@@ -308,6 +327,7 @@ class SparseNetwork:
                     if state.recycling_log
                     else {}
                 ),
+                **native_hash_payload(state),
             },
             sort_keys=True,
             separators=(",", ":"),
@@ -325,7 +345,9 @@ class _Editor:
     def __init__(
         self, network: SparseNetwork, hook: Callable[[MutationStage], None] | None = None
     ) -> None:
-        if any(not cell.fixture_only for cell in network._state.cells.values()):
+        if network._state.assembly_high_watermarks or any(
+            not cell.fixture_only for cell in network._state.cells.values()
+        ):
             raise ValueError("FIXTURE_EDITOR_REJECTS_PRODUCTION_GRAPH")
         self.network = network
         self.hook = hook

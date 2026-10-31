@@ -67,6 +67,37 @@ def _checkpoint_digest(*parts: bytes) -> str:
 class ProductionRootStore:
     """Exclusive external LEARN root and atomic sensory EVENT checkpoint."""
 
+    _schema_version = 4
+    _schema_label = "P04"
+    _encode_graph = staticmethod(encode_production_graph)
+    _decode_graph = staticmethod(decode_production_graph)
+    _encode_close = staticmethod(encode_close)
+    _decode_close = staticmethod(decode_close)
+    _empty_graph = staticmethod(SparseNetwork)
+
+    def _settle_graph(
+        self,
+        graph: SparseNetwork,
+        exposure_id: int,
+        serial: int,
+        proposals: tuple[LinkProposal, ...],
+        *,
+        event_clock: int,
+    ) -> tuple[SparseNetwork, CloseResult]:
+        return _settle(
+            graph,
+            exposure_id,
+            serial,
+            proposals,
+            event_clock=event_clock,
+            graph_encoder=self._encode_graph,
+        )
+
+    def _finalize_close(
+        self, graph: SparseNetwork, result: CloseResult, *, replay: bool
+    ) -> tuple[SparseNetwork, CloseResult]:
+        return graph, result
+
     def __init__(self, path: Path, *, repository_root: Path, code_revision: str) -> None:
         import re
 
@@ -90,15 +121,21 @@ class ProductionRootStore:
             if not tables:
                 self._initialize()
             elif tables == {"p01_metadata", "p01_roots", "p01_events"}:
-                raise ValueError("UNSUPPORTED_PRODUCTION_SCHEMA: P04 requires version 4")
+                raise ValueError(
+                    f"UNSUPPORTED_PRODUCTION_SCHEMA: {self._schema_label} "
+                    f"requires version {self._schema_version}"
+                )
             elif tables != {"p01_metadata", "p01_roots", "p01_events", "p04_requests"}:
                 raise ValueError("UNSUPPORTED_STORE_SCHEMA")
             else:
                 version = self._connection.execute(
                     "SELECT schema_version FROM p01_metadata WHERE id=1"
                 ).fetchone()
-                if version is None or version[0] != 4:
-                    raise ValueError("UNSUPPORTED_PRODUCTION_SCHEMA: P04 requires version 4")
+                if version is None or version[0] != self._schema_version:
+                    raise ValueError(
+                        f"UNSUPPORTED_PRODUCTION_SCHEMA: {self._schema_label} "
+                        f"requires version {self._schema_version}"
+                    )
             with self._read_snapshot():
                 self._validate()
         except BaseException:
@@ -163,7 +200,7 @@ class ProductionRootStore:
             self._connection.execute(
                 "INSERT INTO p01_metadata VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
-                    4,
+                    self._schema_version,
                     load_lab_config().sha256,
                     EXPECTED_SPECS[0][1],
                     EXPECTED_SPECS[1][1],
@@ -171,7 +208,7 @@ class ProductionRootStore:
                     LATENT_POLICY_VERSION,
                     LanguageHomeostasis.initial().encode(),
                     R_COLD,
-                    encode_production_graph(SparseNetwork()),
+                    self._encode_graph(self._empty_graph()),
                     None,
                     -1,
                     -1,
@@ -222,7 +259,7 @@ class ProductionRootStore:
         if self._validated == (row, version):
             return
         identity = (
-            4,
+            self._schema_version,
             load_lab_config().sha256,
             EXPECTED_SPECS[0][1],
             EXPECTED_SPECS[1][1],
@@ -235,7 +272,7 @@ class ProductionRootStore:
         if type(h) is not bytes or type(runtime) is not bytes or type(w) is not bytes:
             raise ValueError("CORRUPT_STORE_METADATA")
         profile = LanguageHomeostasis.decode(h)
-        graph = decode_production_graph(w)
+        graph = self._decode_graph(w)
         profile.materialize(frozenset(c.cell_id for c in graph.stored_cells()))
         roots = self._connection.execute(
             "SELECT exposure_id,status,next_order,h_begin,w_begin,h_end,w_end,close_serial,"
@@ -304,8 +341,8 @@ class ProductionRootStore:
                 order,
             ):
                 raise ValueError("EVENT_IDENTITY_MISMATCH")
-            before = decode_production_graph(before_w)
-            after = decode_production_graph(after_w)
+            before = self._decode_graph(before_w)
+            after = self._decode_graph(after_w)
             before_profile = LanguageHomeostasis.decode(before_h)
             LanguageHomeostasis.decode(after_h)
             if observation.pre_w_hash != _sha(before_w) or observation.pre_h_hash != _sha(before_h):
@@ -365,7 +402,7 @@ class ProductionRootStore:
             event_map[(exposure, order)] = observation
         opened = []
         expected_root_h = LanguageHomeostasis.initial().encode()
-        expected_root_w = encode_production_graph(SparseNetwork())
+        expected_root_w = self._encode_graph(self._empty_graph())
         completed_closes = 0
         completed_event_clock = 0
         for (
@@ -427,8 +464,8 @@ class ProductionRootStore:
                 completed_event_clock += order
                 if not order or close_serial != completed_closes or h_end != last_h.get(exposure):
                     raise ValueError("INVALID_COMPLETED_ROOT")
-                before_close = decode_production_graph(last_w[exposure])
-                after_close, result = _settle(
+                before_close = self._decode_graph(last_w[exposure])
+                after_close, result = self._settle_graph(
                     before_close,
                     exposure,
                     completed_closes,
@@ -449,11 +486,12 @@ class ProductionRootStore:
                     )
                     if request[3] != disposition_actual:
                         raise ValueError("RECYCLING_DISPOSITION_MISMATCH")
-                    result = replace(result, graph_hash=_sha(encode_production_graph(after_close)))
+                    result = replace(result, graph_hash=_sha(self._encode_graph(after_close)))
+                after_close, result = self._finalize_close(after_close, result, replay=True)
                 if (
-                    w_end != encode_production_graph(after_close)
-                    or close_record != encode_close(result)
-                    or decode_close(close_record) != result
+                    w_end != self._encode_graph(after_close)
+                    or close_record != self._encode_close(result)
+                    or self._decode_close(close_record) != result
                     or close_hash != _checkpoint_digest(close_record, h_end, w_end)
                 ):
                     raise ValueError("INVALID_CLOSE_CHECKPOINT")
@@ -508,7 +546,7 @@ class ProductionRootStore:
             self._validate()
             value = self._metadata()[8]
             assert isinstance(value, bytes)
-            return decode_production_graph(value)
+            return self._decode_graph(value)
 
     def h_bytes(self) -> bytes:
         with self._read_snapshot():
@@ -546,7 +584,9 @@ class ProductionRootStore:
         """Derive a provisional/completed authority from the validated root journal."""
         with self._read_snapshot():
             self._validate()
-            novelty, _ = _verified_novelty(self._connection, exposure_id, order, receiver_id)
+            novelty, _ = _verified_novelty(
+                self._connection, exposure_id, order, receiver_id, graph_decoder=self._decode_graph
+            )
             return novelty
 
     def inspect_recycling(
@@ -566,7 +606,7 @@ class ProductionRootStore:
             except ValueError:
                 novelty, event = None, None
             return _inspect_recycling(
-                decode_production_graph(row[8]),
+                self._decode_graph(row[8]),
                 row[12],
                 owner_id,
                 slot_index,
@@ -593,7 +633,7 @@ class ProductionRootStore:
             if event_order != root.next_order - 1 or root.next_order == 0:
                 raise ValueError("STALE_TRIGGER_EVENT")
             assert isinstance(row[8], bytes)
-            graph = decode_production_graph(row[8])
+            graph = self._decode_graph(row[8])
             if (
                 not graph.cell(owner_id).committed
                 or graph.latent_slots(owner_id)[slot_index].target_id is None
@@ -746,7 +786,7 @@ class ProductionRootStore:
                 and isinstance(runtime, bytes)
                 and isinstance(before_w, bytes)
             )
-            graph = decode_production_graph(before_w)
+            graph = self._decode_graph(before_w)
             snapshot = GraphSnapshot.capture(graph)
             profile = LanguageHomeostasis.decode(before_h)
             h = profile.materialize(snapshot.committed_ids)
@@ -771,7 +811,7 @@ class ProductionRootStore:
                 frontier=frontier,
                 completed_closes=row[12],
             )
-            after_w = encode_production_graph(after_graph)
+            after_w = self._encode_graph(after_graph)
             after_h = preview_pre_event_adaptation(
                 profile, snapshot, passes.second.activity
             ).encode()
@@ -858,7 +898,7 @@ class ProductionRootStore:
                 stored = self._connection.execute(
                     "SELECT close_record FROM p01_roots WHERE exposure_id=?", (exposure_id,)
                 ).fetchone()
-                return decode_close(stored[0])
+                return self._decode_close(stored[0])
             row = self._metadata()
             if root.status != "OPEN" or row[9] != exposure_id:
                 raise ValueError("EXPOSURE_NOT_OPEN")
@@ -878,8 +918,8 @@ class ProductionRootStore:
                 (exposure_id,),
             ).fetchall()
             proposals = tuple(proposal for item in rows for proposal in decode_proposals(item[0]))
-            after, result = _settle(
-                decode_production_graph(before_w),
+            after, result = self._settle_graph(
+                self._decode_graph(before_w),
                 exposure_id,
                 serial,
                 proposals,
@@ -904,9 +944,10 @@ class ProductionRootStore:
                     "UPDATE p04_requests SET disposition=? WHERE exposure_id=?",
                     (disposition, exposure_id),
                 )
-                result = replace(result, graph_hash=_sha(encode_production_graph(after)))
-            w_end = encode_production_graph(after)
-            close_record = encode_close(result)
+                result = replace(result, graph_hash=_sha(self._encode_graph(after)))
+            after, result = self._finalize_close(after, result, replay=False)
+            w_end = self._encode_graph(after)
+            close_record = self._encode_close(result)
             self._connection.execute(
                 "UPDATE p01_roots SET status='COMPLETED',h_end=?,w_end=?,close_serial=?,"
                 "close_record=?,close_hash=? WHERE exposure_id=?",

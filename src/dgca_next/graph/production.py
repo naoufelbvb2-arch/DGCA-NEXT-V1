@@ -8,7 +8,7 @@ from dgca_next.contracts import CellAddress, Region
 from dgca_next.graph.audit import validate_state
 from dgca_next.graph.cell import Cell, ProductionAdmission
 from dgca_next.graph.latent import LATENT_POLICY_VERSION, SlotAssignment, empty_slots
-from dgca_next.graph.network import SparseNetwork, _State
+from dgca_next.graph.network import SparseNetwork
 from dgca_next.graph.policy import InitializationRecord, local_targets, q6, topographic_targets
 
 
@@ -91,7 +91,8 @@ def _admit_sensory_cohort(
         initializations[owner] = InitializationRecord(
             owner, admission.observation_digest, False, (), assignment, LATENT_POLICY_VERSION
         )
-    state = _State(
+    state = replace(
+        base,
         cells=MappingProxyType(cells),
         slots=MappingProxyType(slots),
         reverse=MappingProxyType(reverse),

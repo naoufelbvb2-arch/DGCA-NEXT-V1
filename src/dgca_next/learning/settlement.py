@@ -1,6 +1,7 @@
 """Deterministic witnessed root settlement on one production graph shadow."""
 
 import hashlib
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from types import MappingProxyType
 
@@ -60,6 +61,7 @@ def _settle(
     proposals: tuple[LinkProposal, ...],
     *,
     event_clock: int,
+    graph_encoder: Callable[[SparseNetwork], bytes] = encode_production_graph,
 ) -> tuple[SparseNetwork, CloseResult]:
     """Reduce, check and apply in a shadow; caller owns atomic root authority."""
     if (
@@ -189,7 +191,7 @@ def _settle(
     validate_state(shadow_state)
     result_graph = SparseNetwork()
     result_graph._state = shadow_state
-    graph_hash = hashlib.sha256(encode_production_graph(result_graph)).hexdigest()
+    graph_hash = hashlib.sha256(graph_encoder(result_graph)).hexdigest()
     return result_graph, CloseResult(
         exposure_id, close_serial, event_clock, tuple(accepted), tuple(refused), graph_hash
     )

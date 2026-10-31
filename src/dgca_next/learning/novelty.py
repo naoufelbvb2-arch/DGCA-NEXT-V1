@@ -2,7 +2,7 @@
 
 import math
 import sqlite3
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import InitVar, dataclass
 
 from dgca_next.config import load_lab_config
@@ -101,6 +101,7 @@ def _verified_novelty(
     receiver_id: int,
     *,
     verify_activation: bool = True,
+    graph_decoder: Callable[[bytes], SparseNetwork] = decode_production_graph,
 ) -> tuple[VerifiedLocalNovelty, ExternalEventObservation]:
     """Verify the stored event and frozen prediction, never caller-provided scalars."""
     for value in (exposure_id, order, receiver_id):
@@ -122,7 +123,7 @@ def _verified_novelty(
     if row is None:
         raise ValueError("UNVERIFIED_NOVELTY: UNKNOWN_EVENT")
     event = decode_event(row[0])
-    pre_graph = GraphSnapshot.capture(decode_production_graph(row[1]))
+    pre_graph = GraphSnapshot.capture(graph_decoder(row[1]))
     if event.pre_committed != tuple(sorted(pre_graph.committed_ids)):
         raise ValueError("UNVERIFIED_NOVELTY: PRESTATE_MISMATCH")
     x_fixed = dict(event.X_fixed).get(receiver_id, 0)
@@ -139,7 +140,7 @@ def _verified_novelty(
         if prior is None:
             raise ValueError("UNVERIFIED_NOVELTY: MISSING_PREVIOUS_EVENT")
         previous = decode_event(prior[0])
-        previous_graph = GraphSnapshot.capture(decode_production_graph(prior[1]))
+        previous_graph = GraphSnapshot.capture(graph_decoder(prior[1]))
         previous_h = LanguageHomeostasis.decode(prior[2]).materialize(previous_graph.committed_ids)
         previous_direct = frozenset(
             i for i, _ in previous.X_fixed if i in previous_graph.committed_ids

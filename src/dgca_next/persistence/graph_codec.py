@@ -110,6 +110,13 @@ def encode_production_graph(network: SparseNetwork) -> bytes:
         raise ValueError("INVALID_PRODUCTION_GRAPH")
     network.validate_graph()
     state = network._state
+    if (
+        state.assembly_high_watermarks
+        or state.native_assemblies
+        or state.member_assemblies
+        or state.native_form_log
+    ):
+        raise ValueError("UNSUPPORTED_NATIVE_GRAPH_SCHEMA")
     if set(state.cells) != set(state.slots) or set(state.cells) != set(state.initializations):
         raise ValueError("UNSUPPORTED_PRODUCTION_W")
     rows = []

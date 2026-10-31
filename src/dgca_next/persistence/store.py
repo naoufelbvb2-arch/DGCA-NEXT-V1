@@ -306,6 +306,10 @@ class RootStore:
     Passing explicit H selects the old fail-closed fixture-only schema. It can
     never admit production EVENTs. A new store without explicit H uses only
     the immutable approved RC4.4 LANGUAGE profile.
+
+    The default execution_mode is the accepted I3 schema-4 path. Explicit
+    I4_NATIVE_FORM_V1 selects fresh schema-5 laboratory execution; existing
+    schemas are never migrated or silently selected across capabilities.
     """
 
     def __init__(
@@ -315,7 +319,19 @@ class RootStore:
         repository_root: Path,
         code_revision: str,
         initial_homeostasis: Homeostasis | None = None,
+        execution_mode: str = "I3_SCHEMA4",
     ) -> None:
+        if execution_mode not in ("I3_SCHEMA4", "I4_NATIVE_FORM_V1"):
+            raise ValueError("UNSUPPORTED_EXECUTION_MODE")
+        if execution_mode == "I4_NATIVE_FORM_V1":
+            if initial_homeostasis is not None:
+                raise ValueError("NATIVE_PROFILE_OVERRIDE_FORBIDDEN")
+            from dgca_next.persistence.native_store import NativeRootStore
+
+            self._backend: Any = NativeRootStore(
+                path, repository_root=repository_root, code_revision=code_revision
+            )
+            return
         legacy = initial_homeostasis is not None
         if isinstance(path, Path) and path.exists() and not legacy:
             with closing(sqlite3.connect(str(path))) as db:
@@ -328,7 +344,7 @@ class RootStore:
                 }
             legacy = names == {"metadata", "roots"}
         if legacy:
-            self._backend: Any = _LegacyRootStore(
+            self._backend = _LegacyRootStore(
                 path,
                 repository_root=repository_root,
                 code_revision=code_revision,
