@@ -45,6 +45,7 @@ from dgca_next.learning.proposals import (
     encode_proposals,
 )
 from dgca_next.learning.settlement import CloseResult, _settle, decode_close, encode_close
+from dgca_next.persistence.form_inspection import FormEligibilityDiagnostic, _inspect_completed_root
 from dgca_next.persistence.graph_codec import decode_production_graph, encode_production_graph
 from dgca_next.persistence.store import R_COLD, RootView, StoreView
 
@@ -622,6 +623,16 @@ class ProductionRootStore:
                 (exposure_id,),
             ).fetchone()
             return None if row is None else tuple(row)
+
+    def inspect_form_eligibility(self, exposure_id: int) -> FormEligibilityDiagnostic:
+        """Inspect historical FORM preconditions without an Assembly or W mutation."""
+        with self._read_snapshot():
+            try:
+                self._id(exposure_id)
+                self._validate()
+                return _inspect_completed_root(self._connection, exposure_id)
+            except ValueError as exc:
+                raise ValueError(f"UNVERIFIED_FORM_EVENT: {exc}") from exc
 
     def pending_proposals(self, exposure_id: int) -> tuple[LinkProposal, ...]:
         """Read staged proposals; their values alone cannot publish evidence."""

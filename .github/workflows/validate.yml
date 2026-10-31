@@ -1,8 +1,8 @@
-name: I0 through I3 validation
+name: I0 through I4-R01 validation
 
 on:
   push:
-    branches: [feature/i0-contract-foundation, feature/i1-graph-anatomy, feature/i2-neural-dynamics, feature/i3-local-learning]
+    branches: [feature/i0-contract-foundation, feature/i1-graph-anatomy, feature/i2-neural-dynamics, feature/i3-local-learning, feature/i4-native-assemblies-design]
   pull_request:
     branches: [main]
 
@@ -23,6 +23,7 @@ jobs:
         with:
           python-version: '3.14'
       - run: python -m pip install -e ".[dev]"
+      - run: python -m pip check
       - run: python -m dgca_next --version
       - run: python -m dgca_next verify-specs
       - run: python -m pytest -q --basetemp=.pytest-tmp -rs
