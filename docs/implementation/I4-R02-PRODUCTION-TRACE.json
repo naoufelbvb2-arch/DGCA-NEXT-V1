@@ -1,0 +1,712 @@
+{
+  "H_after_END": "6b79ad7e629e8954e99131212265a37e99265206a24c3a932d83c191d3712208",
+  "R_after_END": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+  "W_after_END": "3b124aeb978bfa5e080b2d5ba9656fc78f1dbaae52ec0b3da9e56bedd1f9cd40",
+  "W_before_END": "98f5bb8e5f3fa9e1fb1e04a01cedadc1c9016b1f9a02f92adf34f78285cee711",
+  "archive_sha256": "cb657bc85a74e43ecf346358c3e1aa917da74cba034ab67545adfbf7090275f2",
+  "assembly": {
+    "assembly_id": 0,
+    "birth_close_serial": 4,
+    "last_merge_split_close_serial": null,
+    "last_mutation_close_serial": 4,
+    "member_cell_ids": [
+      8606,
+      9345,
+      11795
+    ],
+    "region": 2,
+    "status": "LIVE",
+    "structural_generation": 1
+  },
+  "automatic_recycling_enabled": false,
+  "code_revision": "930b7ab70ab28e06731eb7ed300d221a277d03fb",
+  "database_allocated_bytes": 458752,
+  "database_bytes": 458752,
+  "event_witnesses": [
+    {
+      "event_id": 5,
+      "event_order": 0,
+      "observation_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+      "pre_h_hash": "5daa60a3aaccc3ee116f5455c66d014afaee89b56aec87a4497c1b3ab7334aed",
+      "pre_w_hash": "98f5bb8e5f3fa9e1fb1e04a01cedadc1c9016b1f9a02f92adf34f78285cee711",
+      "witnesses": [
+        {
+          "cell_id": 8606,
+          "committed_before": true,
+          "committed_event": 0,
+          "direct_x_fixed": 1000000,
+          "final_activity": 0.7266155086363637,
+          "in_f_step": true,
+          "pass1_emitter": true,
+          "reason": "OBS_ELIGIBLE_EMISSION",
+          "theta_emit": 0.253
+        },
+        {
+          "cell_id": 9345,
+          "committed_before": true,
+          "committed_event": 0,
+          "direct_x_fixed": 1000000,
+          "final_activity": 0.7266155086363637,
+          "in_f_step": true,
+          "pass1_emitter": true,
+          "reason": "OBS_ELIGIBLE_EMISSION",
+          "theta_emit": 0.253
+        },
+        {
+          "cell_id": 11795,
+          "committed_before": true,
+          "committed_event": 0,
+          "direct_x_fixed": 1000000,
+          "final_activity": 0.7266155086363637,
+          "in_f_step": true,
+          "pass1_emitter": true,
+          "reason": "OBS_ELIGIBLE_EMISSION",
+          "theta_emit": 0.253
+        },
+        {
+          "cell_id": 12181,
+          "committed_before": true,
+          "committed_event": 0,
+          "direct_x_fixed": 1000000,
+          "final_activity": 0.7266155086363637,
+          "in_f_step": true,
+          "pass1_emitter": true,
+          "reason": "OBS_ELIGIBLE_EMISSION",
+          "theta_emit": 0.253
+        }
+      ]
+    },
+    {
+      "event_id": 6,
+      "event_order": 1,
+      "observation_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+      "pre_h_hash": "37ad564b1f2bffde3a88bfebee412083a1cb0a5bc1c451926ff5c0e73197bb22",
+      "pre_w_hash": "98f5bb8e5f3fa9e1fb1e04a01cedadc1c9016b1f9a02f92adf34f78285cee711",
+      "witnesses": [
+        {
+          "cell_id": 8606,
+          "committed_before": true,
+          "committed_event": 0,
+          "direct_x_fixed": 1000000,
+          "final_activity": 1.0,
+          "in_f_step": true,
+          "pass1_emitter": true,
+          "reason": "OBS_ELIGIBLE_EMISSION",
+          "theta_emit": 0.25875000000000004
+        },
+        {
+          "cell_id": 9345,
+          "committed_before": true,
+          "committed_event": 0,
+          "direct_x_fixed": 1000000,
+          "final_activity": 1.0,
+          "in_f_step": true,
+          "pass1_emitter": true,
+          "reason": "OBS_ELIGIBLE_EMISSION",
+          "theta_emit": 0.25875000000000004
+        },
+        {
+          "cell_id": 11795,
+          "committed_before": true,
+          "committed_event": 0,
+          "direct_x_fixed": 1000000,
+          "final_activity": 1.0,
+          "in_f_step": true,
+          "pass1_emitter": true,
+          "reason": "OBS_ELIGIBLE_EMISSION",
+          "theta_emit": 0.25875000000000004
+        },
+        {
+          "cell_id": 12181,
+          "committed_before": true,
+          "committed_event": 0,
+          "direct_x_fixed": 1000000,
+          "final_activity": 1.0,
+          "in_f_step": true,
+          "pass1_emitter": true,
+          "reason": "OBS_ELIGIBLE_EMISSION",
+          "theta_emit": 0.25875000000000004
+        }
+      ]
+    }
+  ],
+  "execution_mode": "I4_NATIVE_FORM_V1",
+  "form_provenance": {
+    "assembly_id": 0,
+    "completed_close_serial": 4,
+    "event_id": 5,
+    "event_order": 0,
+    "exposure_id": 4,
+    "members": [
+      8606,
+      9345,
+      11795
+    ],
+    "observation_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+    "post_evidence_w_hash": "68a270f9124da27c9022f7d084f55a57911e308197c251c77f82029cc660d913",
+    "pre_h_hash": "5daa60a3aaccc3ee116f5455c66d014afaee89b56aec87a4497c1b3ab7334aed",
+    "pre_w_hash": "98f5bb8e5f3fa9e1fb1e04a01cedadc1c9016b1f9a02f92adf34f78285cee711",
+    "witnesses": [
+      [
+        8606,
+        1000000,
+        0,
+        0.7266155086363637,
+        0.253
+      ],
+      [
+        9345,
+        1000000,
+        0,
+        0.7266155086363637,
+        0.253
+      ],
+      [
+        11795,
+        1000000,
+        0,
+        0.7266155086363637,
+        0.253
+      ]
+    ]
+  },
+  "high_watermark": 0,
+  "independent_process": {
+    "H": "6b79ad7e629e8954e99131212265a37e99265206a24c3a932d83c191d3712208",
+    "W": "3b124aeb978bfa5e080b2d5ba9656fc78f1dbaae52ec0b3da9e56bedd1f9cd40",
+    "generation": 1,
+    "id": 0,
+    "members": [
+      8606,
+      9345,
+      11795
+    ],
+    "serial": 4
+  },
+  "input_features": [
+    [
+      "a",
+      "1"
+    ]
+  ],
+  "max_read_only_synchronous": 0.5213864547692626,
+  "member_reverse": [
+    [
+      8606,
+      [
+        0
+      ]
+    ],
+    [
+      9345,
+      [
+        0
+      ]
+    ],
+    [
+      11795,
+      [
+        0
+      ]
+    ]
+  ],
+  "peak_rss_bytes": 37216256,
+  "peak_tracemalloc_bytes": 2982038,
+  "roots": [
+    {
+      "H_sha256": "b2bb874f7c8df9c7fc5e7398e6f2d4dcc6518eb1387239ba9118a9aa0a0d8da3",
+      "W_sha256": "d26513e2281cb5be95526b88f4951e5744083e315e148d437fd54886cc7aa678",
+      "form_reason": "NO_RECIPROCAL_TRIANGLE",
+      "formed_ids": [],
+      "local_count": 0,
+      "local_mass": [],
+      "local_states": [],
+      "root": 1,
+      "serial": 1
+    },
+    {
+      "H_sha256": "4a651c2b5a6d04a4f94bd03a968aab09d42968b6a0c614eaea1d4e73c861371a",
+      "W_sha256": "fb68031fcd3acf4177d5cb2493c1cc661b5fa1da1a4b6f45b8cb2b16e5fe084d",
+      "form_reason": "NO_RECIPROCAL_TRIANGLE",
+      "formed_ids": [],
+      "local_count": 12,
+      "local_mass": [
+        1.0
+      ],
+      "local_states": [
+        "CANDIDATE"
+      ],
+      "root": 2,
+      "serial": 2
+    },
+    {
+      "H_sha256": "5daa60a3aaccc3ee116f5455c66d014afaee89b56aec87a4497c1b3ab7334aed",
+      "W_sha256": "98f5bb8e5f3fa9e1fb1e04a01cedadc1c9016b1f9a02f92adf34f78285cee711",
+      "form_reason": "NO_RECIPROCAL_TRIANGLE",
+      "formed_ids": [],
+      "local_count": 12,
+      "local_mass": [
+        2.0
+      ],
+      "local_states": [
+        "CANDIDATE"
+      ],
+      "root": 3,
+      "serial": 3
+    },
+    {
+      "H_sha256": "6b79ad7e629e8954e99131212265a37e99265206a24c3a932d83c191d3712208",
+      "W_sha256": "3b124aeb978bfa5e080b2d5ba9656fc78f1dbaae52ec0b3da9e56bedd1f9cd40",
+      "form_reason": "FORMED",
+      "formed_ids": [
+        0
+      ],
+      "local_count": 12,
+      "local_mass": [
+        3.0
+      ],
+      "local_states": [
+        "CONSOLIDATED"
+      ],
+      "root": 4,
+      "serial": 4
+    }
+  ],
+  "schema": 5,
+  "seconds": 24.858134699985385,
+  "structural_triangle": {
+    "cells": [
+      {
+        "cell_id": 8606,
+        "degree": 2,
+        "denominator": 0.8999999999999999,
+        "density": 1.0,
+        "memberships": 0,
+        "numerator": 0.6,
+        "reciprocal_neighbors": [
+          [
+            9345,
+            0.3
+          ],
+          [
+            11795,
+            0.3
+          ],
+          [
+            12181,
+            0.3
+          ]
+        ],
+        "specificity": 0.6666666666666667
+      },
+      {
+        "cell_id": 9345,
+        "degree": 2,
+        "denominator": 0.8999999999999999,
+        "density": 1.0,
+        "memberships": 0,
+        "numerator": 0.6,
+        "reciprocal_neighbors": [
+          [
+            8606,
+            0.3
+          ],
+          [
+            11795,
+            0.3
+          ],
+          [
+            12181,
+            0.3
+          ]
+        ],
+        "specificity": 0.6666666666666667
+      },
+      {
+        "cell_id": 11795,
+        "degree": 2,
+        "denominator": 0.8999999999999999,
+        "density": 1.0,
+        "memberships": 0,
+        "numerator": 0.6,
+        "reciprocal_neighbors": [
+          [
+            8606,
+            0.3
+          ],
+          [
+            9345,
+            0.3
+          ],
+          [
+            12181,
+            0.3
+          ]
+        ],
+        "specificity": 0.6666666666666667
+      }
+    ],
+    "members": [
+      8606,
+      9345,
+      11795
+    ],
+    "pairs": [
+      {
+        "edge": true,
+        "first": 8606,
+        "forward": {
+          "credits": [
+            {
+              "event_id": 2,
+              "event_order": 1,
+              "ordinal": 0,
+              "q": 1.0,
+              "root_id": 2,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 2,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.20500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 4,
+              "event_order": 1,
+              "ordinal": 0,
+              "q": 1.0,
+              "root_id": 3,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 4,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.21500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 6,
+              "event_order": 1,
+              "ordinal": 0,
+              "q": 1.0,
+              "root_id": 4,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 6,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.22500000000000003,
+              "y": 1.0
+            }
+          ],
+          "external": 3.0,
+          "external_count": 3,
+          "internal": 0.0,
+          "quality": 0.3,
+          "reason": "QUALIFIED",
+          "source": 8606,
+          "state": "CONSOLIDATED",
+          "strength": 1.0,
+          "structurally_eligible": true,
+          "target": 9345
+        },
+        "reverse": {
+          "credits": [
+            {
+              "event_id": 2,
+              "event_order": 1,
+              "ordinal": 3,
+              "q": 1.0,
+              "root_id": 2,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 2,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.20500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 4,
+              "event_order": 1,
+              "ordinal": 3,
+              "q": 1.0,
+              "root_id": 3,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 4,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.21500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 6,
+              "event_order": 1,
+              "ordinal": 3,
+              "q": 1.0,
+              "root_id": 4,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 6,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.22500000000000003,
+              "y": 1.0
+            }
+          ],
+          "external": 3.0,
+          "external_count": 3,
+          "internal": 0.0,
+          "quality": 0.3,
+          "reason": "QUALIFIED",
+          "source": 9345,
+          "state": "CONSOLIDATED",
+          "strength": 1.0,
+          "structurally_eligible": true,
+          "target": 8606
+        },
+        "second": 9345,
+        "support": 0.3
+      },
+      {
+        "edge": true,
+        "first": 8606,
+        "forward": {
+          "credits": [
+            {
+              "event_id": 2,
+              "event_order": 1,
+              "ordinal": 1,
+              "q": 1.0,
+              "root_id": 2,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 2,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.20500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 4,
+              "event_order": 1,
+              "ordinal": 1,
+              "q": 1.0,
+              "root_id": 3,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 4,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.21500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 6,
+              "event_order": 1,
+              "ordinal": 1,
+              "q": 1.0,
+              "root_id": 4,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 6,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.22500000000000003,
+              "y": 1.0
+            }
+          ],
+          "external": 3.0,
+          "external_count": 3,
+          "internal": 0.0,
+          "quality": 0.3,
+          "reason": "QUALIFIED",
+          "source": 8606,
+          "state": "CONSOLIDATED",
+          "strength": 1.0,
+          "structurally_eligible": true,
+          "target": 11795
+        },
+        "reverse": {
+          "credits": [
+            {
+              "event_id": 2,
+              "event_order": 1,
+              "ordinal": 6,
+              "q": 1.0,
+              "root_id": 2,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 2,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.20500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 4,
+              "event_order": 1,
+              "ordinal": 6,
+              "q": 1.0,
+              "root_id": 3,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 4,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.21500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 6,
+              "event_order": 1,
+              "ordinal": 6,
+              "q": 1.0,
+              "root_id": 4,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 6,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.22500000000000003,
+              "y": 1.0
+            }
+          ],
+          "external": 3.0,
+          "external_count": 3,
+          "internal": 0.0,
+          "quality": 0.3,
+          "reason": "QUALIFIED",
+          "source": 11795,
+          "state": "CONSOLIDATED",
+          "strength": 1.0,
+          "structurally_eligible": true,
+          "target": 8606
+        },
+        "second": 11795,
+        "support": 0.3
+      },
+      {
+        "edge": true,
+        "first": 9345,
+        "forward": {
+          "credits": [
+            {
+              "event_id": 2,
+              "event_order": 1,
+              "ordinal": 4,
+              "q": 1.0,
+              "root_id": 2,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 2,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.20500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 4,
+              "event_order": 1,
+              "ordinal": 4,
+              "q": 1.0,
+              "root_id": 3,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 4,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.21500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 6,
+              "event_order": 1,
+              "ordinal": 4,
+              "q": 1.0,
+              "root_id": 4,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 6,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.22500000000000003,
+              "y": 1.0
+            }
+          ],
+          "external": 3.0,
+          "external_count": 3,
+          "internal": 0.0,
+          "quality": 0.3,
+          "reason": "QUALIFIED",
+          "source": 9345,
+          "state": "CONSOLIDATED",
+          "strength": 1.0,
+          "structurally_eligible": true,
+          "target": 11795
+        },
+        "reverse": {
+          "credits": [
+            {
+              "event_id": 2,
+              "event_order": 1,
+              "ordinal": 7,
+              "q": 1.0,
+              "root_id": 2,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 2,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.20500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 4,
+              "event_order": 1,
+              "ordinal": 7,
+              "q": 1.0,
+              "root_id": 3,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 4,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.21500000000000002,
+              "y": 1.0
+            },
+            {
+              "event_id": 6,
+              "event_order": 1,
+              "ordinal": 7,
+              "q": 1.0,
+              "root_id": 4,
+              "source_activity": 1.0,
+              "source_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "source_event_id": 6,
+              "target_activity": 1.0,
+              "target_digest": "87265149bf7ca770278f06eab98b2f3ee85ced8d1bbea0d2b954648bb6d86b3e",
+              "target_threshold": 0.22500000000000003,
+              "y": 1.0
+            }
+          ],
+          "external": 3.0,
+          "external_count": 3,
+          "internal": 0.0,
+          "quality": 0.3,
+          "reason": "QUALIFIED",
+          "source": 11795,
+          "state": "CONSOLIDATED",
+          "strength": 1.0,
+          "structurally_eligible": true,
+          "target": 9345
+        },
+        "second": 11795,
+        "support": 0.3
+      }
+    ],
+    "reasons": []
+  }
+}
