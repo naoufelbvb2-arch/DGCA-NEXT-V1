@@ -1,27 +1,27 @@
-# DGCA NEXT — I4-R02 First Native Assembly FORM — Draft Execution Contract
+# DGCA NEXT — I4-R02 First Native Assembly FORM — Approved Execution Contract
 
 **ID:** I4-R02-NATIVE-FORM-IMPLEMENTATION-CONTRACT
-**Revision:** DRAFT-R01 — 2026-10-31
-**Status:** **PENDING OWNER APPROVAL OF I4-D01=A, I4-D02=A AND STAGED FORM-ONLY LAB CONTAINMENT. NOT IMPLEMENTATION AUTHORIZATION YET.**
+**Revision:** APPROVED-R02 — 2026-10-31
+**Status:** **OWNER APPROVED — AUTHORIZED FOR CODEX EXECUTION. I4-D01=A, I4-D02=A AND STAGED FORM-ONLY FIRST-LANGUAGE EXPERIMENT. NOT SCIENTIFICALLY FROZEN AND NOT IMPLEMENTED UNTIL VERIFIED.**
 **Repo/branch:** naoufelbvb2-arch/DGCA-NEXT-V1 / feature/i4-native-assemblies-design
 **Main baseline:** 88fc596c178c8a89c24b991e280d7a0ca8c07779
 **Accepted read-only R01:** b063b0051be452b83f74081572ba3af2d685d7f5 and I4-R01-INDEPENDENT-ACCEPTANCE-REVIEW.md
-**Pending engineering decision:** docs/design/I4-R02-D01-D02-OWNER-DECISION-PROPOSAL.md
+**Approved engineering decisions:** docs/design/I4-R02-D01-D02-OWNER-DECISION-PROPOSAL.md
 **Scientific authority:** CORE RC4.4 §2.0 and §10.2 + LLA RC4.4; unchanged candidate papers, no scientific freeze.
 
 ## 0. Mission and hard eligibility
 
-When explicitly authorized by owner, implement a genuine **production Native Assembly FORM** at a lawful external LEARN root's atomic END, using the six real independently learned, reciprocal, CONSOLIDATED LOCAL synapses observed in R01. The first successful root must produce exactly ONE live size-3 Assembly record with actual unique ID, sorted real members (8606,9345,11795), birth_close_serial at that root's completed close, structural_generation, physical membership back-reference and reverse member index, and verified persistence. No FixtureBuilder, AssemblyFixture, fake reciprocal completion, expected output label, pretrained/hand-constructed W or direct injection of Assembly record.
+Implement a genuine **production Native Assembly FORM** at a lawful external LEARN root's atomic END, using the six real independently learned, reciprocal, CONSOLIDATED LOCAL synapses observed in R01. The first successful root must produce exactly ONE live size-3 Assembly record with actual unique ID, sorted real members (8606,9345,11795), birth_close_serial at that root's completed close, structural_generation, physical membership back-reference and reverse member index, and verified persistence. No FixtureBuilder, AssemblyFixture, fake reciprocal completion, expected output label, pretrained/hand-constructed W or direct injection of Assembly record.
 
 **Critical:** No R01 `inspect_form_eligibility` read-only diagnostic or caller-submitted triangle may authorize physical FORM. Recompute eligibility inside the trusted *same-root END* shadow AFTER real I3 _settle and use historical event-time original direct witnesses, pre-event commitment, original frozen theta_emit and activity. Same-root newly consolidated link may enable structural FORM, but newborn Assembly cannot claim any event from this root as a *past existing Assembly* or receive retrospective peripheral surface confirmation.
 
 This is a **one-Assembly FORM research vertical slice** and not full Core §2.0 MAINTAIN/GROW/MERGE/SPLIT or Attractor. Full I4 remains PARTIAL. Do not merge main, enable P04/automatic recycling in native mode, change RC4.4 laws, or start I4-R03 until independent review.
 
-## 1. Pending D01/D02 activation gate
+## 1. Approved D01/D02 execution boundary
 
-BEFORE code changes, require explicit owner-approved I4-D01=A (I3 P04/manual rewiring and I4 native assembly END mutually exclusive, with audited mode/capability distinction) and I4-D02=A (fresh experimental schema-5 only, old schema-4/3 DBs fail closed without modification). The merged I3 schema-4 interface retains its original P04 behavior; no unintended behavior change to accepted I3 tests.
+**Owner authorization is recorded (2026-10-31):** I4-D01=A (I3 P04/manual rewiring and I4 native assembly END mutually exclusive, with audited mode/capability distinction) and I4-D02=A (fresh experimental schema-5 only; schema-4/3 DBs fail closed without modification). The staged FORM-only lab containment is approved. Implement these exact policies. The merged I3 schema-4 interface retains its original P04 behavior, preserving all accepted I3 tests and old data byte-for-byte.
 
-Do NOT execute this draft contract if approvals are not recorded; return PENDING DECISION. Do not silently treat owner agreement to R01/readiness as approval of the two data/END policy choices.
+**Explicit owner approval has now been recorded in the approved decisions document and this contract.** Codex is authorized to implement R02 within this scope only. Any expansion to full MAINTAIN/GROW/MERGE/SPLIT, schema-4→5 migration, simultaneous P04+native FORM, Attractor, readout or language generation still requires independent later review and authorization.
 
 In fresh schema-5 native laboratory mode, reject P04 requests before they can be staged or before END; not only after evidence publication. Reject a malformed/tampered saved root with competing P04 intent. There is no automatic periodic rewiring. Preserve old schema-4 databases byte-for-byte and reject opening them from schema-5 API with stable error. A later migration/import is separately gated; do not claim compatibility.
 
@@ -93,4 +93,4 @@ Produce `docs/implementation/I4-R02-NATIVE-FORM-VERIFICATION-REPORT.md`: exact f
 
 `I4-R02 REVIEW READY` only if at least one genuine first Native Assembly has ACTUALLY been atomically FORM-ed from I3 learned links, saved/reloaded and accepted all gates. Otherwise `I4-R02 PARTIAL/SPEC_BLOCKED/EMPIRICAL_BLOCKED` with full physical evidence; zero fabricated native identity. Stop and request independent review, no R03, I5, native Attractor, text readout, generation, automatic recycling, main merge or silent science edits.
 
-**ACTIVATION NOTE:** This contract is a REVIEW DRAFT, not authorization, until explicit recorded owner decisions D01 and D02; after approval update status to AUTHORIZED (without normative source edits) before sending Codex an implementation order.
+**ACTIVATION NOTE (2026-10-31):** AUTHORIZED by explicit owner acceptance of D01=A, D02=A and staged FORM-only first-language containment. Scientific sources unchanged; implementation and R02 final-head verification remain NOT_RUN. Stop for independent review when finished.
