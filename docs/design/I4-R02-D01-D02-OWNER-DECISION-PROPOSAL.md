@@ -2,7 +2,7 @@
 
 **ID:** I4-R02-D01-D02-OWNER-DECISION-PROPOSAL
 **Date:** 2026-10-31
-**Status:** PENDING PROJECT OWNER APPROVAL — NOT NORMATIVE, NOT EXECUTION AUTHORIZATION
+**Status:** APPROVED BY PROJECT OWNER — I4-D01=A, I4-D02=A, AND STAGED R02 FORM-ONLY CONTAINMENT. AUTHORITATIVE ENGINEERING DECISIONS FOR I4-R02 ONLY; CORE/LLA SCIENTIFIC SOURCES UNCHANGED.
 **Base:** main `88fc596c178c8a89c24b991e280d7a0ca8c07779`; R01 delivered `b063b0051be452b83f74081572ba3af2d685d7f5`.
 **Audit:** docs/implementation/I4-R01-INDEPENDENT-ACCEPTANCE-REVIEW.md
 **Science:** CORE RC4.4 and LLA RC4.4 unchanged DESIGN CANDIDATES.
@@ -18,7 +18,7 @@ This is a conservative capability boundary, NOT a new learning law: there is no 
 
 **Option B — deferred:** implement both within one END under a new explicitly approved order with same-root live protection, membership invalidation and no retroactive witnesses; higher complexity and larger forensic surface. Do not choose B implicitly.
 
-**Request approval:** **I4-D01 = A**, confined to first-language laboratory.
+**OWNER DECISION — APPROVED:** **I4-D01 = A**, confined to first-language laboratory. Existing I3 schema-4 operation and manually requested P04 remain unchanged; native Assembly-enabled experimental execution must fail closed on any conflicting P04 intent.
 
 ## Decision I4-D02 — production schema history/migration policy
 
@@ -29,7 +29,7 @@ Advantages: clean scientific experiment, minimal risk of corrupting existing evi
 
 **Option B — more conservative for existing data but larger project:** make migration from real schema-4 journal to schema-5 a hard prerequisite of native FORM. Requires full historical checkpoint and root-chain transform, verified old-source hashes, rollback after crash, old P04 recycling semantics and audit replay. This may delay or confound the first actual Assembly-birth experiment.
 
-**Request approval:** **I4-D02 = A** strictly for experimental schema-5 only; follow-up migration is a separate gated task, not declared unnecessary forever.
+**OWNER DECISION — APPROVED:** **I4-D02 = A**, strictly for NEW experimental schema-5 databases. Never convert/drop/modify existing schema-4 or schema-3 database files. Old data migration and public deployment compatibility remain separately gated. Existing I3 schema-4 RootStore behavior remains available in its original explicitly distinguished mode.
 
 ## Sequencing scope (already established in R00 review)
 
@@ -41,4 +41,4 @@ Advantages: clean scientific experiment, minimal risk of corrupting existing evi
 
 I4-R01 genuine ROOT4 EVENT5/order0 already demonstrates one legal hypothetical triangle `(8606,9345,11795)`, with six directed CONSOLIDATED LOCAL links, all Q=.3, three R=.3, degree=2, density=1, specificity=2/3, direct committed-before-event witnesses, final A=.7266155086363637 and frozen theta_emit=.253. This **does not** authorize reusing a past R01 read-only decision as native FORM authority. R02 must recompute from the actual current root's post-evidence W shadow and original trusted EVENT journal, within atomic END.
 
-**Owner decision needed to begin code execution:** accept D01=A and D02=A (lab-only); accept staged R02 guard. Until then, R02 contract can be drafted but MUST remain **PENDING APPROVAL**. Core and LLA RC4.4 are not altered by this proposal.
+**OWNER AUTHORIZATION RECORDED (2026-10-31):** The project owner explicitly approved both D01=A and D02=A and continuation, including the staged R02 FORM-only laboratory containment. The I4-R02 implementation contract may now be marked AUTHORIZED. All additional scientific operators and data migration remain outside this authorization. Core and LLA RC4.4 are unchanged.
