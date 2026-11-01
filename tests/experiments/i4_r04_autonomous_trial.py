@@ -224,26 +224,61 @@ def connector_features():
     return chosen
 
 
+def exclusive_features():
+    base = set(receiver_ids("a")) | set(receiver_ids("f617"))
+    used = set(base)
+    groups = {9345: [], 8200: []}
+    for n in range(65536):
+        feature = f"r04-merge-{n}"
+        cells = set(receiver_ids(feature))
+        if len(cells) != 4:
+            continue
+        for anchor, chosen in groups.items():
+            if len(chosen) < 4 and cells & base == {anchor} and not (cells - {anchor}) & used:
+                chosen.append(feature)
+                used.update(cells)
+                break
+        if all(len(g) == 4 for g in groups.values()):
+            break
+    assert all(len(g) == 4 for g in groups.values()), "DECLARED_FEATURE_SCREEN_EXHAUSTED"
+    return [f for group in groups.values() for f in group]
+
+
 def curriculum(path, revision, family):
     s = open_store(path, revision)
     assert not s.graph().synapses() and not s.graph().stored_cells()
     rows = []
     selected = (
-        disjoint_features() if family == "F04" else connector_features() if family == "F05" else []
+        disjoint_features()
+        if family == "F04"
+        else connector_features()
+        if family == "F05"
+        else exclusive_features()
+        if family == "F06"
+        else []
     )
     inputs = dict(selected_features=[dict(feature=f, receivers=receiver_ids(f)) for f in selected])
     # This file is written BEFORE the first external EVENT is presented.
     path.with_suffix(".declaration.json").write_text(
         json.dumps(inputs, sort_keys=True), encoding="utf8"
     )
-    if family == "F05":
-        schedule = [events(MIX, 1 if r == 1 else 2) for r in range(1, 6)]
-        first = (*A, (selected[0], "1"))
-        schedule += [events(first, 1), *[events(first, 3) for _ in range(3)]]
-        for i in range(1, 9, 2):
-            pair = (*A, (selected[i], "0.6"), (selected[i + 1], "0.6"))
-            schedule += [events(pair, 1), *[events(pair, 3) for _ in range(9)]]
-        assert len(schedule) == 49
+    if family in ("F05", "F06"):
+        if family == "F05":
+            schedule = [events(MIX, 1 if r == 1 else 2) for r in range(1, 6)]
+            first = (*A, (selected[0], "1"))
+            schedule += [events(first, 1), *[events(first, 3) for _ in range(3)]]
+            for i in range(1, 9, 2):
+                pair = (*A, (selected[i], "0.6"), (selected[i + 1], "0.6"))
+                schedule += [events(pair, 1), *[events(pair, 3) for _ in range(9)]]
+            assert len(schedule) == 49
+        else:
+            schedule = [events(A, 1 if r == 1 else 3) for r in range(1, 13)]
+            schedule += [events(MIX, 1), *[events((("f617", "1"),), 3) for _ in range(12)]]
+            for feature in selected:
+                bundle = ((feature, "1"),)
+                schedule += [events(bundle, 1), *[events(bundle, 3) for _ in range(11)]]
+            schedule += [events(MIX, 3) for _ in range(10)]
+            assert len(schedule) == 131
         for r, submitted in enumerate(schedule, 1):
             rows.append(run_root(s, r, submitted))
             print(
@@ -345,7 +380,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--directory", type=Path, required=True)
     parser.add_argument(
-        "--family", choices=("F01", "F02", "F03", "F04", "F05", "clock"), required=True
+        "--family", choices=("F01", "F02", "F03", "F04", "F05", "F06", "clock"), required=True
     )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()

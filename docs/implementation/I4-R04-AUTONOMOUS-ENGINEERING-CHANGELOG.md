@@ -142,3 +142,31 @@
 - Predeclared F05 implementation uses exactly the earlier logged schedule,
   max49 roots within52, bounded feature screen8192. Inputs are recorded in
   a declaration before presenting any external EVENT.
+
+## 2026-11-01 - C05 / predeclare F06 r1 before execution
+
+- F01/F02/F03 fresh production traces at5fca02c completed7/8/10 roots;
+  cold-process replay and read-only no-change checks pass. F02 has two
+  independently witnessed IDs, both seven members; identical memberships
+  make exclusive strength zero, so no MERGE. F03 reaches one seven-member
+  Assembly. F04/F05 and clock controls remain separate bounded runs.
+- F06 r1: distinct original cohorts plus exclusive-neighbor specificity,
+  fresh database; max136 roots, at most3 events/root. Predeclare screen
+  r04-merge-0..65535: choose first four features anchored only at9345 and
+  first four only at8200, each four distinct receivers, three mutually fresh
+  receivers outside a/f617 and all other selected features. Record the
+  complete chosen inputs before the first EVENT. No topology injection.
+- Fixed schedule: roots1..12 a only (root1 one event, others three); root13
+  one a+f617 commitment EVENT; roots14..25 f617 only, three events/root.
+  Then each selected outside feature alone support1: one commitment root
+  and eleven reinforcement roots of three events. Finally ten a+f617 roots
+  with three events each. Total131 roots. Stop on first actually eligible
+  unimplemented operator; no guard bypass, outcome or identity is forced.
+- Hypothesis: original separate real four-member cohorts share one receiver;
+  four independent three-new-neighbor cohorts per exclusive receiver may
+  keep its specificity above KEEP while below GROW. Later legal cross
+  learning might create distinct high-overlap sets. It might instead cause
+  removal/archive or identical GROW. Measure actual physical eligibility,
+  budget refusals and every stage. Do not infer a result from this hypothesis.
+- F07/F08 and all revisions remain undeclared. No thresholds or parameters
+  are changed; feature supports are explicitly external curriculum input.
