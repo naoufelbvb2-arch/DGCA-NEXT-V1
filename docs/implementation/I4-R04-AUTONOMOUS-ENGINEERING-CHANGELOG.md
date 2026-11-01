@@ -92,3 +92,53 @@
 - Full baseline-plus-new regression run started. No curriculum revision or
   scientific parameter has been changed. CI now explicitly includes only
   the authorized experimental branch as an additional push trigger.
+
+## 2026-11-01 - C03 / reporter fix and next bounded declaration
+
+- Targeted suite including component-injected positive-operator refusal:
+  16 PASS in57.16s. These two injected predicates are negative transaction
+  tests, explicitly not physical MERGE/SPLIT evidence.
+- F02 r1 completed all eight roots using implementation e902f67, then the
+  JSON reporter failed: Homeostasis.materialize requires frozenset while
+  reporter passed tuple. This was a reporting-only error after lawful
+  commits. Fixed reporter type; retained failed-attempt final physical state
+  and cold-recovery receipt in F02-reporter-failure.json. The exact same
+  curriculum will be rerun in a fresh database after the engineering fix;
+  no scientific change or curriculum revision is hidden by that rerun.
+- Predeclare F05 r1 (specificity/connector dilution; max52 completed roots,
+  max3 events/root, fresh database). Fixed mechanical screen r04-probe-0..8191:
+  select first nine features with four distinct SIC cells, exactly one in
+  a's four receivers and three new mutually disjoint receivers, excluding
+  the accepted f617-only trio. Persist selections before any EVENT.
+- F05 schedule: reproduce simultaneous a+f617 roots1..5 (one event root1,
+  two thereafter); present a+selected-feature0 support1, one commitment
+  root then three reinforcement roots of three events. Inspect whether the
+  real original Assemblies grow from7 to10. Then for each consecutive pair
+  among selected-features1..8, use a support1 plus both features support.6:
+  one commitment root and nine reinforcement roots of three events each.
+  Do not co-present different outside pairs. Stop at the first unimplemented
+  eligible operator or after49 roots (52 is the declared hard limit).
+- Hypothesis, not success: coactive D slots may connect outside cells to the
+  original a receivers while the larger Assemblies fail GROW density for
+  them. Genuine positive-only outside evidence can reduce old members'
+  whole-region specificity, causing lawful MAINTAIN. A weak cut must arise
+  from actual topology, not weakening/deleting any consolidated link. Keep
+  all measured failures, early budget/protection refusals and actual roots.
+- F06-F08 remain undeclared. No operation is forced by this feature screen;
+  screening is finite input-curriculum design and cannot alter receiver
+  mapping, latent eligibility, support thresholds or runtime decisions.
+
+## 2026-11-01 - C04 / first full gate and reporting repair
+
+- Full collected suite: 841 PASS in280.49s (4:40), zero skipped/fail.
+  It collected the827 accepted baseline plus14 new tests before the two
+  additional negative fault-injection tests were added. Separate targeted
+  run passed all16. The final full suite will collect all additions.
+- Failed-attempt evidence extraction exposed a second reporter-only issue:
+  Region is an Enum, not JSON-native. Added explicit Enum serialization;
+  no runtime/scientific change. Failed state retained, not relabeled as a
+  successful original reporter run. Added trace serialization/recovery and
+  real13-cohort cap/deferral regression tests.
+- Predeclared F05 implementation uses exactly the earlier logged schedule,
+  max49 roots within52, bounded feature screen8192. Inputs are recorded in
+  a declaration before presenting any external EVENT.

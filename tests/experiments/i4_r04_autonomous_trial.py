@@ -9,6 +9,7 @@ import sys
 import time
 from contextlib import closing
 from dataclasses import asdict
+from enum import Enum
 from pathlib import Path
 
 from dgca_next.dynamics.session import FeatureEvent, read_only_episode
@@ -30,6 +31,12 @@ ROOT = Path(__file__).resolve().parents[2]
 MODE = "I4_NATIVE_MULTI_V1"
 A = (("a", "1"),)
 MIX = (*A, ("f617", "1"))
+
+
+def json_default(value):
+    if isinstance(value, Enum):
+        return value.value
+    raise TypeError(f"UNSUPPORTED_TRACE_VALUE: {type(value).__name__}")
 
 
 def sha(raw):
@@ -122,7 +129,9 @@ def final_evidence(s):
     g = s.graph()
     before, h = s.view(), s.h_bytes()
     structure = inspect_structure(_base_graph(g))
-    profile = LanguageHomeostasis.decode(h).materialize(tuple(c.cell_id for c in g.stored_cells()))
+    profile = LanguageHomeostasis.decode(h).materialize(
+        frozenset(c.cell_id for c in g.stored_cells())
+    )
     # In an OPEN-root refusal, readonly runtime is deliberately unavailable.
     if before.open_root is None:
         read_only_episode(GraphSnapshot.capture(g), profile, (FeatureEvent(A),), session_id=41)
@@ -198,17 +207,60 @@ def disjoint_features():
     return chosen
 
 
+def connector_features():
+    core = set(receiver_ids("a"))
+    used = core | set(receiver_ids("f617"))
+    chosen = []
+    for n in range(8192):
+        feature = f"r04-probe-{n}"
+        cells = set(receiver_ids(feature))
+        extra = cells - core
+        if len(cells) == 4 and len(extra) == 3 and not extra & used:
+            chosen.append(feature)
+            used.update(extra)
+        if len(chosen) == 9:
+            break
+    assert len(chosen) == 9, "DECLARED_FEATURE_SCREEN_EXHAUSTED"
+    return chosen
+
+
 def curriculum(path, revision, family):
     s = open_store(path, revision)
     assert not s.graph().synapses() and not s.graph().stored_cells()
     rows = []
-    selected = disjoint_features() if family == "F04" else []
+    selected = (
+        disjoint_features() if family == "F04" else connector_features() if family == "F05" else []
+    )
     inputs = dict(selected_features=[dict(feature=f, receivers=receiver_ids(f)) for f in selected])
     # This file is written BEFORE the first external EVENT is presented.
     path.with_suffix(".declaration.json").write_text(
         json.dumps(inputs, sort_keys=True), encoding="utf8"
     )
-    if family == "F04":
+    if family == "F05":
+        schedule = [events(MIX, 1 if r == 1 else 2) for r in range(1, 6)]
+        first = (*A, (selected[0], "1"))
+        schedule += [events(first, 1), *[events(first, 3) for _ in range(3)]]
+        for i in range(1, 9, 2):
+            pair = (*A, (selected[i], "0.6"), (selected[i + 1], "0.6"))
+            schedule += [events(pair, 1), *[events(pair, 3) for _ in range(9)]]
+        assert len(schedule) == 49
+        for r, submitted in enumerate(schedule, 1):
+            rows.append(run_root(s, r, submitted))
+            print(
+                json.dumps(
+                    dict(
+                        family=family,
+                        root=r,
+                        status=rows[-1]["status"],
+                        assemblies=rows[-1]["state"]["assemblies"],
+                    ),
+                    default=json_default,
+                ),
+                flush=True,
+            )
+            if rows[-1]["status"] != "COMPLETED":
+                break
+    elif family == "F04":
         for r in range(1, 6):
             features = selected[-1:] if r == 5 else selected
             submitted = []
@@ -292,7 +344,9 @@ def clock_trial(path, revision):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--directory", type=Path, required=True)
-    parser.add_argument("--family", choices=("F01", "F02", "F03", "F04", "clock"), required=True)
+    parser.add_argument(
+        "--family", choices=("F01", "F02", "F03", "F04", "F05", "clock"), required=True
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     args.directory.mkdir(parents=True, exist_ok=True)
@@ -307,7 +361,9 @@ def main():
     )
     result.update(code_revision=revision, seconds=time.perf_counter() - started)
     args.output.write_text(
-        json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf8", newline="\n"
+        json.dumps(result, indent=2, sort_keys=True, default=json_default) + "\n",
+        encoding="utf8",
+        newline="\n",
     )
     print(
         json.dumps(
@@ -317,7 +373,8 @@ def main():
                 seconds=result["seconds"],
                 output=str(args.output),
                 final=result["final"]["state"],
-            )
+            ),
+            default=json_default,
         )
     )
 
