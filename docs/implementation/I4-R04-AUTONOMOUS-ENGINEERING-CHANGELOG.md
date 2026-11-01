@@ -278,3 +278,23 @@
   result remains recorded separately; it is not substituted for verification
   of this new diagnostic version. Current production experiments retain their
   original committed version1 implementation and source IDs.
+
+## 2026-11-01 - C11 / correct the mechanistic hypothesis before final claims
+
+- Correction to C08's Pass-1 interpretation: physical initialization uses
+  frozen final learning frontier L_t, scored by A_plus, together with the
+  direct newborn cohort. Pass-1 emitters govern propagation and proposal
+  source eligibility; they are not the latent-selection authority. The
+  source implementation and Core1.3.1/1.3.4 were rechecked unchanged.
+- Earlier Pass-1 displays are indicators only, not proof that a target is
+  absent from L_t. Extend the forensic exporter with original journal birth
+  events, actual L_t/final activity, pre-event gain/threshold and canonical
+  H_before bytes. RootStore learning/wiring is not changed by this analysis.
+- A conditional structural-operator journal design is recorded as a DESIGN
+  ONLY. It defines derived identity/history and old-reader fail-closed
+  compatibility for review before any writer. No physical operator writer
+  is enabled by this design or by a numerical component fixture.
+- Current F06r2 shows genuine MAINTAIN removal at completed root69 in IDs2/3,
+  changing4->3 and generation2->3, without changing original birth records
+  or deleting learned physical synapses. Final cold authentication is still
+  required before assigning this production gate its final disposition.

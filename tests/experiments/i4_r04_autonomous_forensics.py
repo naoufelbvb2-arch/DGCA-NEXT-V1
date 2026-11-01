@@ -9,8 +9,11 @@ from contextlib import closing
 from dataclasses import asdict
 from pathlib import Path
 
+from dgca_next.contracts import Region
 from dgca_next.graph.assembly_support import inspect_structure
 from dgca_next.graph.native_lifecycle import score
+from dgca_next.learning.homeostasis_profile import LanguageHomeostasis
+from dgca_next.learning.production_event import decode_event
 from dgca_next.persistence.native_codec import _base_graph, decode_native_graph, encode_native_graph
 
 
@@ -35,6 +38,32 @@ def snapshot(path, trace_path):
         w, h, r, closes = db.execute(
             "SELECT w_state,h_state,r_state,completed_closes FROM p01_metadata"
         ).fetchone()
+        births = []
+        for raw, pre_h in db.execute("SELECT record,h_before FROM p01_events ORDER BY event_id"):
+            event = decode_event(raw)
+            if not event.born:
+                continue
+            frozen = LanguageHomeostasis.decode(pre_h).materialize(frozenset(event.pre_committed))
+            births.append(
+                dict(
+                    exposure_id=event.exposure_id,
+                    event_id=event.event_id,
+                    order=event.event_order,
+                    digest=event.digest,
+                    born=event.born,
+                    origin=event.origin.value,
+                    mode=event.mode.value,
+                    X_fixed=event.X_fixed,
+                    final=event.final,
+                    pass1_emitters=event.emitters,
+                    learning_frontier=event.learning_frontier,
+                    pre_event_gains=sorted(frozen.gains.items()),
+                    theta_active=frozen.thresholds[Region.LANGUAGE],
+                    H_before_base64=base64.b64encode(pre_h).decode(),
+                    pre_W_sha256=event.pre_w_hash,
+                    pre_H_sha256=event.pre_h_hash,
+                )
+            )
     state = trace["final"]["state"]
     assert [sha(w), sha(h), sha(r), closes] == [
         state["W_sha256"],
@@ -90,6 +119,7 @@ def snapshot(path, trace_path):
         committed_cells=len(graph.stored_cells()),
         learned_keys=len(graph.synapses()),
         physical_initializations=initializations,
+        genuine_birth_events=births,
     )
 
 
