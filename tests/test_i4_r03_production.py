@@ -272,7 +272,9 @@ def test_cold_replay_rejects_structural_forgery_with_repaired_hashes(tmp_path, d
             for row in document["cells_memberships"]:
                 row[1] = []
         damaged = encode_record(0x57, 5, document)
-        if damage in ("root", "serial", "before_w", "after_w", "event", "birth", "archive"):
+        # A forged birth may already violate the origin-before-mutation
+        # lineage guard. The other cases require independent root replay.
+        if damage in ("root", "serial", "before_w", "after_w", "event", "archive"):
             assert encode_native_graph(decode_native_graph(damaged)) == damaged
             if damage == "archive":
                 archived = decode_native_graph(damaged)
