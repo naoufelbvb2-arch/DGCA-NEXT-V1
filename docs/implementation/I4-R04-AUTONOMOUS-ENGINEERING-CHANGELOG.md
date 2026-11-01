@@ -245,3 +245,17 @@
   graph is permitted. Stop on eligible unimplemented operator.
 - Six families remain used; F05 uses3/3 revisions, F06 uses2/3. F07/F08
   remain undeclared. These are bounded input changes, not scientific fixes.
+
+## 2026-11-01 - C09 / exact forensic exporter and CI observation
+
+- Added read-only forensic exporter for exact W/H/R canonical bytes and
+  physical initialization targets. It binds the SQLite file to its existing
+  cold-replay receipt before and after extraction; it grants no publication
+  authority. Early smoke testing caught incorrect method names slots and
+  initialization_record; corrected to the actual latent_slots/initialization
+  API. F01 exact snapshot smoke check passes with original W hash unchanged.
+- Intermediate CI41333669673 at d1a0c7b completed SUCCESS. Final delivery
+  still requires its own exact-head Ubuntu/Windows success; do not reuse this
+  intermediate result as final acceptance.
+- F05r3 and F06r2 are running their exact predeclared schedules. No MERGE or
+  SPLIT writer has been introduced without real eligibility evidence.
