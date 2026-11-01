@@ -2,7 +2,7 @@ name: I0 through I4-R03 validation
 
 on:
   push:
-    branches: [feature/i0-contract-foundation, feature/i1-graph-anatomy, feature/i2-neural-dynamics, feature/i3-local-learning, feature/i4-native-assemblies-design]
+    branches: [feature/i0-contract-foundation, feature/i1-graph-anatomy, feature/i2-neural-dynamics, feature/i3-local-learning, feature/i4-native-assemblies-design, experiment/i4-r04-autonomous-completion]
   pull_request:
     branches: [main]
 

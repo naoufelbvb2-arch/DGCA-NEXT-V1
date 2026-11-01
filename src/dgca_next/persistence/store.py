@@ -321,6 +321,15 @@ class RootStore:
         initial_homeostasis: Homeostasis | None = None,
         execution_mode: str = "I3_SCHEMA4",
     ) -> None:
+        if execution_mode == "I4_NATIVE_MULTI_V1":
+            if initial_homeostasis is not None:
+                raise ValueError("NATIVE_PROFILE_OVERRIDE_FORBIDDEN")
+            from dgca_next.persistence.multi_store import NativeMultiRootStore
+
+            self._backend: Any = NativeMultiRootStore(
+                path, repository_root=repository_root, code_revision=code_revision
+            )
+            return
         if execution_mode not in ("I3_SCHEMA4", "I4_NATIVE_FORM_V1", "I4_NATIVE_MAINTAIN_GROW_V1"):
             raise ValueError("UNSUPPORTED_EXECUTION_MODE")
         if execution_mode in ("I4_NATIVE_FORM_V1", "I4_NATIVE_MAINTAIN_GROW_V1"):
@@ -333,7 +342,7 @@ class RootStore:
                 if execution_mode == "I4_NATIVE_FORM_V1"
                 else NativeLifecycleRootStore
             )
-            self._backend: Any = native_class(
+            self._backend = native_class(
                 path, repository_root=repository_root, code_revision=code_revision
             )
             return
