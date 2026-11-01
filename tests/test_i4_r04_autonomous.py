@@ -88,6 +88,15 @@ def test_actual_two_form_batch_and_shared_grow_replay(tmp_path):
     s.close()
 
 
+def test_no_triangle_diagnostic_and_close_version_are_exact(tmp_path):
+    s = store_at(tmp_path / "diagnostic.sqlite")
+    close = root(s, 1, (), 1)
+    assert close.form_reason == "NO_RECIPROCAL_TRIANGLE" and close.close_version == 2
+    with pytest.raises(ValueError, match="UNSUPPORTED_NATIVE_MULTI_CLOSE"):
+        encode_multi_close(replace(close, close_version=999))
+    s.close()
+
+
 def test_pending_inspection_never_publishes_and_abort_has_no_ids(tmp_path):
     s = store_at(tmp_path / "abort.sqlite")
     for r in (1, 2, 3):

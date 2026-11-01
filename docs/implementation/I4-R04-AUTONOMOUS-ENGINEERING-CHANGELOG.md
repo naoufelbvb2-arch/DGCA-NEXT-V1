@@ -259,3 +259,22 @@
   intermediate result as final acceptance.
 - F05r3 and F06r2 are running their exact predeclared schedules. No MERGE or
   SPLIT writer has been introduced without real eligibility evidence.
+
+## 2026-11-01 - C10 / diagnostic versioning and preserved trial history
+
+- Code audit found the experimental no-FORM reason too generic when no
+  eligible reciprocal triangle exists. Corrected the diagnostic in explicit
+  close-envelope version2, with unchanged physical predicates and W. Version1
+  replay retains exact previous generic bytes. Unknown versions fail closed.
+- Added compatibility coverage generated from archived5fca02c source in its
+  own process, alongside the exact protected1af7 source. Both old formats
+  cold-load byte-exact and continue with the new close version.
+- Draft targeted run:5 PASS /1 FAIL in47.11s. The newly inserted diagnostic
+  test accidentally captured the tail of the preceding test, causing a
+  NameError in test code (not runtime). Restored the original full recovery
+  test body and placed the new test separately. Corrected diagnostic-only
+  run:1 PASS in0.39s. Full rerun required; no assertion/test was disabled.
+- All current Ruff/format checks and mypy pass. The existing848-pass full
+  result remains recorded separately; it is not substituted for verification
+  of this new diagnostic version. Current production experiments retain their
+  original committed version1 implementation and source IDs.

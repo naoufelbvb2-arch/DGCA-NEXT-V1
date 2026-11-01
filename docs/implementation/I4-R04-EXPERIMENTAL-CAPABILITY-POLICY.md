@@ -54,6 +54,14 @@ root OPEN and all staged evidence unpublished. It is never silently skipped.
 read snapshot. Its output explicitly says **PROVISIONAL**, `committed=False`;
 it is not a completed-root witness or an input accepted by END.
 
+Close-envelope version2 corrects the no-FORM diagnostic: an absent eligible
+physical triangle reports `NO_RECIPROCAL_TRIANGLE`; an existing triangle
+without qualified uncovered event witnesses reports
+`NO_QUALIFIED_FORM_EVENT`. Version1's generic diagnostic remains byte-exact
+under historical replay, including earlier experimental trial databases.
+Neither the physical W, predicates nor transaction semantics change. Both
+versions are explicit; unknown versions refuse canonical encoding/decoding.
+
 A real MERGE writer or derived SPLIT lineage would require a further
 versioned policy/codec/journal and actual eligible production witness first.
 This version implements neither writer and retains the accepted audit's

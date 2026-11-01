@@ -49,6 +49,7 @@ def _plain(value: Any) -> Any:
 @dataclass(frozen=True, slots=True)
 class MultiAssemblyCloseResult(NativeLifecycleCloseResult):
     operator_checks: tuple[bytes, ...]
+    close_version: int = 2
 
 
 def _parent(close: MultiAssemblyCloseResult) -> NativeLifecycleCloseResult:
@@ -83,13 +84,15 @@ def decode_operator_check(data: bytes) -> dict[str, Any]:
 def encode_multi_close(close: CloseResult) -> bytes:
     if type(close) is not MultiAssemblyCloseResult:
         return encode_lifecycle_close(close)
+    if type(close.close_version) is not int or close.close_version not in (1, 2):
+        raise ValueError("UNSUPPORTED_NATIVE_MULTI_CLOSE")
     for record in close.operator_checks:
         decode_operator_check(record)
     return encode_record(
         0x43,
         5,
         {
-            "r04_multi_version": 1,
+            "r04_multi_version": close.close_version,
             "base_lifecycle": encode_lifecycle_close(_parent(close)),
             "operator_checks": list(close.operator_checks),
         },
@@ -104,7 +107,7 @@ def decode_multi_close(data: bytes) -> NativeCloseResult:
         if (
             set(doc) != {"r04_multi_version", "base_lifecycle", "operator_checks"}
             or type(doc["r04_multi_version"]) is not int
-            or doc["r04_multi_version"] != 1
+            or doc["r04_multi_version"] not in (1, 2)
         ):
             raise ValueError("UNSUPPORTED_NATIVE_MULTI_CLOSE")
         base = decode_lifecycle_close(doc["base_lifecycle"])
@@ -124,6 +127,7 @@ def decode_multi_close(data: bytes) -> NativeCloseResult:
             base.evaluations,
             base.coverage,
             checks,
+            doc["r04_multi_version"],
         )
         if encode_multi_close(result) != data:
             raise ValueError("NONCANONICAL_NATIVE_MULTI_CLOSE")
@@ -225,6 +229,7 @@ def _multi_end(
     *,
     replay: bool,
     probe: bool = False,
+    close_version: int = 2,
 ) -> tuple[SparseNetwork, MultiAssemblyCloseResult]:
     physical = _base_graph(graph)
     structure = inspect_structure(physical)
@@ -443,12 +448,19 @@ def _multi_end(
         result.accepted,
         result.refused,
         _sha(encoded),
-        "FORMED" if formed else "NO_QUALIFIED_FORM_EVENT",
+        "FORMED"
+        if formed
+        else (
+            "NO_RECIPROCAL_TRIANGLE"
+            if close_version >= 2 and not any(t.eligible for t in structure.triangles)
+            else "NO_QUALIFIED_FORM_EVENT"
+        ),
         tuple(formed),
         tuple(range(start, len(graph._state.native_mutation_log))),
         evaluations,
         tuple(coverage),
         tuple(checks),
+        close_version,
     )
     if positive is not None and not probe:
         raise UnprovenNativeOperator(positive, closed, encoded)

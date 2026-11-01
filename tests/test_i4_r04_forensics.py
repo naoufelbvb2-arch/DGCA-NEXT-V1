@@ -14,8 +14,13 @@ from dgca_next.learning.native_multi import decode_multi_close
 from dgca_next.persistence.store import RootStore
 
 
-def test_actual_protected_source_history_loads_without_rewriting(tmp_path):
-    parent = "1af7dab4e82be826380d787e16cfecd8a2224f0f"
+@pytest.mark.parametrize("experimental", [False, True])
+def test_actual_protected_source_history_loads_without_rewriting(tmp_path, experimental):
+    parent = (
+        "5fca02cdaabf882837556b704c4e9f391a6ea711"
+        if experimental
+        else "1af7dab4e82be826380d787e16cfecd8a2224f0f"
+    )
     source = tmp_path / "protected-source"
     source.mkdir()
     archive = subprocess.check_output(
@@ -28,23 +33,34 @@ def test_actual_protected_source_history_loads_without_rewriting(tmp_path):
 import sys
 from pathlib import Path
 from dgca_next.persistence.store import RootStore
-s=RootStore(Path(sys.argv[1]),repository_root=Path.cwd(),code_revision=sys.argv[2],execution_mode='I4_NATIVE_MAINTAIN_GROW_V1')
+s=RootStore(Path(sys.argv[1]),repository_root=Path.cwd(),code_revision=sys.argv[2],execution_mode=sys.argv[3])
+features=(("a","1"),("f617","1")) if sys.argv[3]=='I4_NATIVE_MULTI_V1' else (("a","1"),)
 for r in range(1,6):
     s.begin(r)
-    for o in range(2 if 2<=r<=4 else 1): s.event(r,o,(("a","1"),))
+    for o in range(2 if 2<=r<=4 else 1): s.event(r,o,features)
     s.end(r)
 s.close()
 """
     subprocess.check_call(
-        [sys.executable, "-c", script, str(path), parent],
+        [
+            sys.executable,
+            "-c",
+            script,
+            str(path),
+            parent,
+            MODE if experimental else "I4_NATIVE_MAINTAIN_GROW_V1",
+        ],
         cwd=source,
         env=os.environ | {"PYTHONPATH": str(source / "src")},
     )
     data = path.read_bytes()
     s = RootStore(path, repository_root=ROOT, code_revision=parent, execution_mode=MODE)
     assert path.read_bytes() == data
-    assert s.graph().native_assemblies()[0].structural_generation == 2
-    root(s, 6, (), 1)
+    assert s.graph().native_assemblies()[0].structural_generation == (5 if experimental else 2)
+    if experimental:
+        assert s.end(1).close_version == 1
+        assert s.end(1).form_reason == "NO_QUALIFIED_FORM_EVENT"
+    assert root(s, 6, (), 1).close_version == 2
     s.close()
     s = RootStore(path, repository_root=ROOT, code_revision=parent, execution_mode=MODE)
     assert s.view().completed_closes == 6

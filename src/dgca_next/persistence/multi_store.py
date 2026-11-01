@@ -48,6 +48,9 @@ class NativeMultiRootStore(NativeLifecycleRootStore):
                 return _native_end(self._connection, graph, result, replay=True)
             if type(original) is not MultiAssemblyCloseResult:
                 return _form_at_end(self._connection, graph, result, replay=True)
+            return _multi_end(
+                self._connection, graph, result, replay=True, close_version=original.close_version
+            )
         return _multi_end(self._connection, graph, result, replay=replay)
 
     def inspect_pending_native(self, exposure_id: int) -> PendingNativeInspection:
