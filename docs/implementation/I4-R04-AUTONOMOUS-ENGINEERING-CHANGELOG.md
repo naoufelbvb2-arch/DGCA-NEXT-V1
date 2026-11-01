@@ -319,3 +319,21 @@
   deliberately not run with an OPEN root. New reports explicitly distinguish
   read_only_neural_status=NOT_RUN_OPEN_ROOT from PASS. Earlier artifacts'
   OPEN-root flag never proves a forbidden neural read-only session ran.
+
+## 2026-11-01 - C13 / genuine eligibility authorization reached
+
+- Completed the original trial reporters and independent cold reconstruction
+  of both OPEN journals at exact source6c869de. F05r3 root59 refused only
+  I4_R04_SPLIT_WRITER_NOT_PROVEN; F06r2 root109 refused only
+  I4_R04_MERGE_WRITER_NOT_PROVEN. Exact rooted operator calculations are
+  stored under each final root's provisional_only; no operation is yet
+  committed and no candidate shadow is called completed-root evidence.
+- These genuine external RootStore journals satisfy the corresponding
+  proof-first conditions in Master5/6 for implementing BOTH conditional
+  writers using the already recorded compatible versioned lineage design.
+- Prior complete diagnostic-version regression:850 PASS in960.25s (16:00),
+  zero skips/fail. Current optional codec stage adds6 separately passing
+  refusal cases; a full current-source regression remains mandatory.
+- Continue with a separately explicitly selected operator capability. Original
+  MULTI and accepted modes keep their exact old behavior and fail-closed
+  writer guards. No scientific parameter or source has changed.
