@@ -170,3 +170,27 @@
   budget refusals and every stage. Do not infer a result from this hypothesis.
 - F07/F08 and all revisions remain undeclared. No thresholds or parameters
   are changed; feature supports are explicitly external curriculum input.
+
+## 2026-11-01 - C06 / measured F05 r1 and predeclare revision2
+
+- F04 genuine13-cohort trace passed: root4 IDs0..11, root5 ID12,
+  all genuine independent FORM witnesses; cold replay preserves bytes.
+  Clock control passed actual201 completed external EVENTs in4 roots,
+  plus3 aborted events; age from reference root1 is199 at serial3 and200
+  at serial4. Same-END touched-set test remains COMPONENT_ONLY (no real edit).
+- New focused suite:18 PASS in268.35s, including real cap/deferral and
+  reporter serialization/recovery. No scientific modifications.
+- F05 r1 reached49 completed roots without any eligible MERGE/SPLIT.
+  IDs0/1 grew to10 real members at root9 and remained identical generation8.
+  Physical snapshot measurement (full cold authentication still finishing):
+  core numerator5.095971245980715, denominator21.295971245980716,
+  specificity .23929273697448764 for each original a receiver. Thus the
+  nine-reinforcement outside pairs did not cross the .20 KEEP threshold.
+- Predeclare F05 revision2, fresh database, same exact selected features,
+  ordering, supports and initial9 roots. Increase each outside-pair phase
+  from9 to14 reinforcement roots, each3 events, after its1 commitment root.
+  Total69 roots; hard limit72. This changes external evidence amount only,
+  not model constants or topology. Stop at the first eligible unimplemented
+  operator. Retain r1's failed hypothesis and r2's actual results separately.
+- Six distinct curriculum families are now declared (F01..F06); F05 uses
+  its second of at most3 revisions. F07/F08 remain unused/undeclared.

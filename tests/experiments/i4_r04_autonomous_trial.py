@@ -244,7 +244,9 @@ def exclusive_features():
     return [f for group in groups.values() for f in group]
 
 
-def curriculum(path, revision, family):
+def curriculum(path, revision, family, trial_revision=1):
+    if trial_revision != 1 and (family != "F05" or trial_revision != 2):
+        raise ValueError("UNDECLARED_CURRICULUM_REVISION")
     s = open_store(path, revision)
     assert not s.graph().synapses() and not s.graph().stored_cells()
     rows = []
@@ -269,8 +271,11 @@ def curriculum(path, revision, family):
             schedule += [events(first, 1), *[events(first, 3) for _ in range(3)]]
             for i in range(1, 9, 2):
                 pair = (*A, (selected[i], "0.6"), (selected[i + 1], "0.6"))
-                schedule += [events(pair, 1), *[events(pair, 3) for _ in range(9)]]
-            assert len(schedule) == 49
+                schedule += [
+                    events(pair, 1),
+                    *[events(pair, 3) for _ in range(9 if trial_revision == 1 else 14)],
+                ]
+            assert len(schedule) == (49 if trial_revision == 1 else 69)
         else:
             schedule = [events(A, 1 if r == 1 else 3) for r in range(1, 13)]
             schedule += [events(MIX, 1), *[events((("f617", "1"),), 3) for _ in range(12)]]
@@ -324,7 +329,7 @@ def curriculum(path, revision, family):
                     break
     result = dict(
         family=family,
-        revision=1,
+        revision=trial_revision,
         evidence_kind="GENUINE_ROOTSTORE_EXTERNAL_EVENTS",
         **inputs,
         roots=rows,
@@ -383,16 +388,17 @@ def main():
         "--family", choices=("F01", "F02", "F03", "F04", "F05", "F06", "clock"), required=True
     )
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--revision", type=int, choices=(1, 2), default=1)
     args = parser.parse_args()
     args.directory.mkdir(parents=True, exist_ok=True)
-    path = args.directory / f"{args.family}.sqlite"
+    path = args.directory / f"{args.family}{'-r2' if args.revision == 2 else ''}.sqlite"
     assert not path.exists(), "FRESH_PRODUCTION_DATABASE_REQUIRED"
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     started = time.perf_counter()
     result = (
         clock_trial(path, revision)
         if args.family == "clock"
-        else curriculum(path, revision, args.family)
+        else curriculum(path, revision, args.family, args.revision)
     )
     result.update(code_revision=revision, seconds=time.perf_counter() - started)
     args.output.write_text(
