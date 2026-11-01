@@ -194,3 +194,23 @@
   operator. Retain r1's failed hypothesis and r2's actual results separately.
 - Six distinct curriculum families are now declared (F01..F06); F05 uses
   its second of at most3 revisions. F07/F08 remain unused/undeclared.
+
+## 2026-11-01 - C07 / compatibility and completed negative trial
+
+- F05 r1 final cold authentication completed:49 roots/131 genuine external
+  EVENTs,34 committed receivers,540 learned keys, two identical10-member
+  Assemblies generation8. No MERGE or legal SPLIT. Entire database hash and
+  SQL archive hash survive independent-process reopen. Runtime506.15s;
+  database242,360,320 bytes. Root/event snapshots are intentionally complete;
+  storage cost is measured, not a claim of production scaling efficiency.
+- Protected-source compatibility is now tested by git archive of exact1af7
+  source, generating its own R03 database in a separate Python process,
+  then loading byte-exact and continuing with the experimental reader.
+  Added clock process-exit cases before/after END commit: both preserve
+  completed-event prefix and duplicate-END idempotence.
+- Focused forensics:3 PASS in5.65s. Ruff/format/mypy pass. Full collected
+  regression with all current additions started using a separate basetemp
+  so live production experiment databases cannot be deleted by pytest.
+- First branch push targets only experiment/i4-r04-autonomous-completion.
+  CI run41333669673 at d1a0c7b is in progress on both OS; intermediate CI
+  is not final-head acceptance. No protected ref or source file was changed.
