@@ -245,7 +245,7 @@ def exclusive_features():
 
 
 def curriculum(path, revision, family, trial_revision=1):
-    if trial_revision != 1 and (family != "F05" or trial_revision != 2):
+    if trial_revision != 1 and (family, trial_revision) not in (("F05", 2), ("F05", 3), ("F06", 2)):
         raise ValueError("UNDECLARED_CURRICULUM_REVISION")
     s = open_store(path, revision)
     assert not s.graph().synapses() and not s.graph().stored_cells()
@@ -269,21 +269,29 @@ def curriculum(path, revision, family, trial_revision=1):
             schedule = [events(MIX, 1 if r == 1 else 2) for r in range(1, 6)]
             first = (*A, (selected[0], "1"))
             schedule += [events(first, 1), *[events(first, 3) for _ in range(3)]]
-            for i in range(1, 9, 2):
-                pair = (*A, (selected[i], "0.6"), (selected[i + 1], "0.6"))
-                schedule += [
-                    events(pair, 1),
-                    *[events(pair, 3) for _ in range(9 if trial_revision == 1 else 14)],
-                ]
+            bundles = [(*A, (selected[i], "0.6"), (selected[i + 1], "0.6")) for i in range(1, 9, 2)]
+            if trial_revision == 3:
+                schedule += [events(pair, 1) for pair in bundles]
+                schedule += [events(pair, 3) for pair in bundles for _ in range(14)]
+            else:
+                for pair in bundles:
+                    schedule += [
+                        events(pair, 1),
+                        *[events(pair, 3) for _ in range(9 if trial_revision == 1 else 14)],
+                    ]
             assert len(schedule) == (49 if trial_revision == 1 else 69)
         else:
             schedule = [events(A, 1 if r == 1 else 3) for r in range(1, 13)]
             schedule += [events(MIX, 1), *[events((("f617", "1"),), 3) for _ in range(12)]]
-            for feature in selected:
-                bundle = ((feature, "1"),)
-                schedule += [events(bundle, 1), *[events(bundle, 3) for _ in range(11)]]
+            bundles = [((feature, "1"),) for feature in selected]
+            if trial_revision == 2:
+                schedule += [events(bundle, 1) for bundle in bundles]
+                schedule += [events(bundle, 3) for bundle in bundles for _ in range(9)]
+            else:
+                for bundle in bundles:
+                    schedule += [events(bundle, 1), *[events(bundle, 3) for _ in range(11)]]
             schedule += [events(MIX, 3) for _ in range(10)]
-            assert len(schedule) == 131
+            assert len(schedule) == (131 if trial_revision == 1 else 115)
         for r, submitted in enumerate(schedule, 1):
             rows.append(run_root(s, r, submitted))
             print(
@@ -388,10 +396,11 @@ def main():
         "--family", choices=("F01", "F02", "F03", "F04", "F05", "F06", "clock"), required=True
     )
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--revision", type=int, choices=(1, 2), default=1)
+    parser.add_argument("--revision", type=int, choices=(1, 2, 3), default=1)
     args = parser.parse_args()
     args.directory.mkdir(parents=True, exist_ok=True)
-    path = args.directory / f"{args.family}{'-r2' if args.revision == 2 else ''}.sqlite"
+    suffix = f"-r{args.revision}" if args.revision != 1 else ""
+    path = args.directory / f"{args.family}{suffix}.sqlite"
     assert not path.exists(), "FRESH_PRODUCTION_DATABASE_REQUIRED"
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     started = time.perf_counter()

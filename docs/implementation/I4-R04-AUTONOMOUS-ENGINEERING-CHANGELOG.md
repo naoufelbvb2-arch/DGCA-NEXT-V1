@@ -214,3 +214,34 @@
 - First branch push targets only experiment/i4-r04-autonomous-completion.
   CI run41333669673 at d1a0c7b is in progress on both OS; intermediate CI
   is not final-head acceptance. No protected ref or source file was changed.
+
+## 2026-11-01 - C08 / complete second trial and finite final revisions
+
+- Full regression:848 PASS in545.97s (9:05); all827 accepted regressions
+  plus21 added cases, zero skipped/fail. F05r2 and F06r1 completed and
+  independently cold-replayed. Neither produced an eligible MERGE/SPLIT.
+- F05r2:69 completed roots; four real live IDs. Original IDs0/1 stay10
+  members generation8; new IDs2/3 share a six-member outside structure.
+  Core specificity .2982090621746224, higher than r1 despite more training.
+  F06r1:131 completed roots; original IDs0/1 both become identical7 sets;
+  eight other genuine cohorts remain live. Only six outside LOCAL targets
+  per designated exclusive have learned links, not the hypothesized12.
+- Investigation hypothesis: later sensory commitments do not necessarily
+  see the old core as Pass-1 emitters after genuine Homeostasis adaptation;
+  their immutable initial latent neighborhoods can differ. More repeats
+  cannot retrofit an absent latent slot. Preserve these negative findings.
+- Predeclare F05 revision3 (last allowed revision), fresh DB, max72 roots:
+  same first9 roots/features/supports as r2; commit ALL four outside-pair
+  cohorts in four one-event roots immediately next, before any outside
+  reinforcement. Then14 reinforcement roots of3 events for each pair in
+  the original order. Total69 roots. This tests early lawful physical
+  commitment; no stored topology is edited. Stop on eligible operator.
+- Predeclare F06 revision2, fresh DB, max120 roots: same first25 roots and
+  selected eight features as r1; commit ALL eight outside cohorts in eight
+  one-event roots before reinforcement. Then nine reinforcement roots per
+  cohort,3 events/root, in original order. End with ten a+f617 roots of3
+  events. Total115. Actual eligibility is measured after normal MG/FORM;
+  no growth suppression, changed thresholds, injected evidence or candidate
+  graph is permitted. Stop on eligible unimplemented operator.
+- Six families remain used; F05 uses3/3 revisions, F06 uses2/3. F07/F08
+  remain undeclared. These are bounded input changes, not scientific fixes.
