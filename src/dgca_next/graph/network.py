@@ -80,6 +80,7 @@ class _State:
     member_assemblies: Mapping[int, frozenset[int]] = field(default_factory=_empty_mapping)
     native_form_log: tuple[NativeFormRecord, ...] = ()
     native_mutation_log: tuple[NativeStructuralMutationRecord, ...] = ()
+    native_operator_log: tuple[bytes, ...] = ()
 
 
 def _slots(state: _State, cell_id: int) -> tuple[LatentSlot, ...]:
@@ -198,6 +199,9 @@ class SparseNetwork:
 
     def native_mutation_log(self) -> tuple[NativeStructuralMutationRecord, ...]:
         return self._state.native_mutation_log
+
+    def native_operator_log(self) -> tuple[bytes, ...]:
+        return self._state.native_operator_log
 
     def member_assemblies(self, cell_id: int) -> frozenset[int]:
         CellAddress.from_cell_id(cell_id)

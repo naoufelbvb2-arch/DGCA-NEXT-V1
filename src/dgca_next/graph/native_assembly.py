@@ -202,6 +202,8 @@ def _form_record(
 
 
 def validate_native_state(state: _State) -> None:
+    if type(state.native_operator_log) is not tuple:
+        raise ValueError("INVALID_NATIVE_OPERATOR_LOG")
     native = bool(state.assembly_high_watermarks)
     if not native:
         if (
@@ -209,6 +211,7 @@ def validate_native_state(state: _State) -> None:
             or state.member_assemblies
             or state.native_form_log
             or state.native_mutation_log
+            or state.native_operator_log
         ):
             raise ValueError("NATIVE_ASSEMBLY_MODE_REQUIRED")
         return
@@ -226,6 +229,11 @@ def validate_native_state(state: _State) -> None:
         s.fixture_only for s in state.synapses.values()
     ):
         raise ValueError("FIXTURE_NATIVE_ASSEMBLY_FORBIDDEN")
+    if state.native_operator_log:
+        from dgca_next.graph.native_operator import validate_operator_state
+
+        validate_operator_state(state)
+        return
     provenance = {}
     for form_entry in state.native_form_log:
         if type(form_entry) is not NativeFormRecord or form_entry.assembly_id in provenance:
@@ -354,6 +362,11 @@ def native_hash_payload(state: _State) -> dict[str, object]:
             [i, sorted(ids)] for i, ids in sorted(state.member_assemblies.items())
         ],
         "native_form_log": [asdict(record) for record in state.native_form_log],
+        **(
+            {"native_operator_log": [raw.hex() for raw in state.native_operator_log]}
+            if state.native_operator_log
+            else {}
+        ),
         **(
             {"native_mutation_log": [asdict(record) for record in state.native_mutation_log]}
             if state.native_mutation_log

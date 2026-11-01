@@ -298,3 +298,24 @@
   changing4->3 and generation2->3, without changing original birth records
   or deleting learned physical synapses. Final cold authentication is still
   required before assigning this production gate its final disposition.
+
+## 2026-11-01 - C12 / lineage representation before conditional publication
+
+- Both final bounded revisions reached OPEN-root fail-closed endpoints:
+  F05r3 root59, F06r2 root109. Exact original-curriculum cold reports and a
+  second authenticated pending-shadow extraction are still being produced.
+  No writer has been enabled ahead of those actual eligibility receipts.
+- Implemented optional versioned W5 operator bytes, strict lineage/history
+  replay across FORM, v1 MG and derived/multi-object records, and a separate
+  decoder that rejects malformed extensions. Accepted old decoders still
+  reject the extension; empty extension is omitted byte-exact. Ordinary
+  accepted modes contain no operator records and follow their original audit.
+- Representation/authority refusal tests:6 PASS in0.35s. These are codec
+  components, not production MERGE/SPLIT. Mypy initially found a local
+  variable reused for Cell versus Assembly; renamed it. Ruff/mypy now pass
+  all64 source modules. No scientific parameters or mutation writer changed.
+- Reporter clarifier: read_only_unchanged asserts graph/structure inspection
+  is unchanged even for an OPEN refusal. Neural read-only processing is
+  deliberately not run with an OPEN root. New reports explicitly distinguish
+  read_only_neural_status=NOT_RUN_OPEN_ROOT from PASS. Earlier artifacts'
+  OPEN-root flag never proves a forbidden neural read-only session ran.

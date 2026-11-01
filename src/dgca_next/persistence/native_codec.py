@@ -35,6 +35,7 @@ def _base_graph(graph: SparseNetwork) -> SparseNetwork:
         member_assemblies=MappingProxyType({}),
         native_form_log=(),
         native_mutation_log=(),
+        native_operator_log=(),
     )
     return result
 
@@ -94,6 +95,9 @@ def _encode_native_shadow(graph: SparseNetwork) -> bytes:
             change["scores"] = [asdict(v) for v in entry.scores]
             changes.append(change)
         doc["mutations"] = changes
+    if state.native_operator_log:
+        doc["operator_journal_version"] = 1
+        doc["operators"] = list(state.native_operator_log)
     return encode_record(_TAG, _VERSION, doc)
 
 

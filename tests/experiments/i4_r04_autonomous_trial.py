@@ -158,6 +158,7 @@ def final_evidence(s):
             for v in g.synapses()
         ],
         read_only_unchanged=True,
+        read_only_neural_status="PASS" if before.open_root is None else "NOT_RUN_OPEN_ROOT",
         automatic_recycling=g.automatic_recycling_enabled,
     )
 
