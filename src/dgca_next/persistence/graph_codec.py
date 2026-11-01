@@ -115,6 +115,7 @@ def encode_production_graph(network: SparseNetwork) -> bytes:
         or state.native_assemblies
         or state.member_assemblies
         or state.native_form_log
+        or state.native_mutation_log
     ):
         raise ValueError("UNSUPPORTED_NATIVE_GRAPH_SCHEMA")
     if set(state.cells) != set(state.slots) or set(state.cells) != set(state.initializations):

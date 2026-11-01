@@ -23,6 +23,7 @@ from dgca_next.graph.native_assembly import (
     NativeFormRecord,
     native_hash_payload,
 )
+from dgca_next.graph.native_mutation import NativeStructuralMutationRecord
 from dgca_next.graph.policy import (
     FixtureEventSnapshot,
     InitializationRecord,
@@ -78,6 +79,7 @@ class _State:
     assembly_high_watermarks: Mapping[Region, int] = field(default_factory=_empty_mapping)
     member_assemblies: Mapping[int, frozenset[int]] = field(default_factory=_empty_mapping)
     native_form_log: tuple[NativeFormRecord, ...] = ()
+    native_mutation_log: tuple[NativeStructuralMutationRecord, ...] = ()
 
 
 def _slots(state: _State, cell_id: int) -> tuple[LatentSlot, ...]:
@@ -193,6 +195,9 @@ class SparseNetwork:
 
     def native_form_log(self) -> tuple[NativeFormRecord, ...]:
         return self._state.native_form_log
+
+    def native_mutation_log(self) -> tuple[NativeStructuralMutationRecord, ...]:
+        return self._state.native_mutation_log
 
     def member_assemblies(self, cell_id: int) -> frozenset[int]:
         CellAddress.from_cell_id(cell_id)

@@ -1,12 +1,23 @@
 """Immutable native laboratory capability: Schema 5, fresh databases only."""
 
+import hashlib
+from dataclasses import replace
+from types import MappingProxyType
+
 from dgca_next.graph.network import SparseNetwork
 from dgca_next.learning.native_form import _form_at_end, decode_native_close, encode_native_close
+from dgca_next.learning.native_lifecycle import (
+    _native_end,
+    decode_lifecycle_close,
+    encode_lifecycle_close,
+)
 from dgca_next.learning.novelty import RecyclingDecision
-from dgca_next.learning.proposals import decode_proposals
-from dgca_next.learning.settlement import CloseResult
+from dgca_next.learning.proposals import LinkProposal, decode_proposals
+from dgca_next.learning.settlement import CloseResult, _settle
 from dgca_next.persistence.form_inspection import FormEligibilityDiagnostic, _inspect_completed_root
 from dgca_next.persistence.native_codec import (
+    _base_graph,
+    _encode_native_shadow,
     decode_native_graph,
     empty_native_graph,
     encode_native_graph,
@@ -81,3 +92,61 @@ class NativeRootStore(ProductionRootStore):
                 )
             except ValueError as exc:
                 raise ValueError(f"UNVERIFIED_FORM_EVENT: {exc}") from exc
+
+
+class NativeLifecycleRootStore(NativeRootStore):
+    """R03 capability; same audited Schema 5, no rewrite of accepted history."""
+
+    _schema_label = "I4_NATIVE_MAINTAIN_GROW_V1"
+    _encode_close = staticmethod(encode_lifecycle_close)
+    _decode_close = staticmethod(decode_lifecycle_close)
+
+    def inspect_native_lifecycle(self, exposure_id: int) -> CloseResult:
+        """Authenticated immutable close diagnostic, with no mutation permission."""
+        with self._read_snapshot():
+            self._id(exposure_id)
+            self._validate()
+            row = self._connection.execute(
+                "SELECT status,close_record FROM p01_roots WHERE exposure_id=?", (exposure_id,)
+            ).fetchone()
+            if row is None or row[0] != "COMPLETED":
+                raise ValueError("ROOT_NOT_COMPLETED")
+            return self._decode_close(row[1])
+
+    def _settle_graph(
+        self,
+        graph: SparseNetwork,
+        exposure_id: int,
+        serial: int,
+        proposals: tuple[LinkProposal, ...],
+        *,
+        event_clock: int,
+    ) -> tuple[SparseNetwork, CloseResult]:
+        graph.validate_graph()
+        physical, result = _settle(
+            _base_graph(graph), exposure_id, serial, proposals, event_clock=event_clock
+        )
+        # Retain immutable native history over the physically audited evidence
+        # shadow; only _native_end may repair it, then the final codec audits.
+        physical._state = replace(
+            physical._state,
+            cells=MappingProxyType(
+                {
+                    i: replace(c, assembly_ids=graph.cell(i).assembly_ids)
+                    for i, c in physical._state.cells.items()
+                }
+            ),
+            native_assemblies=graph._state.native_assemblies,
+            assembly_high_watermarks=graph._state.assembly_high_watermarks,
+            member_assemblies=graph._state.member_assemblies,
+            native_form_log=graph._state.native_form_log,
+            native_mutation_log=graph._state.native_mutation_log,
+        )
+        return physical, replace(
+            result, graph_hash=hashlib.sha256(_encode_native_shadow(physical)).hexdigest()
+        )
+
+    def _finalize_close(
+        self, graph: SparseNetwork, result: CloseResult, *, replay: bool
+    ) -> tuple[SparseNetwork, CloseResult]:
+        return _native_end(self._connection, graph, result, replay=replay)

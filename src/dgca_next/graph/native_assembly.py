@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING
 from dgca_next.config import load_lab_config
 from dgca_next.contracts import CellAddress, Region, SynapseScope
 from dgca_next.graph.cell import nonnegative_integer
+from dgca_next.graph.native_lifecycle import passes, score
+from dgca_next.graph.native_mutation import NativeStructuralMutationRecord, _mutation_record
 from dgca_next.graph.policy import q6
 from dgca_next.graph.synapse import SynapseState, quality
 
@@ -68,7 +70,7 @@ class NativeAssemblyRecord:
             or self.status not in ("LIVE", "ARCHIVED")
             or type(self.member_cell_ids) is not tuple
             or self.member_cell_ids != tuple(sorted(set(self.member_cell_ids)))
-            or not 3 <= len(self.member_cell_ids) <= 16
+            or not (3 if self.status == "LIVE" else 0) <= len(self.member_cell_ids) <= 16
             or any(
                 CellAddress.from_cell_id(i).region is not self.region for i in self.member_cell_ids
             )
@@ -202,7 +204,12 @@ def _form_record(
 def validate_native_state(state: _State) -> None:
     native = bool(state.assembly_high_watermarks)
     if not native:
-        if state.native_assemblies or state.member_assemblies or state.native_form_log:
+        if (
+            state.native_assemblies
+            or state.member_assemblies
+            or state.native_form_log
+            or state.native_mutation_log
+        ):
             raise ValueError("NATIVE_ASSEMBLY_MODE_REQUIRED")
         return
     if set(state.assembly_high_watermarks) != {Region.LANGUAGE}:
@@ -239,6 +246,36 @@ def validate_native_state(state: _State) -> None:
         provenance[form_entry.assembly_id] = form_entry
     if set(provenance) != set(state.native_assemblies):
         raise ValueError("NATIVE_FORM_HISTORY_MISSING")
+    histories = {i: (r.members, 1, "LIVE", r.completed_close_serial) for i, r in provenance.items()}
+    last_order = (-1, -1, -1, -1)
+    for ordinal, edit in enumerate(state.native_mutation_log):
+        if type(edit) is not NativeStructuralMutationRecord:
+            raise ValueError("INVALID_NATIVE_MUTATION_HISTORY")
+        _mutation_record(**asdict(edit))
+        order = (
+            edit.completed_close_serial,
+            1 if edit.stage == "GROW_ADD" else 0,
+            edit.assembly_id,
+            ordinal,
+        )
+        if edit.ordinal != ordinal or order <= last_order or edit.assembly_id not in histories:
+            raise ValueError("INVALID_NATIVE_MUTATION_ORDER")
+        previous = histories[edit.assembly_id]
+        if (
+            previous[:3] != (edit.before_members, edit.before_generation, edit.before_status)
+            or edit.completed_close_serial < previous[3]
+            or edit.completed_close_serial <= provenance[edit.assembly_id].completed_close_serial
+            or edit.exposure_id <= provenance[edit.assembly_id].exposure_id
+            or edit.event_id <= provenance[edit.assembly_id].event_id
+        ):
+            raise ValueError("NATIVE_MUTATION_CHAIN_MISMATCH")
+        histories[edit.assembly_id] = (
+            edit.after_members,
+            edit.after_generation,
+            edit.after_status,
+            edit.completed_close_serial,
+        )
+        last_order = order
     adjacency: dict[int, dict[int, float]] = {}
     directed = {
         (k.source.cell_id, k.target.cell_id): link
@@ -268,34 +305,25 @@ def validate_native_state(state: _State) -> None:
             record.status,
         )
         origin = provenance[identity]
-        if (
-            origin.members != record.member_cell_ids
-            or origin.completed_close_serial != record.birth_close_serial
-        ):
+        if origin.completed_close_serial != record.birth_close_serial:
             raise ValueError("NATIVE_ASSEMBLY_BIRTH_MISMATCH")
-        if record.structural_generation != 1 or record.last_merge_split_close_serial is not None:
-            raise ValueError("I4_UNIMPLEMENTED_STRUCTURAL_GENERATION")
+        if record.last_merge_split_close_serial is not None:
+            raise ValueError("I4_UNIMPLEMENTED_MERGE_SPLIT")
+        if histories[identity] != (
+            record.member_cell_ids,
+            record.structural_generation,
+            record.status,
+            record.last_mutation_close_serial,
+        ):
+            raise ValueError("NATIVE_MUTATION_REGISTRY_MISMATCH")
         if any(i not in state.cells for i in record.member_cell_ids):
             raise ValueError("UNCOMMITTED_NATIVE_MEMBER")
         if any(state.cells[w[0]].committed_event != w[2] for w in origin.witnesses):
             raise ValueError("NATIVE_MEMBER_COMMITMENT_MISMATCH")
-        if (
-            record.status == "LIVE"
-            and record.last_mutation_close_serial != record.birth_close_serial
-        ):
-            raise ValueError("I4_UNIMPLEMENTED_STRUCTURAL_MUTATION")
         if record.status == "LIVE":
             for cell in record.member_cell_ids:
-                neighbors = adjacency.get(cell, {})
-                own = [i for i in record.member_cell_ids if i != cell and i in neighbors]
-                total = sum(v for _, v in sorted(neighbors.items()))
-                numerator = sum(neighbors[i] for i in sorted(own))
-                if (
-                    len(own) < int(_CONFIG.parameter("d_min").value)
-                    or q6(len(own) / (len(record.member_cell_ids) - 1))
-                    < q6(float(_CONFIG.parameter("rho_core").value))
-                    or not total
-                    or q6(numerator / total) < q6(float(_CONFIG.parameter("sigma_G").value))
+                if not passes(
+                    score(cell, record.member_cell_ids, adjacency), "rho_keep", "sigma_keep"
                 ):
                     raise ValueError("INVALID_NATIVE_RECIPROCAL_STRUCTURE")
                 expected[cell] = expected.get(cell, frozenset()) | {identity}
@@ -326,4 +354,9 @@ def native_hash_payload(state: _State) -> dict[str, object]:
             [i, sorted(ids)] for i, ids in sorted(state.member_assemblies.items())
         ],
         "native_form_log": [asdict(record) for record in state.native_form_log],
+        **(
+            {"native_mutation_log": [asdict(record) for record in state.native_mutation_log]}
+            if state.native_mutation_log
+            else {}
+        ),
     }

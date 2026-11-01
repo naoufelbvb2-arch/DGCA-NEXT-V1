@@ -2,9 +2,11 @@
 
 from dataclasses import asdict, replace
 from types import MappingProxyType
+from typing import Any
 
 from dgca_next.contracts import Region
 from dgca_next.graph.native_assembly import _assembly_record, _form_record
+from dgca_next.graph.native_mutation import _mutation_record
 from dgca_next.graph.network import SparseNetwork
 from dgca_next.persistence.binary_records import decode_record, encode_record
 from dgca_next.persistence.graph_codec import decode_production_graph, encode_production_graph
@@ -32,6 +34,7 @@ def _base_graph(graph: SparseNetwork) -> SparseNetwork:
         assembly_high_watermarks=MappingProxyType({}),
         member_assemblies=MappingProxyType({}),
         native_form_log=(),
+        native_mutation_log=(),
     )
     return result
 
@@ -41,9 +44,18 @@ def encode_native_graph(network: SparseNetwork) -> bytes:
     if type(graph) is not SparseNetwork or not graph._state.assembly_high_watermarks:
         raise ValueError("NATIVE_GRAPH_SCHEMA_REQUIRED")
     graph.validate_graph()
+    return _encode_native_shadow(graph)
+
+
+def _encode_native_shadow(graph: SparseNetwork) -> bytes:
+    """Internal transaction hash only. Physical audit remains mandatory.
+
+    A post-evidence/individual-removal shadow can temporarily fail KEEP;
+    this function is never a loader or a publication validation boundary.
+    """
     state = graph._state
     forms = [asdict(r) for r in state.native_form_log]
-    doc = {
+    doc: dict[str, Any] = {
         "base": encode_production_graph(_base_graph(graph)),
         "assemblies": [
             [
@@ -72,21 +84,40 @@ def encode_native_graph(network: SparseNetwork) -> bytes:
     for record in forms:
         record["members"] = list(record["members"])
         record["witnesses"] = [list(w) for w in record["witnesses"]]
+    if state.native_mutation_log:
+        doc["structural_journal_version"] = 1
+        changes = []
+        for entry in state.native_mutation_log:
+            change = asdict(entry)
+            for name in ("before_members", "after_members", "inverse_removed", "inverse_added"):
+                change[name] = list(change[name])
+            change["scores"] = [asdict(v) for v in entry.scores]
+            changes.append(change)
+        doc["mutations"] = changes
     return encode_record(_TAG, _VERSION, doc)
 
 
 def decode_native_graph(data: bytes) -> SparseNetwork:
     try:
         doc = decode_record(data, _TAG, _VERSION)
-        if type(doc) is not dict or set(doc) != {
+        legacy_fields = {
             "base",
             "assemblies",
             "high_watermarks",
             "cells_memberships",
             "membership_reverse",
             "forms",
-        }:
+        }
+        if type(doc) is not dict or set(doc) not in (
+            legacy_fields,
+            legacy_fields | {"structural_journal_version", "mutations"},
+        ):
             raise ValueError("INVALID_NATIVE_W")
+        if "mutations" in doc and (
+            type(doc["structural_journal_version"]) is not int
+            or doc["structural_journal_version"] != 1
+        ):
+            raise ValueError("UNSUPPORTED_NATIVE_MUTATION_VERSION")
         graph = decode_production_graph(doc["base"])
         assemblies = {}
         for row in doc["assemblies"]:
@@ -128,6 +159,7 @@ def decode_native_graph(data: bytes) -> SparseNetwork:
             assembly_high_watermarks=MappingProxyType(highs),
             member_assemblies=MappingProxyType(reverse),
             native_form_log=tuple(forms),
+            native_mutation_log=tuple(_mutation_record(**row) for row in doc.get("mutations", [])),
         )
         if encode_native_graph(graph) != data:
             raise ValueError("NONCANONICAL_NATIVE_W")
