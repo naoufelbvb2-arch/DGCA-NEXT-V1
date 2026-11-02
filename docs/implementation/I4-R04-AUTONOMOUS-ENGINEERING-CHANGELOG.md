@@ -369,3 +369,22 @@
   reuse the already verified parent settlement result instead of encoding
   an identical private W a second time. Every audit/replay still runs; no
   event/provenance validation is bypassed and the output bytes are identical.
+
+## 2026-11-01 - C15 / predeclare actual-stamp clock control F07
+
+- Writer source checkpoint d6da169 is pushed only to the experimental branch.
+  Canonical publication and BEFORE_COMMIT process-exit controls are running
+  on separate byte-identical copies of both original genuine OPEN journals.
+- Predeclare F07 (seventh family/control), one copy of the genuinely
+  published SPLIT lineage; maximum210 new completed external EVENTs plus
+  at most3 aborted events. No additional learning/feature search is allowed.
+- Fixed sequence after actual SPLIT close59: next root1 empty EVENT, next
+  root5 empty EVENTs, next root3 empty EVENTs then ABORT, next root193 empty
+  EVENTs, final root1 empty EVENT. Exactly200 completed external EVENTs.
+  Check actual stamped live IDs at ages0/1/6/199/200, OPEN/ABORT/read-only
+  no-age, exact H_BEGIN restoration, unchanged W and generations, and cold
+  rederivation. These are accepted genuine external empty-feature protocol
+  events, not synaptic evidence or a claim of a second eligible edit.
+- The earlier201-event reference-clock control is retained separately. F07
+  tests the binding to an actual native edit rather than fabricating a stamp.
+  F08 remains unused; no further search revision is introduced.

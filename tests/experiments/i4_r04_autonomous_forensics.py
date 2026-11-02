@@ -14,7 +14,8 @@ from dgca_next.graph.assembly_support import inspect_structure
 from dgca_next.graph.native_lifecycle import score
 from dgca_next.learning.homeostasis_profile import LanguageHomeostasis
 from dgca_next.learning.production_event import decode_event
-from dgca_next.persistence.native_codec import _base_graph, decode_native_graph, encode_native_graph
+from dgca_next.persistence.native_codec import _base_graph, encode_native_graph
+from dgca_next.persistence.operator_codec import decode_operator_graph
 
 
 def sha(raw):
@@ -71,7 +72,7 @@ def snapshot(path, trace_path):
         state["R_sha256"],
         state["completed_closes"],
     ]
-    graph = decode_native_graph(w)
+    graph = decode_operator_graph(w)
     assert encode_native_graph(graph) == w
     structure = inspect_structure(_base_graph(graph))
     supports = {}
