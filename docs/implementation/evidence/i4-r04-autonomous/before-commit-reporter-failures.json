@@ -1,0 +1,18 @@
+[
+  {
+    "case": "BEFORE_COMMIT",
+    "cause": "Expected checkpoint contained additional assemblies key; actual five authoritative fields matched.",
+    "family": "F05-r3",
+    "source_revision": "d6da1698a64bbd4ee634379ec7e0aa0d33dc0db7",
+    "status": "FAIL_REPORTER_COMPARISON",
+    "traceback": ".venv/Scripts/python.exe : Traceback (most recent call last):\r\nAt line:2 char:1\r\n+ .venv/Scripts/python.exe tests/experiments/i4_r04_operator_execution. ...\r\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\n  File \"C:\\Users\\Laptop\\Desktop\\DGCA NEXT V1\\tests\\experiments\\i4_r04_operator_execution.py\", line 262, in <module>\r\n    required=True,\r\n    ^^\r\n  File \"C:\\Users\\Laptop\\Desktop\\DGCA NEXT V1\\tests\\experiments\\i4_r04_operator_execution.py\", line 234, in main\r\n    db.execute(\"UPDATE p01_metadata SET w_state=?\", (forged,))\r\n         ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\Laptop\\Desktop\\DGCA NEXT V1\\tests\\experiments\\i4_r04_operator_execution.py\", line 170, in crash\r\n    s = open_store(path, initial_revision)\r\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError\r\n"
+  },
+  {
+    "case": "BEFORE_COMMIT",
+    "cause": "Expected checkpoint contained additional assemblies key; actual five authoritative fields matched.",
+    "family": "F06-r2",
+    "source_revision": "d6da1698a64bbd4ee634379ec7e0aa0d33dc0db7",
+    "status": "FAIL_REPORTER_COMPARISON",
+    "traceback": ".venv/Scripts/python.exe : Traceback (most recent call last):\r\nAt line:2 char:1\r\n+ .venv/Scripts/python.exe tests/experiments/i4_r04_operator_execution. ...\r\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\n  File \"C:\\Users\\Laptop\\Desktop\\DGCA NEXT V1\\tests\\experiments\\i4_r04_operator_execution.py\", line 262, in <module>\r\n    required=True,\r\n    ^^\r\n  File \"C:\\Users\\Laptop\\Desktop\\DGCA NEXT V1\\tests\\experiments\\i4_r04_operator_execution.py\", line 234, in main\r\n    db.execute(\"UPDATE p01_metadata SET w_state=?\", (forged,))\r\n         ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\Laptop\\Desktop\\DGCA NEXT V1\\tests\\experiments\\i4_r04_operator_execution.py\", line 170, in crash\r\n    s = open_store(path, initial_revision)\r\n               ^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError\r\n"
+  }
+]

@@ -1,0 +1,548 @@
+[
+  {
+    "id": 41333669673,
+    "head": "d1a0c7b325f8ba463ba2865b807da01a1f152928",
+    "url": "https://github.com/naoufelbvb2-arch/DGCA-NEXT-V1/actions/runs/41333669673",
+    "final_delivery_head": false,
+    "jobs": [
+      {
+        "name": "contracts (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip install -e \".[dev]\"",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip check",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next --version",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next verify-specs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp -rs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff format --check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m mypy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check tracked and untracked cleanliness after validation",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "contracts (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip install -e \".[dev]\"",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip check",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next --version",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next verify-specs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp -rs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff format --check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m mypy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check tracked and untracked cleanliness after validation",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 41354395615,
+    "head": "779a84a31eeabcf099dcae9de225a7543dabb3b2",
+    "url": "https://github.com/naoufelbvb2-arch/DGCA-NEXT-V1/actions/runs/41354395615",
+    "final_delivery_head": false,
+    "jobs": [
+      {
+        "name": "contracts (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip install -e \".[dev]\"",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip check",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next --version",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next verify-specs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp -rs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff format --check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m mypy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check tracked and untracked cleanliness after validation",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "contracts (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip install -e \".[dev]\"",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip check",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next --version",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next verify-specs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp -rs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff format --check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m mypy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check tracked and untracked cleanliness after validation",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 41380072803,
+    "head": "d6da1698a64bbd4ee634379ec7e0aa0d33dc0db7",
+    "url": "https://github.com/naoufelbvb2-arch/DGCA-NEXT-V1/actions/runs/41380072803",
+    "final_delivery_head": false,
+    "jobs": [
+      {
+        "name": "contracts (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip install -e \".[dev]\"",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip check",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next --version",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next verify-specs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp -rs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff format --check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m mypy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check tracked and untracked cleanliness after validation",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "name": "contracts (windows-latest)",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip install -e \".[dev]\"",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pip check",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next --version",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m dgca_next verify-specs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp -rs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m ruff format --check .",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run python -m mypy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check tracked and untracked cleanliness after validation",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ]
+  }
+]

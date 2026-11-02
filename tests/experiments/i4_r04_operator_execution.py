@@ -9,7 +9,7 @@ import subprocess
 import sys
 import time
 from contextlib import closing
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 
 from i4_r04_autonomous_forensics import file_sha
@@ -20,9 +20,12 @@ from dgca_next.dynamics.state import GraphSnapshot
 from dgca_next.graph.native_operator import read_operator
 from dgca_next.learning.homeostasis_profile import LanguageHomeostasis
 from dgca_next.learning.native_multi import decode_operator_check
-from dgca_next.learning.native_operators import encode_operator_close
+from dgca_next.learning.native_operators import decode_operator_close, encode_operator_close
+from dgca_next.persistence.binary_records import decode_record, encode_record
 from dgca_next.persistence.graph_codec import encode_production_graph
 from dgca_next.persistence.native_codec import _base_graph
+from dgca_next.persistence.operator_codec import decode_operator_graph
+from dgca_next.persistence.production_store import _checkpoint_digest
 from dgca_next.persistence.store import RootStore
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -42,6 +45,11 @@ def state(s):
         completed_closes=v.completed_closes,
         open_root=v.open_root,
     )
+
+
+def assert_checkpoint(actual, expected):
+    assert set(actual) == {"W_sha256", "H_sha256", "R_sha256", "completed_closes", "open_root"}
+    assert actual == {key: expected[key] for key in actual}
 
 
 def copied_source(source, target, trace):
@@ -167,7 +175,7 @@ s.end(int(sys.argv[4]),hook=stop)
     s = open_store(path, initial_revision)
     actual = state(s)
     if stage == "BEFORE_COMMIT":
-        assert actual == expected_before
+        assert_checkpoint(actual, expected_before)
         assert actual["open_root"] == root and s.root(root).status == "OPEN"
         assert not s.graph().native_operator_log()
     else:
@@ -208,6 +216,64 @@ def abort(path, initial_revision, root):
     )
 
 
+def tamper_clock(path, initial_revision, root):
+    s = open_store(path, initial_revision)
+    s.end(root)
+    s.close()
+    with closing(sqlite3.connect(path)) as db:
+        raw, w, h = db.execute(
+            "SELECT close_record,w_end,h_end FROM p01_roots WHERE exposure_id=?", (root,)
+        ).fetchone()
+        doc = decode_record(w, 0x57, 5)
+        changed = []
+        for op in doc["operators"]:
+            record = read_operator(op)
+            record["event_clock"] += 1
+            changed.append(encode_record(0x4D, 1, record))
+        doc["operators"] = changed
+        forged = encode_record(0x57, 5, doc)
+        decode_operator_graph(forged)  # Canonical structure is NOT root authority.
+        close = replace(decode_operator_close(raw), graph_hash=sha(forged))
+        encoded = encode_operator_close(close)
+        with db:
+            db.execute("UPDATE p01_metadata SET w_state=?", (forged,))
+            db.execute(
+                "UPDATE p01_roots SET w_end=?,close_record=?,close_hash=? WHERE exposure_id=?",
+                (forged, encoded, _checkpoint_digest(encoded, h, forged), root),
+            )
+    try:
+        unsafe = open_store(path, initial_revision)
+    except ValueError as exc:
+        return dict(
+            tamper="operator_event_clock_plus_one",
+            checksums_repaired=True,
+            rootstore_rejected=True,
+            refusal=str(exc),
+        )
+    else:
+        unsafe.close()
+        raise AssertionError("FORGED_OPERATOR_CLOCK_ACCEPTED")
+
+
+def recover_before(path, initial_revision, root, expected):
+    s = open_store(path, initial_revision)
+    actual = state(s)
+    assert_checkpoint(actual, expected)
+    assert s.root(root).status == "OPEN" and not s.graph().native_operator_log()
+    assemblies = [asdict(a) for a in s.graph().native_assemblies()]
+    assert json.loads(json.dumps(assemblies, default=json_default)) == expected["assemblies"]
+    s.close()
+    return dict(
+        stage="BEFORE_COMMIT",
+        original_process_exit=73,
+        rechecked_after_reporter_fix=True,
+        cold_recovery=True,
+        checkpoint_and_assemblies_exact=True,
+        final=dict(state=actual),
+        file_sha256=file_sha(path),
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=Path, required=True)
@@ -215,7 +281,16 @@ def main():
     parser.add_argument("--evidence", type=Path, required=True)
     parser.add_argument("--family", choices=("F05-r3", "F06-r2"), required=True)
     parser.add_argument(
-        "--case", choices=("publish", "BEFORE_COMMIT", "AFTER_COMMIT", "abort"), required=True
+        "--case",
+        choices=(
+            "publish",
+            "BEFORE_COMMIT",
+            "AFTER_COMMIT",
+            "abort",
+            "tamper_clock",
+            "recover_before",
+        ),
+        required=True,
     )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -223,13 +298,23 @@ def main():
     trace = json.loads((args.evidence / (args.family + ".json")).read_text(encoding="utf8"))
     root = trace["roots"][-1]["root_id"]
     args.directory.mkdir(parents=True, exist_ok=True)
-    target = args.directory / (args.family + "-" + args.case + ".sqlite")
-    copied_source(args.source / (args.family + ".sqlite"), target, trace)
+    target = args.directory / (
+        args.family
+        + "-"
+        + ("BEFORE_COMMIT" if args.case == "recover_before" else args.case)
+        + ".sqlite"
+    )
+    if args.case != "recover_before":
+        copied_source(args.source / (args.family + ".sqlite"), target, trace)
     started = time.perf_counter()
     if args.case == "publish":
         result = publish(target, trace["code_revision"], root)
     elif args.case == "abort":
         result = abort(target, trace["code_revision"], root)
+    elif args.case == "tamper_clock":
+        result = tamper_clock(target, trace["code_revision"], root)
+    elif args.case == "recover_before":
+        result = recover_before(target, trace["code_revision"], root, trace["final"]["state"])
     else:
         result = crash(target, trace["code_revision"], root, args.case, trace["final"]["state"])
     result.update(

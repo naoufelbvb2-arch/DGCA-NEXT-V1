@@ -388,3 +388,46 @@
 - The earlier201-event reference-clock control is retained separately. F07
   tests the binding to an actual native edit rather than fabricating a stamp.
   F08 remains unused; no further search revision is introduced.
+
+## 2026-11-01 - C16 / predeclare repaired-checksum operator forgery controls
+
+- Add one negative historical-clock forgery control per genuine operator
+  lineage, on independent test COPIES only. Each first lawfully publishes
+  its actual original OPEN root, then corrupts the persisted operator event
+  clock and repairs W/close/checkpoint hashes. Standalone graph decoding is
+  explicitly not historical authentication; full RootStore cold replay must
+  reject the forged journal. Original experiment databases remain untouched.
+- These two negative controls introduce no new external roots, feature
+  curriculum or independent learning evidence. Their commands, outcomes and
+  exact refusal messages will be recorded with the other controls.
+
+## 2026-11-01 - C17 / complete current-source regression and forensic snapshots
+
+- Current operator-source full regression:859 PASS in1199.47s (19:59),
+  zero FAIL/SKIPPED. All827 accepted baseline tests remain present;32 new
+  cases cover the experimental capability, compatibility, clocks and codecs.
+- Exact forensic export passed for all10 original trial/control snapshots,
+ 10,094,235 bytes, matching each existing cold-replay DB and W/H/R receipt.
+  Complete physical slots, inverse indices, credits, native histories and
+  source birth observations remain recoverable from canonical W bytes.
+- Production crash/publication controls are still completing full cold
+  historical rederivation. Their lack of final receipts is not counted PASS.
+  The scientific experiments and control-copy scopes remain distinct.
+
+## 2026-11-01 - C18 / BEFORE_COMMIT reporter failure and exact repair
+
+- Both genuine BEFORE_COMMIT process exits reached code73, then completed
+  RootStore cold construction. The harness assertion compared five actual
+  checkpoint fields against the source trace's six-key dictionary, whose
+  extra key was assemblies. Both reports failed at that assertion.
+- Independent read-only comparison confirms W/H/R hashes, completed-close
+  count and OPEN root exactly match original checkpoints. The failures and
+  original traces are retained in before-commit-reporter-failures.json.
+- Correct the comparison by projecting all FIVE authoritative checkpoint
+  fields, and separately verify the complete Assembly descriptions on the
+  corrected recovery pass. No expected state or runtime invariant is removed.
+  Focused reporter regression:1 PASS in.20s; it rejects changes to each of
+  the five fields while allowing descriptive extra metadata.
+- Recheck the SAME actual crashed databases with another full cold RootStore
+  construction; do not manufacture or silently rerun replacement evidence.
+  The corrected receipt records the previous exit73 and reporter correction.
