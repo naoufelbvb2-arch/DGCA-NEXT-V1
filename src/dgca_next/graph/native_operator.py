@@ -32,7 +32,12 @@ def assembly_row(record: NativeAssemblyRecord) -> list[Any]:
 def read_assembly_row(row: Any) -> NativeAssemblyRecord:
     from dgca_next.graph.native_assembly import _assembly_record
 
-    if type(row) is not list or len(row) != 8:
+    if (
+        type(row) is not list
+        or len(row) != 8
+        or type(row[1]) is not int
+        or type(row[2]) is not list
+    ):
         raise ValueError("INVALID_OPERATOR_ASSEMBLY_ROW")
     return _assembly_record(row[0], Region(row[1]), tuple(row[2]), *row[3:])
 

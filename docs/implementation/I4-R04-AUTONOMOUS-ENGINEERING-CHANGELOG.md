@@ -492,3 +492,45 @@
 - Add explicit union-member and partition-order structural forgeries to
   saved-state component tests. These remain component evidence, separate
   from genuine RootStore publication and full cold authority verification.
+
+## 2026-11-01 - C22 / full regression and final source checks
+
+- Full locally collected suite:878 PASS in1309.32s (21:49), zero FAIL and
+  zero SKIPPED. Collection began at db80407 before the final four explicit
+  union/partition cases were added. The complete22-case saved-state focused
+  run, including those four additions, passes in22.32s. Final CI collection
+  is882; do not describe the local878 run as having collected882 cases.
+- Source checkpoint8ac4034d1590250c22a9673cb8ee1cfec67afca2: all8 final
+  static/compatibility checks PASS, with exact outputs in final-static-checks.
+  Ruff/format140/mypy66/specification hashes/pip checks remain green.
+  No existing test is modified; no scientific/configuration file differs.
+- The temporary result recorder initially passed a relative forward-slash
+  interpreter path directly to Windows CreateProcess, causing WinError2
+  before its checks. Changing that temporary recorder to sys.executable
+  produced the retained successful receipt. One temporary apply_patch read
+  returned Access denied; an ordinary workspace write then succeeded.
+  No runtime/source behavior or checks were weakened.
+- Both AFTER_COMMIT full recoveries pass (1692.45s SPLIT/1592.78s MERGE),
+  and each W/H/R/close-count result exactly equals its canonical publication.
+  Both corrected BEFORE recoveries also pass (1062.09s SPLIT/763.85s MERGE)
+  on the original crashed files, not replacements.
+- F07 has genuinely completed root64/close63 after200 completed external
+  events and3 aborted events. Both ABORT copies reached ABORTED. Complete
+  independent cold replay remains mandatory before their final PASS receipts.
+
+## 2026-11-01 - C23 / strict operator-row field types
+
+- Final codec review reproduced a real representation bug on the saved
+  genuine MERGE state: changing only a before-row region from integer2 to
+  binary64 2.0 still passed the bare structural decoder and roundtrip. Python
+  Enum coercion had hidden the field-type mismatch. Full historical RootStore
+  authentication remains a separate mandatory defense, not an excuse for
+  accepting a noncanonical row.
+- Require the declared integer region and list member-vector types before
+  conversion. All officially written/retained records already have these
+  types; no valid bytes, numerical law, generation, threshold or evidence
+  change. Add the reproducer for both actual saved operator lineages.
+- Recheck focused actual saved states and run a fresh complete884-case local
+  collection in a separate temporary directory. Final source CI must include
+  these two additional regressions. Existing controls retain their recorded
+  executing SHA; they are not retrospectively relabeled as new-source runs.

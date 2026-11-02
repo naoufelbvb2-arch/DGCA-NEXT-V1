@@ -46,6 +46,7 @@ def test_actual_saved_operator_state_roundtrips_but_old_reader_refuses(saved):
         "form_child",
         "members",
         "partition",
+        "region_type",
     ],
 )
 def test_saved_lineage_refuses_structural_forgery_components(saved, damage):
@@ -68,6 +69,8 @@ def test_saved_lineage_refuses_structural_forgery_components(saved, damage):
         op["after"][0][2] = op["after"][0][2][1:]
     elif damage == "partition":
         op["after"][0][2], op["after"][1][2] = op["after"][1][2], op["after"][0][2]
+    elif damage == "region_type":
+        op["before"][0][1] = float(op["before"][0][1])
     else:
         fake = dict(doc["forms"][0])
         fake["assembly_id"] = op["after"][1][0]
