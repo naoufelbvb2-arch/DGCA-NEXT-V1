@@ -337,3 +337,35 @@
 - Continue with a separately explicitly selected operator capability. Original
   MULTI and accepted modes keep their exact old behavior and fail-closed
   writer guards. No scientific parameter or source has changed.
+
+## 2026-11-01 - C14 / both real publication pilots and declared controls
+
+- Actual public RootStore END development pilots on byte-identical copies
+  of the genuine OPEN journals succeeded. F05r3/root59 publishes two SPLIT
+  records: original IDs0/1 retain L=(8200,10035,10926), generation13;
+  derived IDs2/3 hold R=(8467,10512,10744), generation1, with no fake FORM
+  birth. F06r2/root109 publishes MERGE0+1 ->0 on seven members, survivor
+  generation5; ID1 is ARCHIVED, original birth and last live generation4
+  retained. Duplicate END and close codec roundtrips pass for both pilots.
+- Implemented explicit I4_NATIVE_OPERATORS_V1, preserving every earlier
+  mode/version. New optional W5 operator records and separate close envelope
+  carry actual lineage and clocks. Generic audit replays FORM/MG/operators
+  together; paired cell/inverse membership updates are atomic. Native stages
+  assert exact equality of the frozen post-synaptic physical graph.
+- Source tests:6 codec refusal components plus3 operator plumbing/real
+  FORM-GROW tests pass. Ruff, formatting and mypy66 modules pass. An initial
+  mypy object-index issue was corrected with a checked dictionary assertion.
+  No scientific source or numerical parameter changed.
+- The pilots are development evidence, not the final committed-source
+  verification. The next driver uses a committed writer SHA and copies of
+  the SAME genuine lineages; copies never count as independent roots.
+- Predeclare8 controls: for each of F05r3 and F06r2, one canonical publication
+  with injected in-process BEFORE_COMMIT rollback, cold replay, duplicate
+  END, readonly preservation; one process exit BEFORE_COMMIT; one AFTER;
+  one ABORT/H_BEGIN restore. No external events or topology are inserted.
+  All controls begin as byte-identical original journal copies, and their
+  exact commands/receipts will be retained. No corpus search is expanded.
+- Engineering-only optimization: when the existing operator log is empty,
+  reuse the already verified parent settlement result instead of encoding
+  an identical private W a second time. Every audit/replay still runs; no
+  event/provenance validation is bypassed and the output bytes are identical.

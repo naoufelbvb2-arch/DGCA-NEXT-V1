@@ -28,6 +28,7 @@ class PendingNativeInspection:
 
 
 class NativeMultiRootStore(NativeLifecycleRootStore):
+    _operators_enabled = False
     _schema_label = "I4_NATIVE_MULTI_V1"
     _encode_close = staticmethod(encode_multi_close)
     _decode_close = staticmethod(decode_multi_close)
@@ -78,5 +79,13 @@ class NativeMultiRootStore(NativeLifecycleRootStore):
                 proposals,
                 event_clock=events + root.next_order,
             )
-            graph, closed = _multi_end(self._connection, graph, close, replay=False, probe=True)
+            graph, closed = _multi_end(
+                self._connection,
+                graph,
+                close,
+                replay=False,
+                probe=True,
+                graph_decoder=self._decode_graph,
+                operators=self._operators_enabled,
+            )
             return PendingNativeInspection(closed, encode_native_graph(graph))

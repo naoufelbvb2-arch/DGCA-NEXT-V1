@@ -192,20 +192,34 @@ def validate_operator_state(state: _State) -> None:
     )
 
     actions: list[tuple[tuple[int, int, int, int], str, Any]] = []
+    last_form = -1
     for index, birth in enumerate(state.native_form_log):
         if type(birth) is not NativeFormRecord:
             raise ValueError("INVALID_NATIVE_FORM_HISTORY")
         _form_record(**asdict(birth))
+        if birth.assembly_id <= last_form:
+            raise ValueError("INVALID_NATIVE_FORM_ORDER")
+        last_form = birth.assembly_id
         if any(
             i not in state.cells or state.cells[i].committed_event != committed
             for i, _, committed, _, _ in birth.witnesses
         ):
             raise ValueError("NATIVE_MEMBER_COMMITMENT_MISMATCH")
         actions.append(((birth.completed_close_serial, 2, index, 0), "FORM", birth))
+    last_mg_key = (-1, -1, -1, -1)
     for index, edit in enumerate(state.native_mutation_log):
         _mutation_record(**asdict(edit))
         if edit.ordinal != index:
             raise ValueError("INVALID_NATIVE_MUTATION_ORDER")
+        mg_key = (
+            edit.completed_close_serial,
+            int(edit.stage == "GROW_ADD"),
+            edit.assembly_id,
+            index,
+        )
+        if mg_key <= last_mg_key:
+            raise ValueError("INVALID_NATIVE_MUTATION_ORDER")
+        last_mg_key = mg_key
         actions.append(
             (
                 (

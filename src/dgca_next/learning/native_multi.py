@@ -2,6 +2,7 @@
 
 import hashlib
 import sqlite3
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, replace
 from itertools import combinations
 from types import MappingProxyType
@@ -15,7 +16,10 @@ from dgca_next.graph.native_lifecycle import StructuralEdit, parameter, plan_mai
 from dgca_next.graph.native_mutation import _mutation_record
 from dgca_next.graph.network import SparseNetwork
 from dgca_next.graph.policy import q6
-from dgca_next.learning.completed_event_clock import _verified_completed_prefix
+from dgca_next.learning.completed_event_clock import (
+    VerifiedCompletedPrefix,
+    _verified_completed_prefix,
+)
 from dgca_next.learning.native_form import NativeCloseResult
 from dgca_next.learning.native_lifecycle import (
     NativeLifecycleCloseResult,
@@ -222,6 +226,68 @@ def _apply_edits(
     return graph
 
 
+def _unproven_checks(
+    graph: SparseNetwork, supports: dict[int, dict[int, float]], prefix: VerifiedCompletedPrefix
+) -> tuple[list[bytes], str | None]:
+    live = tuple(a for a in graph.native_assemblies() if a.status == "LIVE")
+    counts = {c.cell_id: len(c.assembly_ids) for c in graph.stored_cells()}
+    checks = []
+    positive = None
+    for a, b in combinations(live, 2):
+        timers = (
+            prefix.cooldown(a.assembly_id, a.last_merge_split_close_serial),
+            prefix.cooldown(b.assembly_id, b.last_merge_split_close_serial),
+        )
+        numbers = analyze_merge(
+            a.member_cell_ids, b.member_cell_ids, supports, membership_counts=counts
+        )
+        eligible = numbers.mathematical_eligible and all(t.eligible for t in timers)
+        checks.append(
+            encode_record(
+                0x4F,
+                1,
+                _plain(
+                    dict(
+                        operator="MERGE",
+                        subjects=[
+                            (a.assembly_id, a.structural_generation),
+                            (b.assembly_id, b.structural_generation),
+                        ],
+                        cooldown=[asdict(t) for t in timers],
+                        numbers=asdict(numbers),
+                        eligible=eligible,
+                    )
+                ),
+            )
+        )
+        if eligible and positive is None:
+            positive = "MERGE"
+    # With no implemented merge writer an eligible MERGE already stops END;
+    # subsequent split calculations are provisional diagnostics, never a skip.
+    for a in live:
+        timer = prefix.cooldown(a.assembly_id, a.last_merge_split_close_serial)
+        numbers_split = analyze_split(a.member_cell_ids, supports, membership_counts=counts)
+        eligible = numbers_split.mathematical_eligible and timer.eligible
+        checks.append(
+            encode_record(
+                0x4F,
+                1,
+                _plain(
+                    dict(
+                        operator="SPLIT",
+                        subjects=[(a.assembly_id, a.structural_generation)],
+                        cooldown=[asdict(timer)],
+                        numbers=asdict(numbers_split),
+                        eligible=eligible,
+                    )
+                ),
+            )
+        )
+        if eligible and positive is None:
+            positive = "SPLIT"
+    return checks, positive
+
+
 def _multi_end(
     connection: sqlite3.Connection,
     graph: SparseNetwork,
@@ -230,10 +296,17 @@ def _multi_end(
     replay: bool,
     probe: bool = False,
     close_version: int = 2,
+    graph_decoder: Callable[[bytes], SparseNetwork] = decode_native_graph,
+    operators: bool = False,
 ) -> tuple[SparseNetwork, MultiAssemblyCloseResult]:
     physical = _base_graph(graph)
     structure = inspect_structure(physical)
-    prefix = _verified_completed_prefix(connection, result, decode_multi_close, replay=replay)
+    prefix_decoder = decode_multi_close
+    if operators:
+        from dgca_next.learning.native_operators import decode_operator_close
+
+        prefix_decoder = decode_operator_close
+    prefix = _verified_completed_prefix(connection, result, prefix_decoder, replay=replay)
     root = connection.execute(
         "SELECT next_order FROM p01_roots WHERE exposure_id=?", (result.exposure_id,)
     ).fetchone()
@@ -243,7 +316,7 @@ def _multi_end(
         result.exposure_id,
         structure.committed,
         root[0],
-        graph_decoder=decode_native_graph,
+        graph_decoder=graph_decoder,
         replay=replay,
     )
     supports: dict[int, dict[int, float]] = {}
@@ -382,62 +455,22 @@ def _multi_end(
         graph = after
         formed.append(identity)
     graph.validate_graph()
-    live = tuple(a for a in graph.native_assemblies() if a.status == "LIVE")
-    counts = {c.cell_id: len(c.assembly_ids) for c in graph.stored_cells()}
-    checks = []
+    ordinals: tuple[int, ...] = ()
     positive = None
-    for a, b in combinations(live, 2):
-        timers = (
-            prefix.cooldown(a.assembly_id, a.last_merge_split_close_serial),
-            prefix.cooldown(b.assembly_id, b.last_merge_split_close_serial),
+    if operators:
+        from dgca_next.learning.native_operators import settle_native_operators
+
+        graph, executed_checks, ordinals = settle_native_operators(
+            graph,
+            result,
+            prefix,
+            events[-1],
+            supports,
+            _sha(encode_production_graph(physical)),
         )
-        numbers = analyze_merge(
-            a.member_cell_ids, b.member_cell_ids, supports, membership_counts=counts
-        )
-        eligible = numbers.mathematical_eligible and all(t.eligible for t in timers)
-        checks.append(
-            encode_record(
-                0x4F,
-                1,
-                _plain(
-                    dict(
-                        operator="MERGE",
-                        subjects=[
-                            (a.assembly_id, a.structural_generation),
-                            (b.assembly_id, b.structural_generation),
-                        ],
-                        cooldown=[asdict(t) for t in timers],
-                        numbers=asdict(numbers),
-                        eligible=eligible,
-                    )
-                ),
-            )
-        )
-        if eligible and positive is None:
-            positive = "MERGE"
-    # With no implemented merge writer an eligible MERGE already stops END;
-    # subsequent split calculations are provisional diagnostics, never a skip.
-    for a in live:
-        timer = prefix.cooldown(a.assembly_id, a.last_merge_split_close_serial)
-        numbers_split = analyze_split(a.member_cell_ids, supports, membership_counts=counts)
-        eligible = numbers_split.mathematical_eligible and timer.eligible
-        checks.append(
-            encode_record(
-                0x4F,
-                1,
-                _plain(
-                    dict(
-                        operator="SPLIT",
-                        subjects=[(a.assembly_id, a.structural_generation)],
-                        cooldown=[asdict(timer)],
-                        numbers=asdict(numbers_split),
-                        eligible=eligible,
-                    )
-                ),
-            )
-        )
-        if eligible and positive is None:
-            positive = "SPLIT"
+        checks = list(executed_checks)
+    else:
+        checks, positive = _unproven_checks(graph, supports, prefix)
     if encode_production_graph(_base_graph(graph)) != encode_production_graph(physical):
         raise ValueError("NATIVE_OPERATORS_CHANGED_PHYSICAL_KNOWLEDGE")
     encoded = encode_native_graph(graph)
@@ -464,4 +497,8 @@ def _multi_end(
     )
     if positive is not None and not probe:
         raise UnprovenNativeOperator(positive, closed, encoded)
+    if operators:
+        from dgca_next.learning.native_operators import operator_close
+
+        return graph, operator_close(closed, ordinals)
     return graph, closed

@@ -1,6 +1,9 @@
 # Conditional structural operator journal design
 
-Status: engineering design; **no enabled writer or production success**.
+Status: implemented in the explicit experimental `I4_NATIVE_OPERATORS_V1`
+capability after genuine eligibility receipts at F05r3/root59 and
+F06r2/root109. Publication, recovery and final acceptance require separate
+verification receipts; this design document alone grants no acceptance.
 Authority: the bounded Master Contract, conditional on an actual eligible
 RootStore END shadow. RC4.4 and all scientific numbers remain unchanged.
 

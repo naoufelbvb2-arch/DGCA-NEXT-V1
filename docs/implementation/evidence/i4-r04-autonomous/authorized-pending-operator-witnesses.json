@@ -1,0 +1,493 @@
+[
+  {
+    "committed": false,
+    "eligible": [
+      {
+        "cooldown": [
+          {
+            "age_completed_events": null,
+            "assembly_id": 0,
+            "last_close_reference": null,
+            "status": "NEVER_EDITED"
+          }
+        ],
+        "eligible": true,
+        "numbers": {
+          "best": {
+            "cross_max": 0.0,
+            "cross_mean": 0.0,
+            "left": [
+              8200,
+              10035,
+              10926
+            ],
+            "right": [
+              8467,
+              10512,
+              10744
+            ],
+            "scores": [
+              [
+                {
+                  "cell_id": 8200,
+                  "degree": 2,
+                  "denominator": 2.4000000000000004,
+                  "density": 1.0,
+                  "numerator": 0.8,
+                  "specificity": 0.3333333333333333
+                },
+                {
+                  "cell_id": 10035,
+                  "degree": 2,
+                  "denominator": 2.4000000000000004,
+                  "density": 1.0,
+                  "numerator": 0.8,
+                  "specificity": 0.3333333333333333
+                },
+                {
+                  "cell_id": 10926,
+                  "degree": 2,
+                  "denominator": 2.4000000000000004,
+                  "density": 1.0,
+                  "numerator": 0.8,
+                  "specificity": 0.3333333333333333
+                }
+              ],
+              [
+                {
+                  "cell_id": 8467,
+                  "degree": 2,
+                  "denominator": 1.7999999999999998,
+                  "density": 1.0,
+                  "numerator": 0.6,
+                  "specificity": 0.33333333333333337
+                },
+                {
+                  "cell_id": 10512,
+                  "degree": 2,
+                  "denominator": 1.7999999999999998,
+                  "density": 1.0,
+                  "numerator": 0.6,
+                  "specificity": 0.33333333333333337
+                },
+                {
+                  "cell_id": 10744,
+                  "degree": 2,
+                  "denominator": 1.7999999999999998,
+                  "density": 1.0,
+                  "numerator": 0.6,
+                  "specificity": 0.33333333333333337
+                }
+              ]
+            ]
+          },
+          "cross_refused": 9,
+          "eligible_partitions": 1,
+          "evidence_kind": "NUMERIC_ONLY",
+          "examined": 10,
+          "keep_refused": 0,
+          "mean_refused": 0,
+          "members": [
+            8200,
+            8467,
+            10035,
+            10512,
+            10744,
+            10926
+          ],
+          "reasons": []
+        },
+        "operator": "SPLIT",
+        "subjects": [
+          [
+            0,
+            12
+          ]
+        ]
+      },
+      {
+        "cooldown": [
+          {
+            "age_completed_events": null,
+            "assembly_id": 1,
+            "last_close_reference": null,
+            "status": "NEVER_EDITED"
+          }
+        ],
+        "eligible": true,
+        "numbers": {
+          "best": {
+            "cross_max": 0.0,
+            "cross_mean": 0.0,
+            "left": [
+              8200,
+              10035,
+              10926
+            ],
+            "right": [
+              8467,
+              10512,
+              10744
+            ],
+            "scores": [
+              [
+                {
+                  "cell_id": 8200,
+                  "degree": 2,
+                  "denominator": 2.4000000000000004,
+                  "density": 1.0,
+                  "numerator": 0.8,
+                  "specificity": 0.3333333333333333
+                },
+                {
+                  "cell_id": 10035,
+                  "degree": 2,
+                  "denominator": 2.4000000000000004,
+                  "density": 1.0,
+                  "numerator": 0.8,
+                  "specificity": 0.3333333333333333
+                },
+                {
+                  "cell_id": 10926,
+                  "degree": 2,
+                  "denominator": 2.4000000000000004,
+                  "density": 1.0,
+                  "numerator": 0.8,
+                  "specificity": 0.3333333333333333
+                }
+              ],
+              [
+                {
+                  "cell_id": 8467,
+                  "degree": 2,
+                  "denominator": 1.7999999999999998,
+                  "density": 1.0,
+                  "numerator": 0.6,
+                  "specificity": 0.33333333333333337
+                },
+                {
+                  "cell_id": 10512,
+                  "degree": 2,
+                  "denominator": 1.7999999999999998,
+                  "density": 1.0,
+                  "numerator": 0.6,
+                  "specificity": 0.33333333333333337
+                },
+                {
+                  "cell_id": 10744,
+                  "degree": 2,
+                  "denominator": 1.7999999999999998,
+                  "density": 1.0,
+                  "numerator": 0.6,
+                  "specificity": 0.33333333333333337
+                }
+              ]
+            ]
+          },
+          "cross_refused": 9,
+          "eligible_partitions": 1,
+          "evidence_kind": "NUMERIC_ONLY",
+          "examined": 10,
+          "keep_refused": 0,
+          "mean_refused": 0,
+          "members": [
+            8200,
+            8467,
+            10035,
+            10512,
+            10744,
+            10926
+          ],
+          "reasons": []
+        },
+        "operator": "SPLIT",
+        "subjects": [
+          [
+            1,
+            12
+          ]
+        ]
+      }
+    ],
+    "family": "F05-r3",
+    "prospective_close_serial": 59,
+    "prospective_event_clock": 161,
+    "root": 59,
+    "source_kind": "PROVISIONAL_TRUSTED_END_SHADOW",
+    "source_revision": "6c869deb08e9797de60f87c7592fa89593149c90"
+  },
+  {
+    "committed": false,
+    "eligible": [
+      {
+        "cooldown": [
+          {
+            "age_completed_events": null,
+            "assembly_id": 0,
+            "last_close_reference": null,
+            "status": "NEVER_EDITED"
+          },
+          {
+            "age_completed_events": null,
+            "assembly_id": 1,
+            "last_close_reference": null,
+            "status": "NEVER_EDITED"
+          }
+        ],
+        "eligible": true,
+        "numbers": {
+          "between_strength": 0.4,
+          "cross_pair_count": 1,
+          "evidence_kind": "NUMERIC_ONLY",
+          "first": [
+            8606,
+            9345,
+            10035,
+            10926,
+            11795,
+            12181
+          ],
+          "first_exclusive": [
+            9345
+          ],
+          "intersection": [
+            8606,
+            10035,
+            10926,
+            11795,
+            12181
+          ],
+          "jaccard": 0.7142857142857143,
+          "memberships_after": [
+            [
+              8200,
+              1
+            ],
+            [
+              8606,
+              1
+            ],
+            [
+              9345,
+              1
+            ],
+            [
+              10035,
+              1
+            ],
+            [
+              10926,
+              1
+            ],
+            [
+              11795,
+              1
+            ],
+            [
+              12181,
+              1
+            ]
+          ],
+          "reasons": [],
+          "second": [
+            8200,
+            8606,
+            10035,
+            10926,
+            11795,
+            12181
+          ],
+          "second_exclusive": [
+            8200
+          ],
+          "source_scores": [
+            [
+              {
+                "cell_id": 8606,
+                "degree": 5,
+                "denominator": 5.981947936302056,
+                "density": 1.0,
+                "numerator": 4.981947936302056,
+                "specificity": 0.8328303738768105
+              },
+              {
+                "cell_id": 9345,
+                "degree": 5,
+                "denominator": 14.981947936302056,
+                "density": 1.0,
+                "numerator": 3.781947936302056,
+                "specificity": 0.2524336589862387
+              },
+              {
+                "cell_id": 10035,
+                "degree": 5,
+                "denominator": 4.2,
+                "density": 1.0,
+                "numerator": 3.2,
+                "specificity": 0.7619047619047619
+              },
+              {
+                "cell_id": 10926,
+                "degree": 5,
+                "denominator": 4.2,
+                "density": 1.0,
+                "numerator": 3.2,
+                "specificity": 0.7619047619047619
+              },
+              {
+                "cell_id": 11795,
+                "degree": 5,
+                "denominator": 4.1819479363020555,
+                "density": 1.0,
+                "numerator": 3.781947936302056,
+                "specificity": 0.9043507939140666
+              },
+              {
+                "cell_id": 12181,
+                "degree": 5,
+                "denominator": 4.1819479363020555,
+                "density": 1.0,
+                "numerator": 3.781947936302056,
+                "specificity": 0.9043507939140666
+              }
+            ],
+            [
+              {
+                "cell_id": 8200,
+                "degree": 5,
+                "denominator": 15.0,
+                "density": 1.0,
+                "numerator": 3.8,
+                "specificity": 0.2533333333333333
+              },
+              {
+                "cell_id": 8606,
+                "degree": 5,
+                "denominator": 5.981947936302056,
+                "density": 1.0,
+                "numerator": 4.987965290868037,
+                "specificity": 0.8338362927898562
+              },
+              {
+                "cell_id": 10035,
+                "degree": 5,
+                "denominator": 4.2,
+                "density": 1.0,
+                "numerator": 3.8,
+                "specificity": 0.9047619047619047
+              },
+              {
+                "cell_id": 10926,
+                "degree": 5,
+                "denominator": 4.2,
+                "density": 1.0,
+                "numerator": 3.8,
+                "specificity": 0.9047619047619047
+              },
+              {
+                "cell_id": 11795,
+                "degree": 5,
+                "denominator": 4.1819479363020555,
+                "density": 1.0,
+                "numerator": 3.1879652908680374,
+                "specificity": 0.7623158727526004
+              },
+              {
+                "cell_id": 12181,
+                "degree": 5,
+                "denominator": 4.1819479363020555,
+                "density": 1.0,
+                "numerator": 3.1879652908680374,
+                "specificity": 0.7623158727526004
+              }
+            ]
+          ],
+          "union": [
+            8200,
+            8606,
+            9345,
+            10035,
+            10926,
+            11795,
+            12181
+          ],
+          "union_scores": [
+            {
+              "cell_id": 8200,
+              "degree": 6,
+              "denominator": 15.0,
+              "density": 1.0,
+              "numerator": 4.2,
+              "specificity": 0.28
+            },
+            {
+              "cell_id": 8606,
+              "degree": 6,
+              "denominator": 5.981947936302056,
+              "density": 1.0,
+              "numerator": 5.981947936302056,
+              "specificity": 1.0
+            },
+            {
+              "cell_id": 9345,
+              "degree": 6,
+              "denominator": 14.981947936302056,
+              "density": 1.0,
+              "numerator": 4.1819479363020555,
+              "specificity": 0.27913245687958727
+            },
+            {
+              "cell_id": 10035,
+              "degree": 6,
+              "denominator": 4.2,
+              "density": 1.0,
+              "numerator": 4.2,
+              "specificity": 1.0
+            },
+            {
+              "cell_id": 10926,
+              "degree": 6,
+              "denominator": 4.2,
+              "density": 1.0,
+              "numerator": 4.2,
+              "specificity": 1.0
+            },
+            {
+              "cell_id": 11795,
+              "degree": 6,
+              "denominator": 4.1819479363020555,
+              "density": 1.0,
+              "numerator": 4.1819479363020555,
+              "specificity": 1.0
+            },
+            {
+              "cell_id": 12181,
+              "degree": 6,
+              "denominator": 4.1819479363020555,
+              "density": 1.0,
+              "numerator": 4.1819479363020555,
+              "specificity": 1.0
+            }
+          ]
+        },
+        "operator": "MERGE",
+        "subjects": [
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            4
+          ]
+        ]
+      }
+    ],
+    "family": "F06-r2",
+    "prospective_close_serial": 109,
+    "prospective_event_clock": 307,
+    "root": 109,
+    "source_kind": "PROVISIONAL_TRUSTED_END_SHADOW",
+    "source_revision": "6c869deb08e9797de60f87c7592fa89593149c90"
+  }
+]

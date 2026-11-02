@@ -321,12 +321,22 @@ class RootStore:
         initial_homeostasis: Homeostasis | None = None,
         execution_mode: str = "I3_SCHEMA4",
     ) -> None:
+        self._backend: Any
+        if execution_mode == "I4_NATIVE_OPERATORS_V1":
+            if initial_homeostasis is not None:
+                raise ValueError("NATIVE_PROFILE_OVERRIDE_FORBIDDEN")
+            from dgca_next.persistence.operator_store import NativeOperatorRootStore
+
+            self._backend = NativeOperatorRootStore(
+                path, repository_root=repository_root, code_revision=code_revision
+            )
+            return
         if execution_mode == "I4_NATIVE_MULTI_V1":
             if initial_homeostasis is not None:
                 raise ValueError("NATIVE_PROFILE_OVERRIDE_FORBIDDEN")
             from dgca_next.persistence.multi_store import NativeMultiRootStore
 
-            self._backend: Any = NativeMultiRootStore(
+            self._backend = NativeMultiRootStore(
                 path, repository_root=repository_root, code_revision=code_revision
             )
             return
