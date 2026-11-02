@@ -216,7 +216,9 @@ def abort(path, initial_revision, root):
     )
 
 
-def tamper_clock(path, initial_revision, root):
+def tamper_clock(path, initial_revision, root, *, numbers=False):
+    import math
+
     s = open_store(path, initial_revision)
     s.end(root)
     s.close()
@@ -226,14 +228,33 @@ def tamper_clock(path, initial_revision, root):
         ).fetchone()
         doc = decode_record(w, 0x57, 5)
         changed = []
+        replacements = {}
         for op in doc["operators"]:
             record = read_operator(op)
-            record["event_clock"] += 1
+            if numbers:
+                check = decode_record(record["check"], 0x4F, 1)
+                if record["operator"] == "MERGE":
+                    measured = check["numbers"]
+                    field = "between_strength"
+                else:
+                    measured = check["numbers"]["best"]
+                    field = "cross_mean"
+                measured[field] = math.nextafter(measured[field], math.inf)
+                forged_check = encode_record(0x4F, 1, check)
+                replacements[record["check"]] = forged_check
+                record["check"] = forged_check
+            else:
+                record["event_clock"] += 1
             changed.append(encode_record(0x4D, 1, record))
         doc["operators"] = changed
         forged = encode_record(0x57, 5, doc)
         decode_operator_graph(forged)  # Canonical structure is NOT root authority.
         close = replace(decode_operator_close(raw), graph_hash=sha(forged))
+        if numbers:
+            close = replace(
+                close,
+                operator_checks=tuple(replacements.get(c, c) for c in close.operator_checks),
+            )
         encoded = encode_operator_close(close)
         with db:
             db.execute("UPDATE p01_metadata SET w_state=?", (forged,))
@@ -245,14 +266,16 @@ def tamper_clock(path, initial_revision, root):
         unsafe = open_store(path, initial_revision)
     except ValueError as exc:
         return dict(
-            tamper="operator_event_clock_plus_one",
+            tamper="operator_measured_numeric_proof"
+            if numbers
+            else "operator_event_clock_plus_one",
             checksums_repaired=True,
             rootstore_rejected=True,
             refusal=str(exc),
         )
     else:
         unsafe.close()
-        raise AssertionError("FORGED_OPERATOR_CLOCK_ACCEPTED")
+        raise AssertionError("FORGED_OPERATOR_PROOF_ACCEPTED")
 
 
 def recover_before(path, initial_revision, root, expected):
@@ -288,6 +311,7 @@ def main():
             "AFTER_COMMIT",
             "abort",
             "tamper_clock",
+            "tamper_numbers",
             "recover_before",
         ),
         required=True,
@@ -313,6 +337,8 @@ def main():
         result = abort(target, trace["code_revision"], root)
     elif args.case == "tamper_clock":
         result = tamper_clock(target, trace["code_revision"], root)
+    elif args.case == "tamper_numbers":
+        result = tamper_clock(target, trace["code_revision"], root, numbers=True)
     elif args.case == "recover_before":
         result = recover_before(target, trace["code_revision"], root, trace["final"]["state"])
     else:

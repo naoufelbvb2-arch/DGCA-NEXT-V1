@@ -36,7 +36,17 @@ def test_actual_saved_operator_state_roundtrips_but_old_reader_refuses(saved):
 
 @pytest.mark.parametrize(
     "damage",
-    ["generation", "birth", "subjects", "clock_reference", "ordinal", "reverse", "form_child"],
+    [
+        "generation",
+        "birth",
+        "subjects",
+        "clock_reference",
+        "ordinal",
+        "reverse",
+        "form_child",
+        "members",
+        "partition",
+    ],
 )
 def test_saved_lineage_refuses_structural_forgery_components(saved, damage):
     _, raw = saved
@@ -54,6 +64,10 @@ def test_saved_lineage_refuses_structural_forgery_components(saved, damage):
         op["ordinal"] = 999
     elif damage == "reverse":
         doc["membership_reverse"][0][1] = []
+    elif damage == "members":
+        op["after"][0][2] = op["after"][0][2][1:]
+    elif damage == "partition":
+        op["after"][0][2], op["after"][1][2] = op["after"][1][2], op["after"][0][2]
     else:
         fake = dict(doc["forms"][0])
         fake["assembly_id"] = op["after"][1][0]

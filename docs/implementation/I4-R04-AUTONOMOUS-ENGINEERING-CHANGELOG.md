@@ -449,3 +449,46 @@
   lineage components only. They are not rerun learning experiments and do
   not authenticate external history. Repaired-journal RootStore controls
   remain mandatory for that authority boundary.
+
+## 2026-11-01 - C20 / final verification execution and protected refs
+
+- Source/test checkpoint db804079d17af1c97bc328a5f7161987543460e6
+  pushed only to experiment/i4-r04-autonomous-completion. Read-only remote
+  verification retains main88fc596c178c8a89c24b991e280d7a0ca8c07779 and
+  protected feature1af7dab4e82be826380d787e16cfecd8a2224f0f unchanged.
+- Ruff: All checks passed; format:140 files already formatted; mypy:
+  Success,66 source files; both RC4.4 exact hashes PASS; pip check:
+  No broken requirements found; working git diff --check PASS. Source/config
+  comparison to the exact accepted parent is empty. Authority copies retain
+  their original supplied bytes, including intentional Markdown line breaks.
+- Final full collection starts with a separate temporary subdirectory,
+  .pytest-tmp/final-verification, preserving all retained production DBs.
+  All827 accepted baseline tests are unchanged;51 additions are collected.
+- Corrected MERGE BEFORE_COMMIT recovery completed on the SAME actual
+  crashed database:763.85s, exact W/H/R/checkpoint and Assembly rows, root109
+  still OPEN,108 completed closes, no operator published. Original exit73
+  and the reporting failure remain independently documented.
+- Execute the previously declared remaining controls on same-lineage copies:
+  both AFTER_COMMIT cold recoveries, SPLIT corrected BEFORE recovery, both
+  ABORT/H_BEGIN controls, both repaired-clock negative controls, and F07.
+  No new feature search, root shortcut, graph injection or science change.
+- Two read-only local inspection commands initially used shell quoting/glob
+  forms incompatible with Windows PowerShell. They failed before running
+  their intended inspection, then were corrected with a literal here-string
+  or directory rg search. No repository/data mutation resulted.
+
+## 2026-11-01 - C21 / close the explicit numeric-proof forgery coverage gap
+
+- Final contract coverage review found that repaired-clock RootStore controls
+  and parent/generation component forgeries did not explicitly corrupt the
+  measured MERGE strength or SPLIT cross mean. No runtime failure was found.
+- Predeclare two additional negative controls, one per SAME genuine lineage
+  copy, with no new external roots or search. Change only a stored numeric
+  proof to its next larger finite binary64 value, synchronize the saved
+  close's check copy, and repair W/close/checkpoint hashes. The bare codec
+  may accept canonical structure; full historical RootStore must reject.
+  Real original/published databases remain untouched. This is deliberate
+  test corruption, not a new scientific parameter or claimed observation.
+- Add explicit union-member and partition-order structural forgeries to
+  saved-state component tests. These remain component evidence, separate
+  from genuine RootStore publication and full cold authority verification.
