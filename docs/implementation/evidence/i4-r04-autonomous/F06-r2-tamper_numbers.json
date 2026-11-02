@@ -1,0 +1,13 @@
+{
+  "case": "tamper_numbers",
+  "checksums_repaired": true,
+  "controls_are_not_independent_learning_roots": true,
+  "database_initial_revision": "6c869deb08e9797de60f87c7592fa89593149c90",
+  "family": "F06-r2",
+  "refusal": "INVALID_CLOSE_CHECKPOINT",
+  "rootstore_rejected": true,
+  "seconds": 1799.5441639999626,
+  "source_kind": "CONTINUATION_OF_GENUINE_EXTERNAL_ROOTSTORE_LINEAGE",
+  "tamper": "operator_measured_numeric_proof",
+  "writer_verification_revision": "8ac4034d1590250c22a9673cb8ee1cfec67afca2"
+}

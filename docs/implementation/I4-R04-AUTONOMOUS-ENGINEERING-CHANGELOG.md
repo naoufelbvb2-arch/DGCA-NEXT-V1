@@ -557,3 +557,45 @@
 - F07 and the two predeclared numeric-proof negative controls still require
   their full cold receipts. No additional curriculum or physical change is
   introduced to shorten or manufacture those checks.
+
+## 2026-11-02 - C25 / completed consolidated verification
+
+- Final local collection at source6af1043:884 PASS in1057.77s (17:37),
+  zero FAIL/SKIPPED. All827 accepted cases remain unchanged;57 additions.
+  Source CI run41387112975 completes BOTH OS SUCCESS,884 twice per OS:
+  Windows459.64s/448.11s, Ubuntu574.61s/567.88s. All remaining required
+  CI steps succeed. These source receipts are explicitly NOT final delivery CI.
+- F07 completes all genuine roots/events and independent cold replay:
+  actual Assembly0, immutable edit close59/prefix161, ages0/1/6/199/200.
+  Roots60/61/63/64 contribute1/5/193/1 completed external EVENTs; root62's
+  three events are ABORTED and contribute zero age. OPEN/read-only do not
+  age; ABORT restores H_BEGIN; W/generations remain byte-identical.
+  Final root64/close63/prefix361, no OPEN root. DB1,292,918,784 bytes,
+  SHA2567c962db542fe5b85e4826d94495576c4a079d79426b3eea501871b43a92f7ae2.
+  Total wall3585.46s; no second eligible edit is claimed.
+- F07's raw verification_revision is the repository HEAD when its receipt
+  is written (2bbfde7), not its launch SHA (db80407). Preserve the raw field
+  and explain this timing. The final strict-row correction changes no valid
+  bytes or physical/neural laws; new-source saved-state/full884 checks are
+  separate evidence. Do not relabel all long-running controls as final-source.
+- Both predeclared numeric-proof controls refuse INVALID_CLOSE_CHECKPOINT:
+  SPLIT1852.06s/MERGE1799.54s. Deliberate proof changes are0 to5e-324 and
+  .4 to.4000000000000001, with close check copies synchronized. Independent
+  SQL reads verify all repaired W/close/checkpoint digests and current strict
+  structural decoding. Full historical root rederivation refuses all four
+  numeric/clock forgeries. No original database is corrupted.
+- final-verification-receipts.json verifies all13 completed publication,
+  recovery, negative and actual-clock controls plus the final884 log.
+  forensic-repair-audits.json separately records exact corruption/hash checks.
+- Terminal genuine MAINTAIN ARCHIVE remains NOT_RUN; real removal is proven.
+  MERGE and SPLIT are no longer empirically blocked. No unapproved scientific
+  decision remains within C01/C02. No language/generalization claim is made.
+- Optional Win32 process-command inspection returned Access denied and was
+  abandoned; ordinary task receipts and repository chronology suffice. No
+  escalation or unrelated machine change was needed. Token/cost/peak-memory
+  measurement is unavailable; measured wall times/storage are reported.
+- Protected refs rechecked before final delivery: main88fc596c178c8a89c24b991e280d7a0ca8c07779,
+  feature1af7dab4e82be826380d787e16cfecd8a2224f0f unchanged. The final
+  report/evidence commit will be pushed ONLY to the experimental branch.
+  Its exact HEAD must obtain BOTH-OS SUCCESS before the final REVIEW_READY
+  handoff. No R05/L5, automatic recycling, protected push or merge is started.

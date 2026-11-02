@@ -1,0 +1,140 @@
+{
+  "additional_union_partition_cases": {
+    "additional_new_cases": 6,
+    "command": ".venv/Scripts/python.exe -m pytest -q tests/test_i4_r04_production_snapshots.py --basetemp=.pytest-tmp/typed-row-forgeries",
+    "summary": "24 passed in 17.61s"
+  },
+  "automatic_recycling_enabled": false,
+  "controls": [
+    {
+      "case": "publish",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F05-r3-publish.json",
+      "refusal": null,
+      "result": "PASS",
+      "seconds": 1934.0095223999815,
+      "sha256": "8781cc71bcea729b0ceed31f2323a019969f51612f88d888bbc3cf446e3b1145",
+      "verification_revision": "d6da1698a64bbd4ee634379ec7e0aa0d33dc0db7"
+    },
+    {
+      "case": "BEFORE_COMMIT-corrected",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F05-r3-BEFORE_COMMIT-corrected.json",
+      "refusal": null,
+      "result": "PASS",
+      "seconds": 1062.0894289000425,
+      "sha256": "fc1fd7ec069855e1016103fd861866079a2ab11aa62a45b18e681d14093732fe",
+      "verification_revision": "db804079d17af1c97bc328a5f7161987543460e6"
+    },
+    {
+      "case": "AFTER_COMMIT",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F05-r3-AFTER_COMMIT.json",
+      "refusal": null,
+      "result": "PASS",
+      "seconds": 1692.4452655999921,
+      "sha256": "e207ca7a7045dd4adf88a1fd717da4fdfe3ef1506005159e88b0a964121d44f0",
+      "verification_revision": "85595dd470c18705e4b05f855ab206f36ec1c577"
+    },
+    {
+      "case": "abort",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F05-r3-abort.json",
+      "refusal": null,
+      "result": "PASS",
+      "seconds": 1781.4703676000936,
+      "sha256": "9bf0f353737625b8b96ba7ad1ea3ea076c08be2e7acb3696ed645214d3a40c91",
+      "verification_revision": "db804079d17af1c97bc328a5f7161987543460e6"
+    },
+    {
+      "case": "tamper_clock",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F05-r3-tamper_clock.json",
+      "refusal": "INVALID_CLOSE_CHECKPOINT",
+      "result": "PASS",
+      "seconds": 1814.032767000026,
+      "sha256": "1e7ff9ecc5fb10b250c6cb28dd526704f2a9806d9664ed62ce1f15082c62fb7e",
+      "verification_revision": "db804079d17af1c97bc328a5f7161987543460e6"
+    },
+    {
+      "case": "tamper_numbers",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F05-r3-tamper_numbers.json",
+      "refusal": "INVALID_CLOSE_CHECKPOINT",
+      "result": "PASS",
+      "seconds": 1852.055465499987,
+      "sha256": "ab8d4b580fed118cea7217321922bacc7224d92636ac6547b26321d644b9e61e",
+      "verification_revision": "8ac4034d1590250c22a9673cb8ee1cfec67afca2"
+    },
+    {
+      "case": "publish",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F06-r2-publish.json",
+      "refusal": null,
+      "result": "PASS",
+      "seconds": 1792.9270402999828,
+      "sha256": "e8af6d7bab3ef2dffa95dc7d9e4e1a053527a2469cf9d8111d8a27bb151ca62b",
+      "verification_revision": "d6da1698a64bbd4ee634379ec7e0aa0d33dc0db7"
+    },
+    {
+      "case": "BEFORE_COMMIT-corrected",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F06-r2-BEFORE_COMMIT-corrected.json",
+      "refusal": null,
+      "result": "PASS",
+      "seconds": 763.8519705000799,
+      "sha256": "488c457f3428f088bf2a02bf758781b13a37406d30b181a25622796ca9e89e9e",
+      "verification_revision": "85595dd470c18705e4b05f855ab206f36ec1c577"
+    },
+    {
+      "case": "AFTER_COMMIT",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F06-r2-AFTER_COMMIT.json",
+      "refusal": null,
+      "result": "PASS",
+      "seconds": 1592.775374699966,
+      "sha256": "78eda835ee0875d43e92b5f75b318b94275706e8453223b72397502a18111f1a",
+      "verification_revision": "85595dd470c18705e4b05f855ab206f36ec1c577"
+    },
+    {
+      "case": "abort",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F06-r2-abort.json",
+      "refusal": null,
+      "result": "PASS",
+      "seconds": 1740.1392346000066,
+      "sha256": "e52074e42f0d41b6d7732e6ce00a5145665f5ebbc1a37203d34a4b132b10f73c",
+      "verification_revision": "db804079d17af1c97bc328a5f7161987543460e6"
+    },
+    {
+      "case": "tamper_clock",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F06-r2-tamper_clock.json",
+      "refusal": "INVALID_CLOSE_CHECKPOINT",
+      "result": "PASS",
+      "seconds": 1756.1163668000372,
+      "sha256": "5aed3e84cf7dcfce5d3dd86ed6093b1ad3fbd31565cf8835cc472be4a3339330",
+      "verification_revision": "db804079d17af1c97bc328a5f7161987543460e6"
+    },
+    {
+      "case": "tamper_numbers",
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F06-r2-tamper_numbers.json",
+      "refusal": "INVALID_CLOSE_CHECKPOINT",
+      "result": "PASS",
+      "seconds": 1799.5441639999626,
+      "sha256": "2ff1e0d73b3710609faa7c7b57f472616365c3913ee16d374b77bc9e5ec88e29",
+      "verification_revision": "8ac4034d1590250c22a9673cb8ee1cfec67afca2"
+    },
+    {
+      "aborted_events": 3,
+      "actual_id": 0,
+      "case": "actual_completed_external_event_clock",
+      "completed_events": 200,
+      "file": "docs/implementation/evidence/i4-r04-autonomous/F07-actual-cooldown.json",
+      "reference_close": 59,
+      "result": "PASS",
+      "seconds": 3585.456908299937,
+      "sha256": "942be845c448db92ee974b1503e7a35f885a749576ef0d3143c4988924466579"
+    }
+  ],
+  "final_collection_count": 884,
+  "final_head_ci": "Must match the delivered report commit; exact run is recorded in final handoff.",
+  "local_full_suite": {
+    "baseline_tests": 827,
+    "command": ".venv/Scripts/python.exe -m pytest -q --basetemp=.pytest-tmp/final-884",
+    "new_cases_at_collection": 57,
+    "source_checkpoint": "6af1043660b1ab9d8bcbc1d0dc65c38839cb9de2",
+    "summary": "884 passed in 1057.77s (0:17:37)"
+  },
+  "production_maintenance_archive": "NOT_RUN",
+  "scientific_sources_unchanged": true
+}

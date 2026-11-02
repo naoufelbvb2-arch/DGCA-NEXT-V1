@@ -1,0 +1,84 @@
+{
+  "evidence_kind": "READ_ONLY_AUDIT_OF_GENUINE_CONTROL_COPIES_NOT_NEW_EXTERNAL_EVIDENCE",
+  "rows": [
+    {
+      "actual_alterations": [
+        {
+          "forged": 162,
+          "original": 161
+        },
+        {
+          "forged": 162,
+          "original": 161
+        }
+      ],
+      "case": "tamper_clock",
+      "checkpoint_digest_correct": true,
+      "close_graph_hash_correct": true,
+      "current_strict_decoder_accepts": true,
+      "family": "F05-r3",
+      "full_RootStore_refusal": "INVALID_CLOSE_CHECKPOINT",
+      "metadata_W_matches": true,
+      "new_external_roots": 0,
+      "sqlite_file_sha256": "6ee8220a47476e3c45f2c0fbd1df0a3f04971f10781542eedefd139dd633d0fd"
+    },
+    {
+      "actual_alterations": [
+        {
+          "field": "cross_mean",
+          "forged": 5e-324,
+          "original": 0.0
+        },
+        {
+          "field": "cross_mean",
+          "forged": 5e-324,
+          "original": 0.0
+        }
+      ],
+      "case": "tamper_numbers",
+      "checkpoint_digest_correct": true,
+      "close_graph_hash_correct": true,
+      "current_strict_decoder_accepts": true,
+      "family": "F05-r3",
+      "full_RootStore_refusal": "INVALID_CLOSE_CHECKPOINT",
+      "metadata_W_matches": true,
+      "new_external_roots": 0,
+      "sqlite_file_sha256": "e907e818b2ecf2200abbcca82aafe957db06771a7ed2ddd97a164c2e27dac87e"
+    },
+    {
+      "actual_alterations": [
+        {
+          "forged": 308,
+          "original": 307
+        }
+      ],
+      "case": "tamper_clock",
+      "checkpoint_digest_correct": true,
+      "close_graph_hash_correct": true,
+      "current_strict_decoder_accepts": true,
+      "family": "F06-r2",
+      "full_RootStore_refusal": "INVALID_CLOSE_CHECKPOINT",
+      "metadata_W_matches": true,
+      "new_external_roots": 0,
+      "sqlite_file_sha256": "57f8643f5dc3068c6b2c29809bb15974d2c08645977c7599a54fd2e0bd86e722"
+    },
+    {
+      "actual_alterations": [
+        {
+          "field": "between_strength",
+          "forged": 0.4000000000000001,
+          "original": 0.4
+        }
+      ],
+      "case": "tamper_numbers",
+      "checkpoint_digest_correct": true,
+      "close_graph_hash_correct": true,
+      "current_strict_decoder_accepts": true,
+      "family": "F06-r2",
+      "full_RootStore_refusal": "INVALID_CLOSE_CHECKPOINT",
+      "metadata_W_matches": true,
+      "new_external_roots": 0,
+      "sqlite_file_sha256": "2720dced96121e925ad74ff3c26cd3b9e710866bb9f81b5037bbc01d168fe453"
+    }
+  ]
+}

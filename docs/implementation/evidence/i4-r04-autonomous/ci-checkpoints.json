@@ -968,5 +968,217 @@
       }
     ],
     "url": "https://github.com/naoufelbvb2-arch/DGCA-NEXT-V1/actions/runs/41385358138"
+  },
+  {
+    "final_delivery_head": false,
+    "head": "6af1043660b1ab9d8bcbc1d0dc65c38839cb9de2",
+    "id": 41387112975,
+    "jobs": [
+      {
+        "check_outputs": [
+          "2026-11-02T04:12:36.9623367Z No broken requirements found.",
+          "2026-11-02T04:12:37.7727380Z PASS docs/specs/DGCA_CORE_RC4_4.md SHA-256=3829494e85b85c1421379324a1702013bed3c970e353ad3b71c08da1901eb93c",
+          "2026-11-02T04:12:37.7728039Z PASS docs/specs/DGCA_LLA_RC4_4.md SHA-256=ba38b7916add57090f088460adb0baa351111cc1757c4a062c89a9d35ca6f2e0",
+          "2026-11-02T04:20:18.8586762Z 884 passed in 459.64s (0:07:39)",
+          "2026-11-02T04:27:47.6500502Z 884 passed in 448.11s (0:07:28)",
+          "2026-11-02T04:27:48.1268170Z All checks passed!",
+          "2026-11-02T04:27:48.5462074Z 140 files already formatted",
+          "2026-11-02T04:27:51.0582324Z Success: no issues found in 66 source files"
+        ],
+        "conclusion": "success",
+        "job_id": 125090281306,
+        "name": "contracts (windows-latest)",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-python@v5",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m pip install -e \".[dev]\"",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m pip check",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m dgca_next --version",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m dgca_next verify-specs",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp -rs",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m ruff check .",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m ruff format --check .",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m mypy",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check tracked and untracked cleanliness after validation",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "status": "completed"
+          }
+        ],
+        "test_summaries": [
+          "2026-11-02T04:20:18.8586762Z 884 passed in 459.64s (0:07:39)",
+          "2026-11-02T04:27:47.6500502Z 884 passed in 448.11s (0:07:28)"
+        ]
+      },
+      {
+        "check_outputs": [
+          "2026-11-02T04:12:17.3308129Z No broken requirements found.",
+          "2026-11-02T04:12:17.5003569Z PASS docs/specs/DGCA_CORE_RC4_4.md SHA-256=3829494e85b85c1421379324a1702013bed3c970e353ad3b71c08da1901eb93c",
+          "2026-11-02T04:12:17.5005074Z PASS docs/specs/DGCA_LLA_RC4_4.md SHA-256=ba38b7916add57090f088460adb0baa351111cc1757c4a062c89a9d35ca6f2e0",
+          "2026-11-02T04:21:53.2152389Z 884 passed in 574.61s (0:09:34)",
+          "2026-11-02T04:31:21.5512861Z 884 passed in 567.88s (0:09:27)",
+          "2026-11-02T04:31:21.6826297Z All checks passed!",
+          "2026-11-02T04:31:21.7475840Z 140 files already formatted",
+          "2026-11-02T04:31:24.7612864Z Success: no issues found in 66 source files"
+        ],
+        "conclusion": "success",
+        "job_id": 125090281582,
+        "name": "contracts (ubuntu-latest)",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-python@v5",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m pip install -e \".[dev]\"",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m pip check",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m dgca_next --version",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m dgca_next verify-specs",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp -rs",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m pytest -q --basetemp=.pytest-tmp",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m ruff check .",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m ruff format --check .",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run python -m mypy",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check tracked and untracked cleanliness after validation",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "status": "completed"
+          }
+        ],
+        "test_summaries": [
+          "2026-11-02T04:21:53.2152389Z 884 passed in 574.61s (0:09:34)",
+          "2026-11-02T04:31:21.5512861Z 884 passed in 567.88s (0:09:27)"
+        ]
+      }
+    ],
+    "url": "https://github.com/naoufelbvb2-arch/DGCA-NEXT-V1/actions/runs/41387112975"
   }
 ]
