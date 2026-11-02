@@ -1,0 +1,22 @@
+{
+  "case": "AFTER_COMMIT",
+  "cold_recovery": true,
+  "controls_are_not_independent_learning_roots": true,
+  "database_initial_revision": "6c869deb08e9797de60f87c7592fa89593149c90",
+  "family": "F06-r2",
+  "file_sha256": "c3f0985cb046d38ef5264cafea33c990c26ae1548e292092938fae2dd584adf0",
+  "final": {
+    "state": {
+      "H_sha256": "5c45b1609e21385fbb2cdd0cad5c41df9ca2044196d8494a13a9f0797c538e7e",
+      "R_sha256": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+      "W_sha256": "663f7b4e36bb5bffae9f038c2cf2c568f2fea43bdc31128e317bf8e5696b49c4",
+      "completed_closes": 109,
+      "open_root": null
+    }
+  },
+  "process_exit": 73,
+  "seconds": 1592.775374699966,
+  "source_kind": "CONTINUATION_OF_GENUINE_EXTERNAL_ROOTSTORE_LINEAGE",
+  "stage": "AFTER_COMMIT",
+  "writer_verification_revision": "85595dd470c18705e4b05f855ab206f36ec1c577"
+}

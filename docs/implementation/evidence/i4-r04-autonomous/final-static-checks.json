@@ -1,0 +1,123 @@
+{
+  "authority_copy_whitespace": "Byte-exact copied Markdown has intentional two-space linebreaks; original staged whitespace warning retained in changelog. No global parent-range whitespace cleanliness is claimed.",
+  "checks": [
+    {
+      "command": [
+        "C:\\Users\\Laptop\\Desktop\\DGCA NEXT V1\\.venv\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "."
+      ],
+      "exit_code": 0,
+      "result": "PASS",
+      "seconds": 0.2840761000989005,
+      "stderr": "",
+      "stdout": "All checks passed!\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\Laptop\\Desktop\\DGCA NEXT V1\\.venv\\Scripts\\python.exe",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "exit_code": 0,
+      "result": "PASS",
+      "seconds": 0.2719305999344215,
+      "stderr": "",
+      "stdout": "140 files already formatted\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\Laptop\\Desktop\\DGCA NEXT V1\\.venv\\Scripts\\python.exe",
+        "-m",
+        "mypy"
+      ],
+      "exit_code": 0,
+      "result": "PASS",
+      "seconds": 2.1947181000141427,
+      "stderr": "",
+      "stdout": "Success: no issues found in 66 source files\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\Laptop\\Desktop\\DGCA NEXT V1\\.venv\\Scripts\\python.exe",
+        "-m",
+        "dgca_next",
+        "verify-specs"
+      ],
+      "exit_code": 0,
+      "result": "PASS",
+      "seconds": 0.3296941000735387,
+      "stderr": "",
+      "stdout": "PASS docs/specs/DGCA_CORE_RC4_4.md SHA-256=3829494e85b85c1421379324a1702013bed3c970e353ad3b71c08da1901eb93c\nPASS docs/specs/DGCA_LLA_RC4_4.md SHA-256=ba38b7916add57090f088460adb0baa351111cc1757c4a062c89a9d35ca6f2e0\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\Laptop\\Desktop\\DGCA NEXT V1\\.venv\\Scripts\\python.exe",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exit_code": 0,
+      "result": "PASS",
+      "seconds": 1.611458900035359,
+      "stderr": "",
+      "stdout": "No broken requirements found.\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "result": "PASS",
+      "seconds": 0.14201280009001493,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "1af7dab4e82be826380d787e16cfecd8a2224f0f",
+        "--",
+        "docs/specs",
+        "src/dgca_next/config.py"
+      ],
+      "exit_code": 0,
+      "result": "PASS",
+      "seconds": 0.09310180007014424,
+      "stderr": "warning: unable to access 'C:\\Users\\Laptop/.config/git/ignore': Permission denied\n",
+      "stdout": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "--diff-filter=M",
+        "1af7dab4e82be826380d787e16cfecd8a2224f0f",
+        "--",
+        "tests"
+      ],
+      "exit_code": 0,
+      "result": "PASS",
+      "seconds": 0.08866690006107092,
+      "stderr": "warning: unable to access 'C:\\Users\\Laptop/.config/git/ignore': Permission denied\n",
+      "stdout": ""
+    }
+  ],
+  "hashes": {
+    "docs/design/I4-R04-C01-C02-OWNER-APPROVAL-RECORD.md": "3f5babfea7aa6e36ddf7f12823a41e3bd9c6fcbb495dd0071064462635f7593a",
+    "docs/implementation/I4-R04-AUTONOMOUS-COMPLETION-MASTER-CONTRACT.md": "a38e0b9f1bce24c6c2c0ceddfa8c4912359e89dd13352bb7f7d1210f05e27f3e",
+    "docs/specs/DGCA_CORE_RC4_4.md": "3829494e85b85c1421379324a1702013bed3c970e353ad3b71c08da1901eb93c",
+    "docs/specs/DGCA_LLA_RC4_4.md": "ba38b7916add57090f088460adb0baa351111cc1757c4a062c89a9d35ca6f2e0"
+  },
+  "head": "6af1043660b1ab9d8bcbc1d0dc65c38839cb9de2"
+}

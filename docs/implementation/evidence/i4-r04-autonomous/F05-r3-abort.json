@@ -1,0 +1,25 @@
+{
+  "H_BEGIN_restored_exact": true,
+  "case": "abort",
+  "controls_are_not_independent_learning_roots": true,
+  "database_initial_revision": "6c869deb08e9797de60f87c7592fa89593149c90",
+  "family": "F05-r3",
+  "final": {
+    "state": {
+      "H_sha256": "ee9d4a9175df35e15ac49e95066899be90b79a1a51e81b5014266987f246b42f",
+      "R_sha256": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+      "W_sha256": "356be2691f562df730a3bd080e6139c9dcd5e2e94cf91ae27b747d2c1c2dc016",
+      "completed_closes": 58,
+      "open_root": null
+    }
+  },
+  "no_operator_or_evidence_published": true,
+  "recovery": {
+    "cold_process_replay_exact": true,
+    "database_bytes": 442261504,
+    "file_sha256": "9eb12d8886ca7df0bc8e18835d71af99a386e03c97fac99edfb30a1dfe60bc31"
+  },
+  "seconds": 1781.4703676000936,
+  "source_kind": "CONTINUATION_OF_GENUINE_EXTERNAL_ROOTSTORE_LINEAGE",
+  "writer_verification_revision": "db804079d17af1c97bc328a5f7161987543460e6"
+}

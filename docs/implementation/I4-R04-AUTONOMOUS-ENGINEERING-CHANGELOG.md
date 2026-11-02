@@ -534,3 +534,26 @@
   collection in a separate temporary directory. Final source CI must include
   these two additional regressions. Existing controls retain their recorded
   executing SHA; they are not retrospectively relabeled as new-source runs.
+
+## 2026-11-01 - C24 / completed atomic and repaired-clock controls
+
+- Both genuine ABORT controls fully cold-replay: SPLIT1781.47s and
+  MERGE1740.14s. H_BEGIN restores exactly, W remains lawful, completed-root
+  counts remain58/108, and no native operator/evidence is published.
+- Both repaired-clock RootStore controls reject with INVALID_CLOSE_CHECKPOINT
+  after historical rederivation (SPLIT1814.03s/MERGE1756.12s). Independent
+  read-only SQL checks verify the saved checkpoint digest, close graph hash
+  and metadata W really match the forged bytes. The current strict structural
+  decoder accepts those well-shaped records; the full root authority refuses.
+  The original/canonical databases were not changed.
+- Source checkpoint8ac4034 CI run41385358138 completed SUCCESS on BOTH OS:
+  Windows882 PASS twice (613.46s/606.00s), Ubuntu882 PASS twice
+  (566.01s/561.81s). Earlier db80407 run41384537314 also completed BOTH OS
+  SUCCESS with878 twice each. Exact log summaries/steps are retained in
+  ci-checkpoints.json, all explicitly non-final delivery receipts.
+- Row-type hardening checkpoint6af1043660b1ab9d8bcbc1d0dc65c38839cb9de2
+  passes24 actual saved-state cases in17.61s and all8 final static checks.
+  Fresh complete884 local and both-OS CI run41387112975 are executing.
+- F07 and the two predeclared numeric-proof negative controls still require
+  their full cold receipts. No additional curriculum or physical change is
+  introduced to shorten or manufacture those checks.

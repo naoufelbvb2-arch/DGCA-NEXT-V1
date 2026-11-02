@@ -1,0 +1,13 @@
+{
+  "case": "tamper_clock",
+  "checksums_repaired": true,
+  "controls_are_not_independent_learning_roots": true,
+  "database_initial_revision": "6c869deb08e9797de60f87c7592fa89593149c90",
+  "family": "F05-r3",
+  "refusal": "INVALID_CLOSE_CHECKPOINT",
+  "rootstore_rejected": true,
+  "seconds": 1814.032767000026,
+  "source_kind": "CONTINUATION_OF_GENUINE_EXTERNAL_ROOTSTORE_LINEAGE",
+  "tamper": "operator_event_clock_plus_one",
+  "writer_verification_revision": "db804079d17af1c97bc328a5f7161987543460e6"
+}

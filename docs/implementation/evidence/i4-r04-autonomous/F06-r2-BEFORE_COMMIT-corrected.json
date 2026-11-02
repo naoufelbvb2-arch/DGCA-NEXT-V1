@@ -1,0 +1,24 @@
+{
+  "case": "recover_before",
+  "checkpoint_and_assemblies_exact": true,
+  "cold_recovery": true,
+  "controls_are_not_independent_learning_roots": true,
+  "database_initial_revision": "6c869deb08e9797de60f87c7592fa89593149c90",
+  "family": "F06-r2",
+  "file_sha256": "e04072c4d211e64edcbd82b88524f726a08297c0b26f045b1fcbce702324c44f",
+  "final": {
+    "state": {
+      "H_sha256": "5c45b1609e21385fbb2cdd0cad5c41df9ca2044196d8494a13a9f0797c538e7e",
+      "R_sha256": "96578428aceefe148ec36500d1c89fa7b8521f5d03cf133f4bab47ea9deb9a15",
+      "W_sha256": "cb4e8f7067f32cf6728ffc24e93769d1f2e6cdaaf2363166d63078111b10583c",
+      "completed_closes": 108,
+      "open_root": 109
+    }
+  },
+  "original_process_exit": 73,
+  "rechecked_after_reporter_fix": true,
+  "seconds": 763.8519705000799,
+  "source_kind": "CONTINUATION_OF_GENUINE_EXTERNAL_ROOTSTORE_LINEAGE",
+  "stage": "BEFORE_COMMIT",
+  "writer_verification_revision": "85595dd470c18705e4b05f855ab206f36ec1c577"
+}
