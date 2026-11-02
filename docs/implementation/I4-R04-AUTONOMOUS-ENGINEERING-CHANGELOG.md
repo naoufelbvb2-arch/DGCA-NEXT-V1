@@ -431,3 +431,21 @@
 - Recheck the SAME actual crashed databases with another full cold RootStore
   construction; do not manufacture or silently rerun replacement evidence.
   The corrected receipt records the previous exit73 and reporter correction.
+
+## 2026-11-01 - C19 / committed-source real operators and independent recovery
+
+- Canonical d6da169 publication controls completed. SPLIT root59/event
+  prefix161 has ordinals0/1; parents0/1 generation13, derived children2/3
+  generation1. MERGE root109/prefix307 has ordinal0; survivor0 generation5,
+  archived1 generation4. Both preserve original births and prior learned
+  links/credits, H at END, exact physical post-synaptic W, and idempotent END.
+- Independent cold-process replay preserves both complete W/H/R and SQL
+  file receipts. Publication control wall times1934.01s and1792.93s under
+  concurrent full-history validation; no performance efficiency is claimed.
+- Actual same-close cooldown decisions are age0 for all four SPLIT IDs and
+  the MERGE survivor, referencing actual close59 or109. F07 is now executing
+  its predeclared200-event genuine external empty-feature clock control.
+- New snapshot tests use THESE actual saved production W bytes as codec/
+  lineage components only. They are not rerun learning experiments and do
+  not authenticate external history. Repaired-journal RootStore controls
+  remain mandatory for that authority boundary.
