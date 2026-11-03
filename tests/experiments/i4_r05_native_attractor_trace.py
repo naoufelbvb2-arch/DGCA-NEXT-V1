@@ -50,7 +50,7 @@ def summary(store):
             dict(
                 id=a.assembly_id,
                 generation=a.structural_generation,
-                members=a.member_cell_ids,
+                members=list(a.member_cell_ids),
                 status=a.status,
             )
             for a in graph.native_assemblies()

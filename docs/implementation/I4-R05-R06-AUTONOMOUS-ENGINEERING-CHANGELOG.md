@@ -147,3 +147,19 @@
   experiments are still unexecuted; the driver implements C02's declared
   curricula and saves original EVENT/R and physical-link evidence. R06 has
   not started and requires the full R05 gate including complete regressions.
+
+## 2026-11-03 - C05 / F01 and F02 r1 reporting repair
+
+- Both declared genuine curricula reached their completed final roots (F01:7,
+  F02:13). Their cold child processes accepted native historical replay.
+  The experiment driver then failed its summary assertion because in-process
+  Assembly members were tuples and JSON cold-process members were lists.
+  Both original databases/logs are retained unchanged; no physical or neural
+  failure is inferred from this reporting mismatch. No receipt was published.
+- Repair: serialize member lists consistently at the summary boundary. This
+  changes only the reporting driver, with no runtime/learning-law changes.
+  Declare F01-r2 and F02-r2 before execution: repeat exactly C02 curricula
+  in separate fresh databases using the corrected committed driver. Retain r1
+  attempts; r2 evidence alone will be used for final positive summaries.
+- Resource-closing targeted rerun:9 PASS,12 deselected in52.04s. Full new
+  targeted run and complete regression are still in progress. R06 NOT_STARTED.
