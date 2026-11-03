@@ -163,3 +163,35 @@
   attempts; r2 evidence alone will be used for final positive summaries.
 - Resource-closing targeted rerun:9 PASS,12 deselected in52.04s. Full new
   targeted run and complete regression are still in progress. R06 NOT_STARTED.
+
+## 2026-11-03 - C06 / genuine R05 positives, local gate pending
+
+- Runtime source checkpoint72d746a36192c167d1845433b4fbb0c5cf34535d;
+  corrected experiment driverca4a4cf9a424ec722d15013f11f78963a1963cae.
+- F01-r2 PASS:7 independently completed original roots,4 lawful cells,
+  Assembly0 GEN2;106.5771896999795s,4,526,080-byte DB. F02-r2 PASS:
+ 13 independent original roots,4 lawful cells,Assembly0 GEN2;
+ 139.90456639998592s,5,160,960-byte DB. Both cold child processes
+  reproduce complete final W/H/R summaries. Receipts committed separately
+  from ignored original databases; r1 failed reporting attempts retained.
+- At root5 F01 fresh mean0.7255200171716478 and weighted
+  cohesion0.7255200171716477 pass both admission gates. Support0.4
+  gives0.4312481340589534 for both: mean PASS/cohesion FAIL. Reverse
+  threshold orientation remains NUMERIC_ONLY under uniform four-member SIC.
+- F01 root7 actual p=0.5534450244888269, observed direct SIC0.1,
+  miss0.49810052203994426; error1.494301566119833 survives, then
+  collapses at order6. Fresh a1 at order3 does not reset error. F02 root13
+  actual p0.9307225726097181, miss0.8376503153487463, collapses at4.
+- Same-state ablation: raw-drive L1 changes1.4374633010699807(F01)
+  and0.3992273926074854(F02); final-activity L1 is ZERO in both because
+  activity clips. No claim of better learning or language is authorized.
+- New targeted suite21 PASS in231.37s; two independent zero-scratch/
+  weighted-fold and physical W/H fingerprint checks PASS in4.78s. Added
+  empty read-only cold-network negative (no sensory commitment).
+- Bounded original R04 MERGE/SPLIT identity-negative cold audits and six
+  process-exit controls on copies of actual F01 root5 are in progress.
+  Those copies cannot supply additional independent learning evidence.
+- Complete retained regression still pending. Initial branch CI41686737916
+  is in progress on Ubuntu/Windows atca4a4cf. It is not a final CI receipt.
+  R05-G08 and the aggregate local acceptance gate remain PENDING. R06
+  NOT_STARTED; no consolidated scientific acceptance or freeze declared.

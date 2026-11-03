@@ -10,12 +10,15 @@ from pathlib import Path
 
 import pytest
 
+from dgca_next.dynamics.activation import two_pass
 from dgca_next.dynamics.native_attractor import (
     NativeFeatureEvent,
     ObservationScope,
     _advance,
 )
 from dgca_next.dynamics.session import FeatureEvent
+from dgca_next.dynamics.state import GraphSnapshot
+from dgca_next.learning.homeostasis_profile import LanguageHomeostasis
 from dgca_next.persistence.attractor_store import (
     inspect_native_subject,
     native_session_step,
@@ -101,6 +104,35 @@ def test_real_one_threshold_negative_and_no_input(learned):
     assert not trace.evaluations[0]["cohesion_pass"] and not trace.state.attractors
     empty = native_session_step(store, cold, NativeFeatureEvent(FeatureEvent(())))
     assert not empty.state.attractors and not any(empty.fresh.second.activity.values())
+
+
+def test_fresh_is_frozen_zero_scratch_and_real_weighted_reciprocal_fold(learned):
+    store, _, _ = learned
+    cold = start_native_session(store, session_id=30)
+    first = native_session_step(store, cold, feature())
+    observed = native_session_step(store, first.state, feature("0.4"))
+    graph = GraphSnapshot.capture(store.graph())
+    h = LanguageHomeostasis.decode(store.h_bytes()).materialize(graph.committed_ids)
+    expected = two_pass(graph, h, {}, dict(observed.observation.X), {}, {})
+    assert expected == observed.fresh
+    row = observed.evaluations[0]
+    numerator, denominator = 0.0, 0.0
+    for i, j, weight in row["reciprocal_pairs"]:
+        numerator += weight * min(expected.second.activity[i], expected.second.activity[j])
+        denominator += weight
+    assert row["fresh_cohesion"] == numerator / denominator
+    assert row["fresh_mean"] == sum(expected.second.activity.values()) / 4
+
+
+def test_cross_platform_actual_learned_physical_and_homeostasis_fingerprints(learned):
+    store, _, _ = learned
+    # Actual F01 root5 witnesses, never a manufactured learned connection.
+    assert hashlib.sha256(store.view().W).hexdigest() == (
+        "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+    )
+    assert hashlib.sha256(store.h_bytes()).hexdigest() == (
+        "b3eca03ad5c1f9eae079ea82766c0ff64a567780421215354bb9b55603377810"
+    )
 
 
 def test_real_full_age_horizon_and_boundary_precedence(learned):
@@ -225,6 +257,10 @@ def test_native_process_crash_atomicity(tmp_path, learned, operation, phase):
 def test_actual_event_checkpoint_abort_cold_reset_and_scope(tmp_path):
     path = tmp_path / "runtime.sqlite"
     store = open_store(path)
+    empty = store.view()
+    scratch = native_session_step(store, start_native_session(store, session_id=90), feature())
+    assert not scratch.state.attractors and not scratch.passes.second.activity
+    assert store.view() == empty
     train(store)
     h_begin = store.h_bytes()
     store.begin(6)
