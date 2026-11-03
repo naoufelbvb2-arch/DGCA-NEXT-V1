@@ -22,7 +22,7 @@ from dgca_next.persistence.store import R_COLD
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def run(out):
+def run(out, trial_id):
     gate = json.loads(
         (ROOT / "docs/implementation/evidence/i4-r05-r06/R05-LOCAL-GATE.json").read_text()
     )
@@ -36,7 +36,7 @@ def run(out):
     path = out / "production.sqlite"
     store = opened(path, revision)
     result = dict(
-        family="F03-r1",
+        family=trial_id,
         revision=revision,
         local_gate=gate["source_head"],
         zero=summary(store),
@@ -173,5 +173,6 @@ def run(out):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("out", type=Path)
+    parser.add_argument("--trial-id", required=True, choices=("F03-r1", "F03-r2", "F03-r3"))
     args = parser.parse_args()
-    run(args.out)
+    run(args.out, args.trial_id)

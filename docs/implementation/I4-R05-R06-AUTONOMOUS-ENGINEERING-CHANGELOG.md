@@ -292,3 +292,16 @@
 - Declare F03-r2 before execution: exactly C09's curriculum and limits in a
   new empty database; no stimulus/threshold/policy change. This is revision2
   of3 for family3, not an extra independent confirmation pooled with r1.
+
+## 2026-11-03 - C11 / F03-r2 complete; explicit report namespace repair
+
+- F03-r2 actual RootStore/cold recovery PASS in24.702975200023502s.
+  Final completed6/high7/ABORT7 state is lawful and all original numerical
+  outputs are retained. Driver had a hard-coded human report labelF03-r1
+  even for r2; original ignored receipt/log preserve that error. This is
+  attribution/reporting failure, not a scientific or persistence failure.
+- Require explicit --trial-id so exported namespaces cannot be silently
+  mislabeled. Declare final allowed F03-r3 now: unchanged C09 inputs, exact
+  same limits, fresh independent database. No new physical/scientific law,
+  stimulus tuning or positive-evidence pooling. Third and final permitted
+  revision of family3; runtime source remains72d746a.
