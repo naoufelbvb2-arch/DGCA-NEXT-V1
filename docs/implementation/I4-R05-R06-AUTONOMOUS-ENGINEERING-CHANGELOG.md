@@ -226,3 +226,24 @@
   in progress; those four tests separately PASS. Windows CI atca4a4cf
   has completed SUCCESS,Ubuntu second full run is in progress. Exact final
   delivery-head CI remains a later release gate. R06 NOT_STARTED.
+
+## 2026-11-03 13:05 ET - C08 / mandatory local R05 gate PASSED
+
+- Complete initial cohort:905 PASS in1401.72s (23:21),0 FAIL/SKIPPED,
+  including all884 unchanged accepted regressions. Final native file:25 PASS
+  in240.92s (4:00),0 FAIL/SKIPPED. Together these cover909 unique tests;
+  no completed single909-test run is claimed yet.
+- `git diff --exit-code 72d746a..HEAD -- src` PASS: production source has
+  not changed since its implementation checkpoint. Ruff/format(148 files),
+  mypy(69 modules),pip/spec integrity and engineering diff checks PASS.
+- All required local R05-G01..G08 pass. G01..G07 cite genuine production
+  traces/production-path failure controls; G08 is engineering COMPONENT_PASS,
+  not a scientific scenario. Reverse-only threshold negative is NUMERIC_ONLY.
+  Original R04 operator identities were checked against their complete cold
+  histories, with exact original file hashes preserved. No fixture is positive
+  native authority and no final-activity/learning improvement is claimed.
+- Gate source03cc31a0fc00a557e12284e5fb5c10ce6c4f7cb1. Machine-readable
+  R05-LOCAL-GATE.json records the actual commands/results and limitations.
+  This record is committed BEFORE R06 begins. Owner's existing assignment
+  now permits R06 verification; no separate merge/freeze/L5 permission is
+  inferred. Exact final delivery-head CI is still a later release gate.

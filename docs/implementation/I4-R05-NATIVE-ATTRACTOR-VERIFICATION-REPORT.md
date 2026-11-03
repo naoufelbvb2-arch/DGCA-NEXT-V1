@@ -1,7 +1,8 @@
 # I4-R05 Native Context Attractor verification
 
-Status: **LOCAL_ACCEPTANCE_PENDING**. R06 has not started. This draft records
-observations already executed; pending checks below are not PASS claims.
+Status: **LOCAL_R05_PASS**, recorded before R06 began. Final delivery remains
+subject to R06 verification and exact delivery-head CI. Independent owner
+acceptance and scientific freeze are not granted by this local gate.
 
 ## Authority, isolation and preservation
 
@@ -165,7 +166,7 @@ idempotent. Failed historical test/report attempts remain in changelog C04/C05.
 | `python -m pytest -q tests/test_i4_r05_native_attractor.py --basetemp=.pytest-tmp/r05-targeted-v3` | PASS:21 in231.37s |
 | Same file `-k 'frozen_zero or fingerprints'` | PASS:2,21 deselected in4.78s |
 | Empty RO / EVENT / ABORT checkpoint test | PASS:1 in19.35s |
-| Full retained regression, `--basetemp=.pytest-tmp/r05-complete` | IN_PROGRESS |
+| Full retained regression, `--basetemp=.pytest-tmp/r05-complete` | PASS:905 in1401.72s; includes all884 retained tests |
 | `python -m ruff check .` | PASS |
 | `python -m ruff format --check .` | PASS,147 files at C06 |
 | `python -m mypy` | PASS,69 source modules |
@@ -176,9 +177,11 @@ idempotent. Failed historical test/report attempts remain in changelog C04/C05.
 | Actual F01 lineage process-exit controls | PASS:6 cases in216.30455380002968s |
 | Final delivery-head Ubuntu/Windows CI | NOT_RUN; earlier ca4a4cf run41686737916 is in progress |
 
-The v3 targeted suite preceded four additional tests; the final unique test count
-is expected to be909 (884 retained +25 R05). Expected counts are not completed
-results. Peak memory and scalability benchmarking: NOT_RUN. Measured wall times
+The final native file now passes all25 tests together in240.92s. The full905
+cohort includes884 retained +21 initial R05 tests; the native25 cohort includes
+those21 plus4 additional boundaries. Thus all909 unique tests have executed
+across these cohorts. A single complete909-test invocation is still a final
+verification requirement; no such completed result is claimed at this gate. Peak memory and scalability benchmarking: NOT_RUN. Measured wall times
 include competing validation processes and are not clean latency benchmarks.
 
 Additional recovery receipts:
@@ -223,7 +226,6 @@ Original R04 cold-history identity negatives are complete:
 | G05 independent traces/non-retroactivity | PRODUCTION_PASS | Two empty-to-learned lineages; original pre-event W/GEN |
 | G06 W/evidence/RO invariance,H separation | PRODUCTION_PASS | Unchanged persistent state; lawful LEARN H and ABORT |
 | G07 cold history/failure atomicity | PRODUCTION_PASS | Actual F01 lineage controls,6 process exits; new cold sensory ABORT passed |
-| G08 retained regressions/static/integrity | PENDING full regression |884 baseline PASS; current full run in progress |
+| G08 retained regressions/static/integrity | COMPONENT_PASS |905-test full cohort +25-test native cohort PASS; unchanged884 and all25 new cases executed |
 
-Aggregate: **PENDING**. R06 is prohibited until all required local gates pass.
-This document does not authorize a merge, scientific freeze or L5.
+Aggregate: **LOCAL_R05_PASS**. The explicit [local gate record](evidence/i4-r05-r06/R05-LOCAL-GATE.json) was published before commencing R06. It permits the already owner-authorized R06 verification only. It does not authorize a merge, scientific freeze or L5.

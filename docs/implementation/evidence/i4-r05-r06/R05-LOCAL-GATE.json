@@ -1,0 +1,76 @@
+{
+  "base": "b4549d2f9c38d665f19a87848ae22b4b950c8fac",
+  "distinct_tests_executed_across_cohorts": 909,
+  "evidence": [
+    "F01-r2.json",
+    "F02-r2.json",
+    "runtime-crash-controls.json",
+    "grow-generation-control.json",
+    "r04-f05-split-identity-control.json",
+    "r04-f06-merge-identity-control.json"
+  ],
+  "final_delivery_ci_passed": false,
+  "full_909_single_run": "NOT_RUN_YET",
+  "full_regression": {
+    "command": ".venv/Scripts/python.exe -m pytest -q --basetemp=.pytest-tmp/r05-complete",
+    "failed": 0,
+    "passed": 905,
+    "seconds": 1401.72,
+    "skipped": 0
+  },
+  "gates": {
+    "R05-G01": {
+      "classification": "PRODUCTION_PASS",
+      "passed": true
+    },
+    "R05-G02": {
+      "classification": "PRODUCTION_PASS",
+      "passed": true
+    },
+    "R05-G03": {
+      "classification": "PRODUCTION_PASS",
+      "passed": true
+    },
+    "R05-G04": {
+      "classification": "PRODUCTION_PASS",
+      "passed": true
+    },
+    "R05-G05": {
+      "classification": "PRODUCTION_PASS",
+      "passed": true
+    },
+    "R05-G06": {
+      "classification": "PRODUCTION_PASS",
+      "passed": true
+    },
+    "R05-G07": {
+      "classification": "PRODUCTION_PASS",
+      "passed": true
+    },
+    "R05-G08": {
+      "classification": "COMPONENT_PASS",
+      "note": "Engineering regression/static/integrity gate, not a scientific-positive claim.",
+      "passed": true
+    }
+  },
+  "independent_owner_acceptance": false,
+  "issued_at": "2026-11-03T13:05:48.842765-05:00",
+  "limitations": [
+    "Reverse single-threshold negative is NUMERIC_ONLY",
+    "Matched ablations have zero final-activity L1 despite nonzero raw drive",
+    "R04 identity controls are not new operator executions",
+    "No owners/readout/generation/Replay/automatic recycling"
+  ],
+  "native_suite": {
+    "command": ".venv/Scripts/python.exe -m pytest -q tests/test_i4_r05_native_attractor.py --basetemp=.pytest-tmp/r05-final-gate",
+    "failed": 0,
+    "passed": 25,
+    "seconds": 240.92,
+    "skipped": 0
+  },
+  "r06_may_begin": true,
+  "runtime_source": "72d746a36192c167d1845433b4fbb0c5cf34535d",
+  "scientific_freeze": false,
+  "source_head": "03cc31a0fc00a557e12284e5fb5c10ce6c4f7cb1",
+  "status": "LOCAL_R05_PASS"
+}
