@@ -87,5 +87,6 @@ class NativeMultiRootStore(NativeLifecycleRootStore):
                 probe=True,
                 graph_decoder=self._decode_graph,
                 operators=self._operators_enabled,
+                event_verifier=self._event_verifier(),
             )
             return PendingNativeInspection(closed, encode_native_graph(graph))

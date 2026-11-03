@@ -9,10 +9,10 @@ from pathlib import Path
 
 from dgca_next.config import load_lab_config
 from dgca_next.contracts import Region
-from dgca_next.dynamics.activation import two_pass
+from dgca_next.dynamics.activation import TwoPassResult, two_pass
 from dgca_next.dynamics.drive import aggregate, temporal_drives
-from dgca_next.dynamics.frontier import final_frontiers
-from dgca_next.dynamics.state import GraphSnapshot
+from dgca_next.dynamics.frontier import Frontiers, final_frontiers
+from dgca_next.dynamics.state import GraphSnapshot, Homeostasis
 from dgca_next.graph import SparseNetwork
 from dgca_next.graph.cell import ProductionAdmission
 from dgca_next.graph.latent import LATENT_POLICY_VERSION
@@ -45,6 +45,7 @@ from dgca_next.learning.proposals import (
     encode_proposals,
 )
 from dgca_next.learning.settlement import CloseResult, _settle, decode_close, encode_close
+from dgca_next.peripheral.sic import SICProjection
 from dgca_next.persistence.form_inspection import FormEligibilityDiagnostic, _inspect_completed_root
 from dgca_next.persistence.graph_codec import decode_production_graph, encode_production_graph
 from dgca_next.persistence.store import R_COLD, RootView, StoreView
@@ -74,6 +75,45 @@ class ProductionRootStore:
     _encode_close = staticmethod(encode_close)
     _decode_close = staticmethod(decode_close)
     _empty_graph = staticmethod(SparseNetwork)
+    _required_tables = frozenset({"p01_metadata", "p01_roots", "p01_events", "p04_requests"})
+
+    def _initialize_runtime_tables(self) -> None:
+        """Optional capability table, created inside the initial transaction."""
+
+    def _runtime_observation(self, raw: bytes) -> ExternalEventObservation:
+        return decode_event(raw)
+
+    def _event_passes(
+        self,
+        snapshot: GraphSnapshot,
+        h: Homeostasis,
+        projection: SICProjection,
+        previous: ExternalEventObservation | None,
+        *,
+        runtime: bytes,
+        boundary: bool,
+        exposure_id: int,
+        before_w: bytes,
+        before_h: bytes,
+    ) -> tuple[TwoPassResult, dict[int, float], Frontiers, object]:
+        prior = {} if previous is None else dict(previous.final)
+        frontier = frozenset() if previous is None else frozenset(previous.frontier)
+        temporal = aggregate(temporal_drives(snapshot, prior, frontier, {}))
+        passes = two_pass(snapshot, h, prior, dict(projection.X), temporal, {})
+        direct = frozenset(i for i, _ in projection.X_fixed if i in snapshot.committed_ids)
+        return passes, temporal, final_frontiers(passes.second.activity, h, direct), None
+
+    def _checkpoint_runtime(
+        self,
+        observation: ExternalEventObservation,
+        native: object,
+        before_r: bytes,
+        after_w: bytes,
+        after_h: bytes,
+    ) -> bytes:
+        if native is not None:
+            raise ValueError("UNSUPPORTED_NATIVE_CHECKPOINT")
+        return observation.raw
 
     def _settle_graph(
         self,
@@ -125,7 +165,7 @@ class ProductionRootStore:
                     f"UNSUPPORTED_PRODUCTION_SCHEMA: {self._schema_label} "
                     f"requires version {self._schema_version}"
                 )
-            elif tables != {"p01_metadata", "p01_roots", "p01_events", "p04_requests"}:
+            elif tables != self._required_tables:
                 raise ValueError("UNSUPPORTED_STORE_SCHEMA")
             else:
                 version = self._connection.execute(
@@ -197,6 +237,7 @@ class ProductionRootStore:
                 "REFERENCES p01_roots(exposure_id), event_order INTEGER NOT NULL, "
                 "owner_id INTEGER NOT NULL, slot_index INTEGER NOT NULL, disposition TEXT)"
             )
+            self._initialize_runtime_tables()
             self._connection.execute(
                 "INSERT INTO p01_metadata VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
@@ -505,7 +546,7 @@ class ProductionRootStore:
         ):
             raise ValueError("INVALID_OPEN_ROOT_JOURNAL")
         if runtime != R_COLD:
-            last = decode_event(runtime)
+            last = self._runtime_observation(runtime)
             if (
                 row[9] != last.exposure_id
                 or last.event_order != counts.get(last.exposure_id, 0) - 1
@@ -792,13 +833,23 @@ class ProductionRootStore:
             h = profile.materialize(snapshot.committed_ids)
             draft = preflight(snapshot, h, features, salience=salience)
             effective_boundary = boundary or order == 0
-            previous = None if runtime == R_COLD or effective_boundary else decode_event(runtime)
+            previous = (
+                None
+                if runtime == R_COLD or effective_boundary
+                else self._runtime_observation(runtime)
+            )
             prior_activity = {} if previous is None else dict(previous.final)
-            prior_frontier = frozenset() if previous is None else frozenset(previous.frontier)
-            temporal = aggregate(temporal_drives(snapshot, prior_activity, prior_frontier, {}))
-            passes = two_pass(snapshot, h, prior_activity, dict(draft.projection.X), temporal, {})
-            direct = frozenset(i for i, _ in draft.previously_committed)
-            frontiers = final_frontiers(passes.second.activity, h, direct)
+            passes, temporal, frontiers, native = self._event_passes(
+                snapshot,
+                h,
+                draft.projection,
+                previous,
+                runtime=runtime,
+                boundary=effective_boundary,
+                exposure_id=exposure_id,
+                before_w=before_w,
+                before_h=before_h,
+            )
             assert isinstance(row[11], int)
             event_id = row[11] + 1
             admission = ProductionAdmission(exposure_id, event_id, order, draft.projection.digest)
@@ -875,9 +926,10 @@ class ProductionRootStore:
             self._connection.execute(
                 "UPDATE p01_roots SET next_order=? WHERE exposure_id=?", (order + 1, exposure_id)
             )
+            after_r = self._checkpoint_runtime(observation, native, runtime, after_w, after_h)
             self._connection.execute(
                 "UPDATE p01_metadata SET h_state=?,r_state=?,w_state=?,event_high=? WHERE id=1",
-                (after_h, raw, after_w, event_id),
+                (after_h, after_r, after_w, event_id),
             )
             if hook:
                 hook("BEFORE_COMMIT")

@@ -1,6 +1,7 @@
 """Immutable native laboratory capability: Schema 5, fresh databases only."""
 
 import hashlib
+from collections.abc import Callable
 from dataclasses import replace
 from types import MappingProxyType
 
@@ -12,6 +13,7 @@ from dgca_next.learning.native_lifecycle import (
     encode_lifecycle_close,
 )
 from dgca_next.learning.novelty import RecyclingDecision
+from dgca_next.learning.production_event import ExternalEventObservation
 from dgca_next.learning.proposals import LinkProposal, decode_proposals
 from dgca_next.learning.settlement import CloseResult, _settle
 from dgca_next.persistence.form_inspection import FormEligibilityDiagnostic, _inspect_completed_root
@@ -33,6 +35,9 @@ class NativeRootStore(ProductionRootStore):
     _encode_close = staticmethod(encode_native_close)
     _decode_close = staticmethod(decode_native_close)
     _empty_graph = staticmethod(empty_native_graph)
+
+    def _event_verifier(self) -> Callable[[ExternalEventObservation], None] | None:
+        return None
 
     def _validate(self) -> None:
         if self._connection.execute("SELECT COUNT(*) FROM p04_requests").fetchone()[0]:
@@ -89,6 +94,7 @@ class NativeRootStore(ProductionRootStore):
                     graph_decoder=self._decode_graph,
                     graph_encoder=self._encode_graph,
                     post_evidence_graph=graph,
+                    event_verifier=self._event_verifier(),
                 )
             except ValueError as exc:
                 raise ValueError(f"UNVERIFIED_FORM_EVENT: {exc}") from exc

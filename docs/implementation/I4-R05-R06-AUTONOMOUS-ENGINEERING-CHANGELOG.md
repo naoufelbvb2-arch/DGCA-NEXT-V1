@@ -122,3 +122,28 @@
   computation/runtime/table/verifier extension hooks, a separate native
   mathematical/runtime kernel and minimal CI branch trigger. No old fixture
   Attractor API is upgraded into production authority.
+
+## 2026-11-03 - C04 / native runtime engineering checkpoint
+
+- Added an isolated native numerical runtime, authenticated RootStore read-only
+  bridge, explicit I4_NATIVE_ATTRACTOR_V1 backend and canonical R2 journal.
+  R2 checkpoints publish inside the existing EVENT transaction; W5 and accepted
+  old mode encodings remain unchanged. New native audit recomputes event-start
+  fresh/normal dynamics, H, sensory commitments and exact runtime history.
+- Added default-preserving computation/runtime hooks and an internal verified
+  event callback for native FORM/END. Existing mathematical fixture API remains
+  unchanged and supplies no authority to the native API.
+- Cold EVENT smoke accepted a1, committed 8606/9345/11795/12181 and recovered
+  its OPEN checkpoint, then ABORT succeeded. First smoke invocation was refused
+  for a malformed test code-revision string before DB initialization; corrected
+  to the actual current Git SHA, without weakening validation.
+- Legacy targeted checks:57 PASS in63.43s. Initial new tests:5 PASS,7 FAIL,
+  2 cleanup ERROR because the test referred to StoreView.R instead of runtime.
+  Corrected the test API name. Second run:10 PASS,2 FAIL with strict resource
+  warnings from test sqlite context managers (which do not close connections).
+  Added explicit closing in tests/driver; no runtime law or threshold changed.
+  These failed logs are retained under .pytest-tmp/r05-*; final reruns pending.
+- Ruff/format/mypy currently pass (69 source modules). Genuine F01/F02
+  experiments are still unexecuted; the driver implements C02's declared
+  curricula and saves original EVENT/R and physical-link evidence. R06 has
+  not started and requires the full R05 gate including complete regressions.

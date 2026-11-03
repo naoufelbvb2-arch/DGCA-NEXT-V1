@@ -26,6 +26,7 @@ from dgca_next.learning.native_lifecycle import (
     decode_lifecycle_close,
     encode_lifecycle_close,
 )
+from dgca_next.learning.production_event import ExternalEventObservation
 from dgca_next.learning.settlement import CloseResult
 from dgca_next.persistence.binary_records import decode_record, encode_record
 from dgca_next.persistence.form_inspection import _project_candidates, _qualified_events
@@ -298,6 +299,7 @@ def _multi_end(
     close_version: int = 2,
     graph_decoder: Callable[[bytes], SparseNetwork] = decode_native_graph,
     operators: bool = False,
+    event_verifier: Callable[[ExternalEventObservation], None] | None = None,
 ) -> tuple[SparseNetwork, MultiAssemblyCloseResult]:
     physical = _base_graph(graph)
     structure = inspect_structure(physical)
@@ -318,6 +320,7 @@ def _multi_end(
         root[0],
         graph_decoder=graph_decoder,
         replay=replay,
+        event_verifier=event_verifier,
     )
     supports: dict[int, dict[int, float]] = {}
     for pair in structure.pairs:

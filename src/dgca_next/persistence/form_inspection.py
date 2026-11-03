@@ -16,7 +16,7 @@ from dgca_next.graph.policy import q6
 from dgca_next.integrity import EXPECTED_SPECS
 from dgca_next.learning.homeostasis_profile import LanguageHomeostasis
 from dgca_next.learning.novelty import _verified_novelty
-from dgca_next.learning.production_event import decode_event
+from dgca_next.learning.production_event import ExternalEventObservation, decode_event
 from dgca_next.persistence.graph_codec import decode_production_graph, encode_production_graph
 
 _CONFIG = load_lab_config()
@@ -116,6 +116,7 @@ def _inspect_completed_root(
     graph_decoder: Callable[[bytes], SparseNetwork] = decode_production_graph,
     graph_encoder: Callable[[SparseNetwork], bytes] = encode_production_graph,
     post_evidence_graph: SparseNetwork | None = None,
+    event_verifier: Callable[[ExternalEventObservation], None] | None = None,
 ) -> FormEligibilityDiagnostic:
     if type(exposure_id) is not int or exposure_id < 0:
         raise ValueError("INVALID_EXPOSURE_ID")
@@ -133,7 +134,12 @@ def _inspect_completed_root(
     graph = graph_decoder(root[2]) if post_evidence_graph is None else post_evidence_graph
     structure = inspect_structure(graph)
     event_tuple = _qualified_events(
-        connection, exposure_id, structure.committed, root[1], graph_decoder=graph_decoder
+        connection,
+        exposure_id,
+        structure.committed,
+        root[1],
+        graph_decoder=graph_decoder,
+        event_verifier=event_verifier,
     )
     candidates = _project_candidates(structure, event_tuple)
     reason = (
@@ -166,6 +172,7 @@ def _qualified_events(
     *,
     graph_decoder: Callable[[bytes], SparseNetwork] = decode_production_graph,
     replay: bool = False,
+    event_verifier: Callable[[ExternalEventObservation], None] | None = None,
 ) -> tuple[FormEventDiagnostic, ...]:
     rows = connection.execute(
         "SELECT event_id,event_order,record,w_before,h_before FROM p01_events "
@@ -191,7 +198,9 @@ def _qualified_events(
         # One genuine committed direct receiver verifies the entire saved
         # neural trace against that EVENT's historical W/H, never current W.
         verifier = next((i for i in event.pre_committed if direct.get(i, 0) > 0), None)
-        if verifier is not None:
+        if event_verifier is not None:
+            event_verifier(event)
+        elif verifier is not None:
             _, verified_event = _verified_novelty(
                 connection,
                 exposure_id,

@@ -322,6 +322,15 @@ class RootStore:
         execution_mode: str = "I3_SCHEMA4",
     ) -> None:
         self._backend: Any
+        if execution_mode == "I4_NATIVE_ATTRACTOR_V1":
+            if initial_homeostasis is not None:
+                raise ValueError("NATIVE_PROFILE_OVERRIDE_FORBIDDEN")
+            from dgca_next.persistence.attractor_store import NativeAttractorRootStore
+
+            self._backend = NativeAttractorRootStore(
+                path, repository_root=repository_root, code_revision=code_revision
+            )
+            return
         if execution_mode == "I4_NATIVE_OPERATORS_V1":
             if initial_homeostasis is not None:
                 raise ValueError("NATIVE_PROFILE_OVERRIDE_FORBIDDEN")
