@@ -247,3 +247,33 @@
   This record is committed BEFORE R06 begins. Owner's existing assignment
   now permits R06 verification; no separate merge/freeze/L5 permission is
   inferred. Exact final delivery-head CI is still a later release gate.
+
+## 2026-11-03 - C09 / R06 begins after local gate; declare F03-r1
+
+- R05 gate committed3301444 before this checkpoint. R06 is verification,
+  not authority for a new scientific feature. Production runtime remains72d746a.
+- Declare ONE bounded R06 integrated family F03-r1 before execution: new
+  empty I4_NATIVE_ATTRACTOR_V1 RootStore, canonical a1. Root1 one event;
+  roots2..4 two events; root5 one event. Root6 ten events: a1 at0/1,
+  a0.1 at2, a1 at3, a0.1 at4..9; actual ingress scope
+  COMPLETE_NEXT_EVENT. END6 normally, observe actual native behavior rather
+  than forcing collapse. Root7 two real a1 events then ABORT; assert no new
+  published evidence, restore exact H_BEGIN and retain lawful W.
+- Inspect actual event-bound novelty at root6 order2 using the first actual
+  projected committed receiver. Report the computed value even if zero;
+  no rewiring or automatic recycling is enabled in native mode.
+- Frozen RO after root6/ABORT7: genuine input/admission/next-event sigma,
+  matched zero-sigma ablation, W/H/R/evidence invariance; final separate cold
+  process recovery. Hard limit7 roots and10 events/root. No feature search
+  or scientific parameter revision. This is family3 of at most6; r1 of3.
+- Full I4 structural coverage uses separately authenticated accepted R04
+  F05-r3(SPLIT) and F06-r2(MERGE) input/history lineages, whose original
+  entire DBs were cold-audited under unchanged current source in R05.
+  F03's single four-member clique cannot manufacture two Assemblies or a
+  legal SPLIT. No single-database all-operator claim is made.
+- Genuine terminal MAINTAIN ARCHIVE and a second eligible post-cooldown
+  operator remain NOT_RUN. No new broad search for these known gaps. Their
+  absence prevents a full-lifecycle scientific freeze recommendation.
+- Final retained909-test command started after the gate:
+  .venv/Scripts/python.exe -m pytest -q --durations=10
+  --basetemp=.pytest-tmp/r06-complete. No result claimed until it finishes.
