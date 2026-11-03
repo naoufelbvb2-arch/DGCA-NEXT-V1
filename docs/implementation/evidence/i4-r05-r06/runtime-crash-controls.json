@@ -1,0 +1,410 @@
+{
+  "cases": [
+    {
+      "after": {
+        "H": "8fab41d6c359dc752020d24b1c3c5ccf833cc32e5472538409873f3807dc1cf4",
+        "R": "0271e58769699bf08ff154a6387bea153755cd5b4acb66756233c4d46af91de4",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "before": {
+        "H": "8fab41d6c359dc752020d24b1c3c5ccf833cc32e5472538409873f3807dc1cf4",
+        "R": "0271e58769699bf08ff154a6387bea153755cd5b4acb66756233c4d46af91de4",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "database_bytes": 860160,
+      "exact_previous_checkpoint": true,
+      "operation": "event",
+      "order": 2,
+      "phase": "BEFORE_COMMIT",
+      "process_exit": 41,
+      "source": {
+        "H": "b3eca03ad5c1f9eae079ea82766c0ff64a567780421215354bb9b55603377810",
+        "R": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "status": "OPEN"
+    },
+    {
+      "after": {
+        "H": "3499e68863f1e1c62cdb866b11d7067be749ef4872293be634f05dc7c553badb",
+        "R": "4e7a20a7b79927c79853566c10718b20c3e8c10b58cb9693da7f92562223d547",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "before": {
+        "H": "8fab41d6c359dc752020d24b1c3c5ccf833cc32e5472538409873f3807dc1cf4",
+        "R": "0271e58769699bf08ff154a6387bea153755cd5b4acb66756233c4d46af91de4",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "database_bytes": 942080,
+      "operation": "event",
+      "order": 3,
+      "phase": "AFTER_COMMIT",
+      "process_exit": 41,
+      "runtime": {
+        "evaluations": [
+          {
+            "after": [
+              0,
+              2,
+              [
+                8606,
+                9345,
+                11795,
+                12181
+              ],
+              0.652549432863577,
+              1,
+              0.3695504833194935
+            ],
+            "assembly_id": 0,
+            "before": [
+              0,
+              2,
+              [
+                8606,
+                9345,
+                11795,
+                12181
+              ],
+              0.7250549254039744,
+              0,
+              0.0
+            ],
+            "cohesion_pass": false,
+            "comparables": [
+              [
+                8606,
+                0.4106116481327705,
+                0.1
+              ],
+              [
+                9345,
+                0.4106116481327705,
+                0.1
+              ],
+              [
+                11795,
+                0.4106116481327705,
+                0.1
+              ],
+              [
+                12181,
+                0.4106116481327705,
+                0.1
+              ]
+            ],
+            "diagnostic": null,
+            "error_status": "EXTERNALLY_COMPARABLE",
+            "fresh_cohesion": 0.07891073238090626,
+            "fresh_mean": 0.07891073238090625,
+            "generation": 2,
+            "mean_pass": false,
+            "members": [
+              8606,
+              9345,
+              11795,
+              12181
+            ],
+            "miss": 0.3695504833194935,
+            "predictions": [
+              [
+                8606,
+                0.4106116481327705
+              ],
+              [
+                9345,
+                0.4106116481327705
+              ],
+              [
+                11795,
+                0.4106116481327705
+              ],
+              [
+                12181,
+                0.4106116481327705
+              ]
+            ],
+            "reciprocal_pairs": [
+              [
+                8606,
+                9345,
+                0.34519573230279144
+              ],
+              [
+                8606,
+                11795,
+                0.34519573230279144
+              ],
+              [
+                8606,
+                12181,
+                0.34519573230279144
+              ],
+              [
+                9345,
+                11795,
+                0.34519573230279144
+              ],
+              [
+                9345,
+                12181,
+                0.34519573230279144
+              ],
+              [
+                11795,
+                12181,
+                0.34519573230279144
+              ]
+            ]
+          }
+        ],
+        "state": {
+          "activity": [
+            [
+              8606,
+              1.0
+            ],
+            [
+              9345,
+              1.0
+            ],
+            [
+              11795,
+              1.0
+            ],
+            [
+              12181,
+              1.0
+            ]
+          ],
+          "attractors": [
+            [
+              0,
+              2,
+              [
+                8606,
+                9345,
+                11795,
+                12181
+              ],
+              0.652549432863577,
+              1,
+              0.3695504833194935
+            ]
+          ],
+          "cross": [
+            8606,
+            9345,
+            11795,
+            12181
+          ],
+          "h_hash": "3499e68863f1e1c62cdb866b11d7067be749ef4872293be634f05dc7c553badb",
+          "history": [
+            [
+              [
+                8606,
+                0.7255200171716478
+              ],
+              [
+                9345,
+                0.7255200171716478
+              ],
+              [
+                11795,
+                0.7255200171716478
+              ],
+              [
+                12181,
+                0.7255200171716478
+              ]
+            ],
+            [
+              [
+                8606,
+                1.0
+              ],
+              [
+                9345,
+                1.0
+              ],
+              [
+                11795,
+                1.0
+              ],
+              [
+                12181,
+                1.0
+              ]
+            ],
+            [
+              [
+                8606,
+                1.0
+              ],
+              [
+                9345,
+                1.0
+              ],
+              [
+                11795,
+                1.0
+              ],
+              [
+                12181,
+                1.0
+              ]
+            ]
+          ],
+          "learning": [
+            8606,
+            9345,
+            11795,
+            12181
+          ],
+          "mode": "LEARN",
+          "next_order": 3,
+          "previous": [
+            [
+              8606,
+              1.0
+            ],
+            [
+              9345,
+              1.0
+            ],
+            [
+              11795,
+              1.0
+            ],
+            [
+              12181,
+              1.0
+            ]
+          ],
+          "scope_id": 6,
+          "step": [
+            8606,
+            9345,
+            11795,
+            12181
+          ],
+          "w_hash": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+        }
+      },
+      "source": {
+        "H": "b3eca03ad5c1f9eae079ea82766c0ff64a567780421215354bb9b55603377810",
+        "R": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "status": "OPEN"
+    },
+    {
+      "after": {
+        "H": "8fab41d6c359dc752020d24b1c3c5ccf833cc32e5472538409873f3807dc1cf4",
+        "R": "0271e58769699bf08ff154a6387bea153755cd5b4acb66756233c4d46af91de4",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "before": {
+        "H": "8fab41d6c359dc752020d24b1c3c5ccf833cc32e5472538409873f3807dc1cf4",
+        "R": "0271e58769699bf08ff154a6387bea153755cd5b4acb66756233c4d46af91de4",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "database_bytes": 860160,
+      "exact_previous_checkpoint": true,
+      "operation": "end",
+      "order": 2,
+      "phase": "BEFORE_COMMIT",
+      "process_exit": 41,
+      "source": {
+        "H": "b3eca03ad5c1f9eae079ea82766c0ff64a567780421215354bb9b55603377810",
+        "R": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "status": "OPEN"
+    },
+    {
+      "after": {
+        "H": "8fab41d6c359dc752020d24b1c3c5ccf833cc32e5472538409873f3807dc1cf4",
+        "R": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+        "W": "38b78f70f512853772689441541d1740b5b36d9949731d2589cbd15548645b0a"
+      },
+      "before": {
+        "H": "8fab41d6c359dc752020d24b1c3c5ccf833cc32e5472538409873f3807dc1cf4",
+        "R": "0271e58769699bf08ff154a6387bea153755cd5b4acb66756233c4d46af91de4",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "database_bytes": 909312,
+      "idempotent_END": true,
+      "operation": "end",
+      "order": 2,
+      "phase": "AFTER_COMMIT",
+      "process_exit": 41,
+      "source": {
+        "H": "b3eca03ad5c1f9eae079ea82766c0ff64a567780421215354bb9b55603377810",
+        "R": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "status": "COMPLETED"
+    },
+    {
+      "after": {
+        "H": "8fab41d6c359dc752020d24b1c3c5ccf833cc32e5472538409873f3807dc1cf4",
+        "R": "0271e58769699bf08ff154a6387bea153755cd5b4acb66756233c4d46af91de4",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "before": {
+        "H": "8fab41d6c359dc752020d24b1c3c5ccf833cc32e5472538409873f3807dc1cf4",
+        "R": "0271e58769699bf08ff154a6387bea153755cd5b4acb66756233c4d46af91de4",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "database_bytes": 860160,
+      "exact_previous_checkpoint": true,
+      "operation": "abort",
+      "order": 2,
+      "phase": "BEFORE_COMMIT",
+      "process_exit": 41,
+      "source": {
+        "H": "b3eca03ad5c1f9eae079ea82766c0ff64a567780421215354bb9b55603377810",
+        "R": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "status": "OPEN"
+    },
+    {
+      "after": {
+        "H": "b3eca03ad5c1f9eae079ea82766c0ff64a567780421215354bb9b55603377810",
+        "R": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "before": {
+        "H": "8fab41d6c359dc752020d24b1c3c5ccf833cc32e5472538409873f3807dc1cf4",
+        "R": "0271e58769699bf08ff154a6387bea153755cd5b4acb66756233c4d46af91de4",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "database_bytes": 888832,
+      "exact_H_BEGIN": true,
+      "operation": "abort",
+      "order": 2,
+      "phase": "AFTER_COMMIT",
+      "process_exit": 41,
+      "source": {
+        "H": "b3eca03ad5c1f9eae079ea82766c0ff64a567780421215354bb9b55603377810",
+        "R": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+        "W": "240aa43d90731aeadc2b2f862da0f7e6f2093c6f87afa2d6680cec0595bce66b"
+      },
+      "status": "ABORTED"
+    }
+  ],
+  "classification": "GENUINE_LINEAGE_FAILURE_CONTROLS_NOT_INDEPENDENT_LEARNING_EVIDENCE",
+  "driver_revision": "def707de52e53ae2fac7dde27f3faa45ccbe5ead",
+  "original_completed_roots": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "original_family": "F01-r2",
+  "original_revision": "ca4a4cf9a424ec722d15013f11f78963a1963cae",
+  "seconds": 216.30455380002968
+}

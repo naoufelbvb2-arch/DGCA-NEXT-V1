@@ -291,6 +291,52 @@ def test_actual_event_checkpoint_abort_cold_reset_and_scope(tmp_path):
         open_store(path, "I4_NATIVE_OPERATORS_V1")
 
 
+def test_cold_sensory_abort_retains_lawful_births_and_exact_initial_H(tmp_path):
+    path = tmp_path / "cold-abort.sqlite"
+    store = open_store(path)
+    initial_h = store.h_bytes()
+    store.begin(1)
+    store.event(1, 0, (("a", "1"),))
+    store.event(1, 1, (("a", "1"),))
+    assert store.h_bytes() != initial_h
+    lawful_w = store.view().W
+    store.abort(1)
+    assert store.view().W == lawful_w and store.h_bytes() == initial_h
+    assert store.view().runtime == R_COLD and not store.graph().synapses()
+    store.close()
+    recovered = open_store(path)
+    assert tuple(c.cell_id for c in recovered.graph().stored_cells()) == (8606, 9345, 11795, 12181)
+    assert recovered.h_bytes() == initial_h and recovered.root(1).status == "ABORTED"
+    recovered.begin(2)
+    recovered.event(2, 0, (("a", "1"),))
+    recovered.abort(2)
+    recovered.close()
+
+
+def test_active_generation_one_is_not_backdated_to_generation_two_at_END(tmp_path):
+    path = tmp_path / "active-before-grow.sqlite"
+    store = open_store(path)
+    train(store, stop=4)
+    store.begin(5)
+    store.event(5, 0, (("a", "1"),))
+    store.event(5, 1, (("a", "1"),))
+    saved = runtime_document(store.view().runtime)
+    assert saved["state"]["attractors"][0][1] == 1
+    assert saved["state"]["attractors"][0][2] == [8606, 9345, 11795]
+    store.end(5)
+    assert inspect_native_subject(store, 0).structural_generation == 2
+    assert store.view().runtime == R_COLD
+    store.close()
+    recovered = open_store(path)
+    # Cold history must authenticate old event-start GEN1, not the final GEN2.
+    assert inspect_native_subject(recovered, 0).member_cell_ids == (8606, 9345, 11795, 12181)
+    recovered.begin(6)
+    recovered.event(6, 0, (("a", "1"),))
+    assert not runtime_document(recovered.view().runtime)["state"]["attractors"]
+    recovered.abort(6)
+    recovered.close()
+
+
 @pytest.mark.parametrize("damage", ["age", "generation", "fresh", "scope", "version", "missing"])
 def test_repaired_runtime_forgery_is_rederived_and_refused(tmp_path, learned, damage):
     _, source, _ = learned

@@ -1,0 +1,24 @@
+{
+  "H": "5c45b1609e21385fbb2cdd0cad5c41df9ca2044196d8494a13a9f0797c538e7e",
+  "R": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+  "W": "663f7b4e36bb5bffae9f038c2cf2c568f2fea43bdc31128e317bf8e5696b49c4",
+  "classification": "AUTHENTICATED_HISTORICAL_IDENTITY_NEGATIVE_NOT_NEW_OPERATOR_EXECUTION",
+  "completed": 109,
+  "reference": "docs\\implementation\\evidence\\i4-r04-autonomous\\F06-r2-publish.json",
+  "refusals": [
+    {
+      "historical_generation": 4,
+      "id": 0,
+      "operator": "MERGE",
+      "reason": "STALE_NATIVE_GENERATION"
+    },
+    {
+      "historical_generation": 4,
+      "id": 1,
+      "operator": "MERGE",
+      "reason": "ARCHIVED_NATIVE_SUBJECT"
+    }
+  ],
+  "source": "6c869deb08e9797de60f87c7592fa89593149c90",
+  "unchanged": true
+}

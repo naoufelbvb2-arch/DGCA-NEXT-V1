@@ -195,3 +195,34 @@
   is in progress on Ubuntu/Windows atca4a4cf. It is not a final CI receipt.
   R05-G08 and the aggregate local acceptance gate remain PENDING. R06
   NOT_STARTED; no consolidated scientific acceptance or freeze declared.
+
+## 2026-11-03 - C07 / actual recovery and structural-reference controls
+
+- Six actual F01-r2 root5 lineage process-exit cases PASS in
+ 216.30455380002968s. BEFORE/AFTER COMMIT covers EVENT,END,ABORT. Weak
+  real external EVENT0.1 recovers one miss and age1 exactly once; END
+  remains idempotent; ABORT restores exact H_BEGIN. Copies are controls,
+  not independent-root scientific evidence. Compact receipt committed.
+- Actual source root4 RO Attractor0 GEN1,C0.7259368601806818 is refused
+  against actual root5 GEN2 before influence. Both frozen source databases
+  retain W/H/R exactly; typed generation lookup also refuses GEN1.
+- Both original R04 cold audits PASS using initial revision
+ 6c869deb08e9797de60f87c7592fa89593149c90. F05-r3 is SPLIT,Root59:
+  original IDs0/1 GEN12 refused against13. F06-r2 is MERGE,Root109:
+  original survivor0 GEN4 refused against5; archived1 refused. Early
+  generic receipt filenames were corrected to explicit family/operator
+  names; recorded physical operations and results were not changed.
+- Original R04 DB file hashes equal their accepted receipts exactly:
+  F05 c4febc61a86b233bd4d0115a9da660e31c3bd4f3c1b5b8a00ab204ac04e23323;
+  F06 c3f0985cb046d38ef5264cafea33c990c26ae1548e292092938fae2dd584adf0.
+  An earlier PowerShell hash read was deferred because the live SQLite
+  reader held a Windows sharing lock; it passed after those readers closed.
+- Added meaningful boundary regressions: cold sensory ABORT keeps4 lawful
+  births, restores initial sparse H exactly, discards proposals and survives
+  cold reopening (PASS0.85s); actual active GEN1 before END/GROW must replay
+  as GEN1 after final GEN2 is published (PASS9.12s). No production source
+  change was needed. Final suite now has909 unique tests (884+25 R05).
+- Full905-test cohort already running before four additive tests is still
+  in progress; those four tests separately PASS. Windows CI atca4a4cf
+  has completed SUCCESS,Ubuntu second full run is in progress. Exact final
+  delivery-head CI remains a later release gate. R06 NOT_STARTED.

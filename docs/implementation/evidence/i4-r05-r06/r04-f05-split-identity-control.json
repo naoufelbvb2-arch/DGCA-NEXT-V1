@@ -1,0 +1,24 @@
+{
+  "H": "59dc94d9e38b0d5c91c3eb1d3e551e37c5cd10a3bcf8633119d7dfb1dc56c8ee",
+  "R": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+  "W": "7ff03caca10a06b1a53ba60e6feaf44f21b920d7eb346bb2cb740b9e67f7d7ea",
+  "classification": "AUTHENTICATED_HISTORICAL_IDENTITY_NEGATIVE_NOT_NEW_OPERATOR_EXECUTION",
+  "completed": 59,
+  "reference": "docs\\implementation\\evidence\\i4-r04-autonomous\\F05-r3-publish.json",
+  "refusals": [
+    {
+      "historical_generation": 12,
+      "id": 0,
+      "operator": "SPLIT",
+      "reason": "STALE_NATIVE_GENERATION"
+    },
+    {
+      "historical_generation": 12,
+      "id": 1,
+      "operator": "SPLIT",
+      "reason": "STALE_NATIVE_GENERATION"
+    }
+  ],
+  "source": "6c869deb08e9797de60f87c7592fa89593149c90",
+  "unchanged": true
+}
