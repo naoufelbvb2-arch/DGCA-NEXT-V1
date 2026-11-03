@@ -277,3 +277,18 @@
 - Final retained909-test command started after the gate:
   .venv/Scripts/python.exe -m pytest -q --durations=10
   --basetemp=.pytest-tmp/r06-complete. No result claimed until it finishes.
+
+## 2026-11-03 - C10 / F03-r1 diagnostic repair; declare r2
+
+- F03-r1 completed roots1..6 and ABORT7 through genuine RootStore; no
+  runtime/learning failure occurred. Its final structural reporting call
+  incorrectly passed a native-membership graph to the R01 physical-only
+  inspector, which correctly refused UNSUPPORTED_NATIVE_MEMBERSHIPS.
+  Original database and failed log remain unchanged; no success receipt.
+- Reporting-only repair uses the same read-only `_base_graph` physical
+  projection as accepted R04 diagnostics before `inspect_structure`. It
+  preserves actual learned synapses/credits and does not mutate W or build
+  fixtures. No production API or scientific law is changed.
+- Declare F03-r2 before execution: exactly C09's curriculum and limits in a
+  new empty database; no stimulus/threshold/policy change. This is revision2
+  of3 for family3, not an extra independent confirmation pooled with r1.

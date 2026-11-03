@@ -15,6 +15,7 @@ from dgca_next.dynamics.native_attractor import ObservationScope
 from dgca_next.graph.assembly_support import inspect_structure
 from dgca_next.graph.merge_split_analysis import analyze_split
 from dgca_next.graph.synapse import quality
+from dgca_next.persistence.native_codec import _base_graph
 from dgca_next.persistence.native_runtime_codec import runtime_document
 from dgca_next.persistence.store import R_COLD
 
@@ -108,7 +109,7 @@ def run(out):
     )
     result["readonly"] = readonly_controls(store, "a")
     graph = store.graph()
-    physical = inspect_structure(graph)
+    physical = inspect_structure(_base_graph(graph))
     supports = {}
     for pair in physical.pairs:
         if pair.forward.reason == pair.reverse.reason == "QUALIFIED":
