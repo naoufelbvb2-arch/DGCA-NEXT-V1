@@ -185,8 +185,12 @@ receipt, **not** the delivered-head CI receipt. The909-test code checkpoint
 03cc31a matrix also passed both jobs: Ubuntu909 twice in763.38/741.46s;
 Windows909 twice in844.30/814.16s. Its [pinned receipt](evidence/i4-r05-r06/CI-CODE-CHECKPOINT.json) is explicitly an intermediate code checkpoint. Final delivery must match its own SHA.
 
-Current final local run: `.venv/Scripts/python.exe -m pytest -q --durations=10
---basetemp=.pytest-tmp/r06-complete` — **IN_PROGRESS**.
+Final local run: `.venv/Scripts/python.exe -m pytest -q --durations=10
+--basetemp=.pytest-tmp/r06-complete` — **909 PASS in1009.21s (16:49),
+0 FAIL,0 SKIPPED**. Every884 retained regression and25 new R05 tests passed.
+Ruff PASS; formatting150 files PASS; mypy69 source modules PASS; dependency,
+scientific integrity and engineering diff/source preservation checks PASS.
+Known unexecuted scientific scenarios remain explicitly classified below.
 
 Exact static/integrity commands:
 
@@ -386,4 +390,3 @@ environment, not a scalability benchmark or an improvement claim. Peak memory,
 tokens and monetary cost are NOT_RUN/unmeasured. Original failed artifacts are
 retained in ignored named trial directories; compact evidence and all drivers
 are versioned. No multi-GB SQLite database is committed.
-
