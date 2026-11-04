@@ -1,0 +1,468 @@
+{
+  "authority": "docs/specs/DGCA_LLA_RC4_4.md",
+  "categories": {
+    "COMPONENT_LEVEL_ONLY": 19,
+    "FULL_SCIENTIFIC_SCENARIO_EXECUTED_PASS": 4,
+    "NOT_RUN_OR_OUTSIDE_SCOPE": 34
+  },
+  "scientific_sha256": "ba38b7916add57090f088460adb0baa351111cc1757c4a062c89a9d35ca6f2e0",
+  "status": "SCIENTIFIC_COVERAGE_NOT_A_FREEZE",
+  "tests": [
+    {
+      "disposition": "FULL_SCIENTIFIC_SCENARIO_EXECUTED_PASS",
+      "given": "First observed A on uncommitted receivers",
+      "id": "LLA-T01",
+      "normative_line": 420,
+      "note": "First real sensory event and no newborn q in the consolidated production chain; accepted historical I3 evidence retained, not relabeled as new I4 evidence.",
+      "required": "Admission possible; no same-event positive learning from newborn cell"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "A/B direct witnesses with no C/E comparator",
+      "id": "LLA-T02",
+      "normative_line": 421,
+      "note": "Direct proposals verified; contrast comparator not implemented",
+      "required": "Legal direct positive witnessed relation; `NOT_EVALUATED_NO_COMPARATOR` only for contrast"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "Different observed C/E with identical neural SIC footprint",
+      "id": "LLA-T03",
+      "normative_line": 422,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "`UNRESOLVED_COLLISION`; no fabricated contrast specialty"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "Prediction-only E alongside externally observed C",
+      "id": "LLA-T04",
+      "normative_line": 423,
+      "note": "Prediction-only witness refusal verified; full competing-output scenario not run",
+      "required": "External proof for E=0, valid proof for C only if relation truly qualifies"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "Two q proposals `.20,.50` same link/root",
+      "id": "LLA-T05",
+      "normative_line": 424,
+      "note": "Exact q=.20/.50 and paired y tested with synthetic arithmetic; real root reduction separately verified",
+      "required": "One q=`.50` with paired y; one accepted external confirmation"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "Provisional link lost D_close by latent recycling",
+      "id": "LLA-T06",
+      "normative_line": 425,
+      "note": "Stale D_close refusal tested in an isolated shadow",
+      "required": "`STALE_LATENT_ELIGIBILITY`, no q/E/root count accepted"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "Contextual pinned latent slot under recycling",
+      "id": "LLA-T07",
+      "normative_line": 426,
+      "note": "Pinned-slot guard tested with fixture, not persisted production pin",
+      "required": "`RECYCLE_BLOCKED_CANDIDATE`"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "Candidate only one selected P\u2192z consolidated",
+      "id": "LLA-T08",
+      "normative_line": 427,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "`DURABILITY_PENDING`, no COMPLETE, even if current no-probe score succeeds"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "Both P, \u22651 selected C, \u22651 selected Y consolidated; PRE/POST scratch identical",
+      "id": "LLA-T09",
+      "normative_line": 428,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "Candidate eligible for atomic COMPLETE only after all other gates"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "Candidate no-probe NORMAL passes but CONSOLIDATED-only fails",
+      "id": "LLA-T10",
+      "normative_line": 429,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "Pending/expiry, never declare durable success"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "Contrast ledger expires; repeated same physical observed branch with new roots",
+      "id": "LLA-T11",
+      "normative_line": 430,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "Same OwnerID via ResolveOwner or explicit unresolved, **no duplicate z**"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "Two distinct branch owners support same new branch",
+      "id": "LLA-T12",
+      "normative_line": 431,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "`OWNER_REGISTRY_CONFLICT` or unresolved; no guessed new owner"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "BEGIN new root with residual previous Attractor and A_hist",
+      "id": "LLA-T13",
+      "normative_line": 432,
+      "note": "Native production R/history cold resets and root isolation now pass. No separate injected-residual BEGIN scientific experiment is claimed.",
+      "required": "Full cold isolation before event 0"
+    },
+    {
+      "disposition": "FULL_SCIENTIFIC_SCENARIO_EXECUTED_PASS",
+      "given": "Root aborted after staged evidence",
+      "id": "LLA-T14",
+      "normative_line": 433,
+      "note": "Qualified staged root aborted; H_BEGIN exact and lawful births retained; accepted historical I3 evidence retained, not relabeled as new I4 evidence.",
+      "required": "No S/E/count, H_slow exactly restored from BEGIN, previously lawful sensory admissions remain"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "Crash/retry at END",
+      "id": "LLA-T15",
+      "normative_line": 434,
+      "note": "Genuine native END/retry and IDs/generations pass. Specified contextual OwnerIDs/reservations are absent.",
+      "required": "Identical W, OwnerIDs, accepted roots and reservations, one atomic commit"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "READ_ONLY P/B, no root open",
+      "id": "LLA-T16",
+      "normative_line": 435,
+      "note": "Genuine native read-only processing is immutable. Full owned P/B scenario is not implemented.",
+      "required": "Legitimate context runtime from actual features; no q/ext/root creation"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "Negative target miss in first lab",
+      "id": "LLA-T17",
+      "normative_line": 436,
+      "note": "Actual comparable transient Attractor error is computed; negative evidence remains disabled. Full owned contrast scenario is not executed.",
+      "required": "No negative update at any scope, even if target was expected"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "Replay same external experience multiple times",
+      "id": "LLA-T18",
+      "normative_line": 437,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "E_int allowed only by policy; E_ext and independent external_count unchanged"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "A=.8, Q=.3 ASSOC prior F_step, A_target=.6 real external",
+      "id": "LLA-T19",
+      "normative_line": 438,
+      "note": "q and temporal-drive arithmetic verified in component tests",
+      "required": "p=.24, q=.3555927459272246; never multiply `k_evidence` into p"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "Replay comparator enabled for same source/target",
+      "id": "LLA-T20",
+      "normative_line": 439,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "\u03c9=.25 exactly once; q=.08889818648180615, external_count unchanged; baseline Replay off"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "Same-event source Pass1=.40, final=.80, target final=.50",
+      "id": "LLA-T21",
+      "normative_line": 440,
+      "note": "Final-source/Pass-1 gate arithmetic and production proposals verified separately",
+      "required": "coactivity=.40 (subject to Pass1 gate), not `.20`; END uses staged activity"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "New candidate WIRED, first qualifying root emits but no Y",
+      "id": "LLA-T22",
+      "normative_line": 441,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "transition to PROBE_INCOMING only if incoming q accepted; opportunity consumed; no skipped phase"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "Candidate reaches age=239; a completed last root brings age=240",
+      "id": "LLA-T23",
+      "normative_line": 442,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "settle evidence/valid tests before age expiration; else FAILED_OR_EXPIRED"
+    },
+    {
+      "disposition": "FULL_SCIENTIFIC_SCENARIO_EXECUTED_PASS",
+      "given": "OPEN root modifies g/threshold then ABORT",
+      "id": "LLA-T24",
+      "normative_line": 443,
+      "note": "Production H_BEGIN restoration and subprocess crash/retry tests; accepted historical I3 evidence retained, not relabeled as new I4 evidence.",
+      "required": "exact H_slow_BEGIN rollback, no root q, crash/retry idempotent"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "strong C\u2192z without P; cold B-only",
+      "id": "LLA-T25",
+      "normative_line": 444,
+      "note": "Context gate operator covered with fixtures; native owner scenario absent",
+      "required": "`G_ctx=0`, contextual `A_z=0`, no z F_step, no \u03bc; B generic path remains"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "exact owned P/B and consolidated P/C/Y, probe off",
+      "id": "LLA-T26",
+      "normative_line": 445,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "`G_ctx=1`; z activation is weight-dependent; must exceed theta_emit or report `NO_PROBE_INSUFFICIENT_DRIVE`"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "completed unique z for DB; generic B\u2192C remains strong",
+      "id": "LLA-T27",
+      "normative_line": 446,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "\u03bc=1 on observed B anchor sources for next one-step P_T, B\u2192C W evidence unchanged; require E-vs-C margin"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "B alone, same W/H, no owner match",
+      "id": "LLA-T28",
+      "normative_line": 447,
+      "note": "Masking operator covered with fixtures; complete owned scenario absent",
+      "required": "\u03bc=0; original B\u2192C response preserved; no negative update"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "two matching different owners same current anchor",
+      "id": "LLA-T29",
+      "normative_line": 448,
+      "note": "Ambiguity handling covered in fixture dynamics; no production owner registry",
+      "required": "`AMBIGUOUS_CONTEXT_OWNER`, \u03bc=0, no arbitrary semantic winner"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "A_src=A_tgt=.50 on LOCAL/ASSOC proposal",
+      "id": "LLA-T30",
+      "normative_line": 449,
+      "note": "Exact arithmetic and 17-root illustration are synthetic",
+      "required": "create product .25 passes \u03b8_create=.20; q_ASSOC=.18520455517; mass E\u22653 needs \u226517 independent roots"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "first 8 roots yield valid z\u2192Y; next 17 valid consolidation roots",
+      "id": "LLA-T31",
+      "normative_line": 450,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "not expired solely by old eight-root cap; possible E\u22653 (test other guards independently)"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "top-eight P candidates saturated at 64 but next candidates have headroom",
+      "id": "LLA-T32",
+      "normative_line": 451,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "filter saturated before rank truncation; choose legal alternative or explicit capacity refusal"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "z candidate own microcolumn/radius1 full but radius2 has feasible slot",
+      "id": "LLA-T33",
+      "normative_line": 452,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "deterministic radius-2 search; validate all D/protected budgets"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "feature receiver has 64 live outgoing and appears in P/C",
+      "id": "LLA-T34",
+      "normative_line": 453,
+      "note": "64/65 source budget component covered; no production context candidate",
+      "required": "cannot exceed B_i; no destructive release; `SOURCE_OUTGOING_CAPACITY` if no feasible alternative"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "preflight owner shadow before COMPLETE and after retirement",
+      "id": "LLA-T35",
+      "normative_line": 454,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "bit-identical G, immutable tau_ctx_q6, \u03bc, A_z, F_step and P_T/PredScore under frozen W/H"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "selected P pair has `L_owned=.80`, `U_rival=.20`, `m_P=.05`, rival supports both positive",
+      "id": "LLA-T36",
+      "normative_line": 455,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "`tau_ctx_q6=250000`; owned G=1, rival G=0; no name/outcome comparator at runtime"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "admitted P pair exact boundary `L=250000`, `U=200000` (Q6), m_P=50000",
+      "id": "LLA-T37",
+      "normative_line": 456,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "legally admitted with `tau=250000`; owned `>=` passes, rival fails; deterministic ties and SAVE/LOAD"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "`NO_PROBE_TEST` fails initially with E=3, insufficient drive; next independent owned OPEN LEARN P/B/Y",
+      "id": "LLA-T38",
+      "normative_line": 457,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "z retains live LEARN probe, Y-witnessed q/E can increase; END scratch OFF; no double count; old 32/240 caps unchanged"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "failing NO_PROBE_TEST followed only by read-only/replay/missing Y",
+      "id": "LLA-T39",
+      "normative_line": 458,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "zero probe/evidence in read-only; replay never external; missing Y never credits z\u2192Y"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "save/load or PRE/POST without RC3.1 threshold triple, or legacy StableBindingV1 record",
+      "id": "LLA-T40",
+      "normative_line": 459,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "`INVALID_CONTEXT_THRESHOLD` or `UNSUPPORTED_BINDING_SCHEMA`; never silently use predecessor `>0` gate"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "rival P supports positive but below stored `tau_ctx_q6`, repeated while owner in LEARN",
+      "id": "LLA-T41",
+      "normative_line": 460,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "not a qualified owned root; no candidate clock advance or context probe; ordinary witnessed learning independent of z may still occur"
+    },
+    {
+      "disposition": "FULL_SCIENTIFIC_SCENARIO_EXECUTED_PASS",
+      "given": "two committed source cells have reciprocal LOCAL CONSOLIDATED edges to third, all triangle pairs R\u2265.10, fresh witnessed emission",
+      "id": "LG-T01",
+      "normative_line": 482,
+      "note": "Actual Root4 legal consolidated reciprocal triangle, deterministic Assembly0 GEN1 and inverse membership, reproduced in R02 and F01/F02/F03.",
+      "required": "only a legal size-3 Assembly may FORM; deterministic ID and reverse membership; otherwise `NO_RECIPROCAL_TRIANGLE`"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "only one direction of each triangle link has consolidated, or candidate links are not consolidated",
+      "id": "LG-T02",
+      "normative_line": 483,
+      "note": "Actual Root2/3 candidate-only branch produces zero Assemblies. One-direction-only consolidated branch is component coverage, not a new genuine production scenario.",
+      "required": "zero native Assemblies; no fabricated reciprocal completion or fixture success"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "mutate Assembly membership, merge/split or restart twice",
+      "id": "LG-T03",
+      "normative_line": 484,
+      "note": "Actual FORM/GROW/M/S IDs/generations/restarts and stale refusal pass. No readout ledger/rendering/outbox exists; the full named scenario is NOT_RUN.",
+      "required": "old ledger generation cannot render the new Assembly; outbox notifications are idempotent, IDs not reused"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "z1 completed and emitted without probe on true external P/B; z2 chooses z1 as P and then sees external Y",
+      "id": "LG-T04",
+      "normative_line": 485,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "typed DERIVED_EXTERNAL may qualify P but exactly one true external root/q credit per key; no hidden Y/source IDs"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "z1 emitted only from LEARN probe, or from a predicted-only/replay/internal-generated event",
+      "id": "LG-T05",
+      "normative_line": 486,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "no DERIVED_EXTERNAL; no higher z recruitment or E_ext update"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "depth 8 child tries to spawn ninth-level context; stale parent ID/generation or cycle",
+      "id": "LG-T06",
+      "normative_line": 487,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "reject specified code, never fallback to DIRECT"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "selected best Assembly G outputs SIC receiver j whose prior P_Tj>0",
+      "id": "LG-T07",
+      "normative_line": 488,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "X_int,j applied once, P_Tj zero on selected receiver only, legal P_T\u2192context z preserved; no repeated FULL activity injection"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "two same-surface/different-bundle events or two surfaces attach to same Assembly",
+      "id": "LG-T08",
+      "normative_line": 489,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "no ungrounded winner text; return READOUT_AMBIGUOUS(_PENDING)"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "after independent text root confirms G only once or G formed same END",
+      "id": "LG-T09",
+      "normative_line": 490,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "UNKNOWN; second *later* independent witnessed root required"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "GENERATE with 5 uniquely decodable legal Assembly steps then EOS",
+      "id": "LG-T10",
+      "normative_line": 491,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "ordered 5 surfaces, correct read-only provenance, no W/H/ledger mutation, independent EOS termination"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "generated trace enters repeated winner/frontier pair twice consecutively or exceeds 32 accepted steps",
+      "id": "LG-T11",
+      "normative_line": 492,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "deterministic loop/length stop, never infinite generation"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "winner G not readout-attested but runner-up is printable",
+      "id": "LG-T12",
+      "normative_line": 493,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "STOP UNKNOWN rather than selecting lower rank via lexical lookup"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "context source z1 activations are direct-only/but wrong prior event order, or synthetic matched source during LEARN",
+      "id": "LG-T13",
+      "normative_line": 494,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "no higher-level witness and no external q; unverified provenance error"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "training unseen combination held out entirely",
+      "id": "LG-T14",
+      "normative_line": 495,
+      "note": "Full scientific scenario not executed; contextual owners, Replay, readout or generation are outside this assignment.",
+      "required": "report G3 compositional score separately from G1/G2; do not infer G3 from memorized rollout"
+    },
+    {
+      "disposition": "COMPONENT_LEVEL_ONLY",
+      "given": "Depth-1 z1 uniquely matches W1/W2, so `\u03bc_p1=1` for direct W2 source p1; a legal depth-2 contextual z2 with `(z1,p1)` as prior P has a live incoming p1\u2192z2 ASSOCIATIVE key; concurrently generic p1\u2192Y exists",
+      "id": "LG-T15",
+      "normative_line": 496,
+      "note": "directed temporal masking covered by fixture dynamics; hierarchical generation not run",
+      "required": "next event `\u03bc_p1,Y=1`, `\u03bc_p1,z2=0`; P_T to generic Y is suppressed while the **normal physical** p1 contribution to z2 remains, gated by z2's own G_ctx. Same result in LEARN and scratch FULL/CONTROL; no q/W mutation"
+    },
+    {
+      "disposition": "NOT_RUN_OR_OUTSIDE_SCOPE",
+      "given": "Cold word starts with uncommitted SIC receivers; directed LOCAL triangle E per edge accrues q=.2025, .36, .49, or .64 independently per complete root; track FORM then the next distinct roots",
+      "id": "LG-T16",
+      "normative_line": 497,
+      "note": "Prescribed q=.2025/.36/.49/.64 cold schedules and surface attestations are not executed. Genuine FORM with other actual q does not satisfy that full scenario.",
+      "required": "do not assume fixed 9\u201311 roots: idealized post-commitment N=15/9/7/5 and minimal cold totals 18/12/10/8, respectively, only if all six edges, eligibility, S, shape, exact generation and fresh coverage remain valid. Newly formed assembly receives 0 birth-root attestations and needs 2 later independent roots; absent triangle yields `NO_RECIPROCAL_TRIANGLE` instead of fabricated readout"
+    }
+  ]
+}

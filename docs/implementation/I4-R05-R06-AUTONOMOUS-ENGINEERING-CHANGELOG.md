@@ -305,3 +305,39 @@
   same limits, fresh independent database. No new physical/scientific law,
   stimulus tuning or positive-evidence pooling. Third and final permitted
   revision of family3; runtime source remains72d746a.
+
+## 2026-11-03 - C12 / R06 genuine integration, full909 and scientific audit
+
+- F03-r3 PASS at724c915a95facee825862428683b582569e47a74,
+ 23.30085390014574s,1,843,200-byte DB. Root4 FORM0 GEN1,Root5 GROW0
+  GEN2,Root6 real admission/continuation/error collapse(order7), END6
+  actual q/y publication. Root7 ABORT restores H_BEGIN and publishes no
+  extra evidence. Separate cold process reproduces final W/H/R exactly.
+- Actual completed novelty Root6/event10/order2/receiver8606 has
+  X_fixed100000,P_T0.4106116481327705,novelty0.0. It is not a novelty
+  improvement or recycling success. Native automatic recycling remains off.
+- Sample LOCAL8606->9345:CONS,E_ext4.526984324968987,
+  S0.9834267148822992,Q0.44519573230279136,count5. ASSOC counterpart
+  remains CANDIDATE,E_ext2.356511012223697,Q0.2356511012223697,count4,
+  legally propagating with actual Q. No expected output or synthetic credit.
+- Final complete regression909 PASS in1009.21s,0 FAIL/SKIPPED. Ruff
+  PASS; formatting150 files PASS;mypy69 modules PASS; spec hashes,pip
+  dependencies and engineering diff/source preservation PASS. No production
+  source changed after72d746a. No accepted test removed or skip introduced.
+- Code-checkpoint CI41689500631 at03cc31a SUCCESS both OS:
+  Ubuntu909 twice(763.38/741.46s),Windows909 twice(844.30/814.16s).
+  Retained exact job IDs/log excerpts in a clearly intermediate receipt.
+  Final report/evidence commit still requires its OWN completed green CI.
+- Reviewed all57 normative scientific tests:4 full scenario PASS,19
+  component-only,34 NOT_RUN/outside scope. Exact normative text/lines and
+  rationale are versioned. Native FORM upgrades LG-T01; actual operator
+  identity history does not implement LG-T03 readout/outbox. No claim that
+  engineering pytest count is full scientific coverage.
+- Broader recommendation I4_PARTIAL_WITH_OPEN_GATES:terminal MAINTAIN
+  ARCHIVE and second eligible post-cooldown edit remain NOT_RUN; owners,
+  readout/generation/Replay and full compositional scenarios remain outside
+  scope. Scoped engineering review readiness is conditional on final-head CI.
+- Protected main88fc596c178c8a89c24b991e280d7a0ca8c07779 and I4 feature
+ 1af7dab4e82be826380d787e16cfecd8a2224f0f independently rechecked unchanged.
+  Owner authority/master bytes rechecked exact against originals. No merge,
+  protected push, new scientific constant, scientific freeze or L5.

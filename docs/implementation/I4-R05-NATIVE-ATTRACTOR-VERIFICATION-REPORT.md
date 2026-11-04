@@ -175,7 +175,7 @@ idempotent. Failed historical test/report attempts remain in changelog C04/C05.
 | `git diff --check` | PASS,engineering working changes |
 | Authentic original-R04 identity controls | PASS,F05 SPLIT stale IDs and F06 MERGE stale/archive IDs; original DB hashes unchanged |
 | Actual F01 lineage process-exit controls | PASS:6 cases in216.30455380002968s |
-| Final delivery-head Ubuntu/Windows CI | NOT_RUN; earlier ca4a4cf run41686737916 is in progress |
+| CI | Code-checkpoint03cc31a run41689500631 SUCCESS:two909 runs on each OS. Exact delivered-head receipt is release-gated and supplied in the handoff |
 
 The final native file now passes all25 tests together in240.92s. The full905
 cohort includes884 retained +21 initial R05 tests; the native25 cohort includes
@@ -229,3 +229,7 @@ Original R04 cold-history identity negatives are complete:
 | G08 retained regressions/static/integrity | COMPONENT_PASS |905-test full cohort +25-test native cohort PASS; unchanged884 and all25 new cases executed |
 
 Aggregate: **LOCAL_R05_PASS**. The explicit [local gate record](evidence/i4-r05-r06/R05-LOCAL-GATE.json) was published before commencing R06. It permits the already owner-authorized R06 verification only. It does not authorize a merge, scientific freeze or L5.
+
+Final consolidated local validation:909 PASS in1009.21s,0 FAIL/SKIPPED; Ruff,
+formatting150 files,mypy69 modules,specification/dependency/engineering diff
+checks PASS. See the R06 review for precise scientific coverage and delivery CI.

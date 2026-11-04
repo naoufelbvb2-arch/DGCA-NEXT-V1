@@ -1,0 +1,61 @@
+{
+  "kind": "PRE_DELIVERY_CODE_CHECKPOINT_NOT_FINAL_HEAD",
+  "head_sha": "03cc31a0fc00a557e12284e5fb5c10ce6c4f7cb1",
+  "run_id": 41689500631,
+  "url": "https://github.com/naoufelbvb2-arch/DGCA-NEXT-V1/actions/runs/41689500631",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "os": "ubuntu-latest",
+      "job_id": 126104052978,
+      "conclusion": "success",
+      "pytest_passed": [
+        909,
+        909
+      ],
+      "pytest_seconds": [
+        763.38,
+        741.46
+      ],
+      "log_lines": [
+        "2026-11-03T17:59:55.4572096Z No broken requirements found.",
+        "2026-11-03T17:59:55.6382189Z PASS docs/specs/DGCA_CORE_RC4_4.md SHA-256=3829494e85b85c1421379324a1702013bed3c970e353ad3b71c08da1901eb93c",
+        "2026-11-03T17:59:55.6383857Z PASS docs/specs/DGCA_LLA_RC4_4.md SHA-256=ba38b7916add57090f088460adb0baa351111cc1757c4a062c89a9d35ca6f2e0",
+        "2026-11-03T18:12:39.6912226Z 909 passed in 763.38s (0:12:43)",
+        "2026-11-03T18:25:01.5641389Z 909 passed in 741.46s (0:12:21)",
+        "2026-11-03T18:25:01.7098612Z All checks passed!",
+        "2026-11-03T18:25:01.7822259Z 148 files already formatted",
+        "2026-11-03T18:25:04.8841726Z Success: no issues found in 69 source files"
+      ]
+    },
+    {
+      "os": "windows-latest",
+      "job_id": 126104054506,
+      "conclusion": "success",
+      "pytest_passed": [
+        909,
+        909
+      ],
+      "pytest_seconds": [
+        844.3,
+        814.16
+      ],
+      "log_lines": [
+        "2026-11-03T18:00:09.9498638Z No broken requirements found.",
+        "2026-11-03T18:00:11.0421142Z PASS docs/specs/DGCA_CORE_RC4_4.md SHA-256=3829494e85b85c1421379324a1702013bed3c970e353ad3b71c08da1901eb93c",
+        "2026-11-03T18:00:11.0422506Z PASS docs/specs/DGCA_LLA_RC4_4.md SHA-256=ba38b7916add57090f088460adb0baa351111cc1757c4a062c89a9d35ca6f2e0",
+        "2026-11-03T18:14:16.7507027Z 909 passed in 844.30s (0:14:04)",
+        "2026-11-03T18:27:51.7973031Z 909 passed in 814.16s (0:13:34)",
+        "2026-11-03T18:27:52.4429644Z All checks passed!",
+        "2026-11-03T18:27:52.9875861Z 148 files already formatted",
+        "2026-11-03T18:27:56.8363107Z Success: no issues found in 69 source files"
+      ]
+    }
+  ],
+  "final_delivery_requirement": "The final user handoff must cite the delivered HEAD's own completed successful run and both jobs, rather than substitute this earlier checkpoint.",
+  "protected_refs_observed": {
+    "main": "88fc596c178c8a89c24b991e280d7a0ca8c07779",
+    "feature_i4": "1af7dab4e82be826380d787e16cfecd8a2224f0f"
+  }
+}

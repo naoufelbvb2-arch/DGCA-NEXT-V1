@@ -59,3 +59,19 @@ The six crash cases reuse copies of one original lineage. Every case submits
 real RootStore events and recovers in a separate process; no copy earns an
 additional independent experimental confirmation. The generation control
 reprocesses actual frozen snapshots read-only; it does not backdate learning.
+
+F03-r3 is the final integrated R06 receipt at
+724c915a95facee825862428683b582569e47a74. Reproduce only after the local
+R05 gate exists and passes:
+
+```powershell
+python tests/experiments/i4_r06_consolidated_trace.py .pytest-tmp/reproduce-F03 --trial-id F03-r3
+python tests/experiments/i4_r06_scientific_coverage.py
+```
+
+The first two F03 reporting attempts are retained locally and disclosed in
+C10/C11. No earlier result is pooled into the final F03-r3 root confirmations.
+The scientific coverage audit includes every normative Given/Required row;
+component and unexecuted scenarios remain explicit. CI-CODE-CHECKPOINT.json
+refers to03cc31a, not the final delivery commit. Its own Actions receipt must
+be verified and linked in the final handoff before REVIEW_READY.
