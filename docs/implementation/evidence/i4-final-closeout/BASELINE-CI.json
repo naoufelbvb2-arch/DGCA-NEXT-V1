@@ -1,0 +1,38 @@
+{
+  "classification": "INTERMEDIATE_BASELINE_CI_NOT_FINAL_DELIVERY",
+  "head_sha": "f0eb4a670d00701fcf1458d2e908a4ef5d91e5ad",
+  "run_id": 42421100407,
+  "url": "https://github.com/naoufelbvb2-arch/DGCA-NEXT-V1/actions/runs/42421100407",
+  "status": "completed",
+  "conclusion": "success",
+  "ubuntu": {
+    "job_id": 128549489733,
+    "conclusion": "success",
+    "full_pytest_runs": [
+      {"passed": 909, "seconds": 562.57},
+      {"passed": 909, "seconds": 551.21}
+    ]
+  },
+  "windows": {
+    "job_id": 128549490222,
+    "conclusion": "success",
+    "full_pytest_runs": [
+      {"passed": 909, "seconds": 590.70},
+      {"passed": 909, "seconds": 583.71}
+    ]
+  },
+  "static_checks": {
+    "ruff_check": "PASS",
+    "ruff_format_python_files": 151,
+    "mypy_source_files": 69,
+    "specification_integrity": "PASS",
+    "dependency_check": "PASS"
+  },
+  "local_baseline": {
+    "command": ".venv/Scripts/python.exe -m pytest -q --durations=10 --basetemp=.pytest-tmp/closeout-baseline",
+    "passed": 909,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 703.02
+  }
+}
