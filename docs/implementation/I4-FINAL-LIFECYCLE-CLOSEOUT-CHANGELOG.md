@@ -48,3 +48,26 @@ before any prospective terminal archive for later genuine rollback/process
 controls. If no archive occurs, retain measured failure. No automatic search
 or threshold change follows. Revisions/further families require a new logged
 declaration before execution. Gate B has not begun.
+
+## C02 — transaction controls declared before any observed success
+
+Experiment declaration/driver checkpoint:
+`f0eb4a670d00701fcf1458d2e908a4ef5d91e5ad`. Initial local Git author was
+unset; used command-scoped `Codex <codex@openai.com>` without modifying global
+configuration. Git fetch/checkout/commit/push required the workspace's normal
+approved metadata/network permission. Only this experimental branch was pushed.
+Both protected refs still match the accepted review (main `88fc596c...`, I4
+feature `1af7dab4...`). First CI run `42421100407` is an intermediate checkpoint,
+not the eventual delivery receipt. The driver removes raw binary EVENT bytes
+from human JSON while retaining identity/digest/pre-W/pre-H and numerical trace.
+
+Predeclared success-dependent controls: on copies of the SAME actual OPEN
+pre-archive database, execute canonical END with BEFORE_COMMIT exception and
+duplicate-END verification; ABORT exact H_BEGIN/no publication; real process
+exit73 BEFORE and AFTER COMMIT; repaired-checksum false numeric evaluation and
+false mutation lineage with mandatory full RootStore historical refusal.
+Original source files are never corrupted. These are transaction/falsification
+controls, never new independent evidence roots. Failure to physically archive
+leaves these operator-specific controls NOT_RUN, rather than fixture substitutes.
+No production code repair is currently indicated; all accepted sources remain
+unchanged. Local lint/format passes for the two added experiment drivers.
