@@ -207,3 +207,26 @@ removed an unused optional helper path and use the existing Enum JSON adapter.
 The driver evaluates serialized mathematical `reasons`/`best` fields, rather
 than assuming a Python property is stored by dataclasses.asdict. No production
 law, source or curriculum changed. The prior A gate remains passed.
+
+## C08 — interpreter regressions and conditional second-operator safety controls
+
+Corrected B01-r1 driver checkpoint `21de9b1` launches successfully and its
+interpreter preflight passes before database creation. Added two meaningful
+reporter regressions: actual Python CLI/import validity and filtering the
+genuine accepted R04 serialized checks for actual ID0 while preserving
+mathematical/provenance distinctions. Both PASS in .49s. No production change.
+
+Before observing any second production operator, declare nine conditional
+SAME-lineage controls on its genuine OPEN pre-END checkpoint: canonical END
+with exception rollback/duplicate END/full cold recovery; ABORT/H_BEGIN/no
+second edit or age; actual BEFORE/AFTER_COMMIT exit73 with full cold recovery;
+forged second event clock with canonical W/close/hash repair; missing original
+historical close59 reference; repaired original historical event clock;
+false current identity-generation proof; false current partition proof.
+Corrupt only explicitly labeled control COPIES, never the original accepted
+history or canonical production database. Persist exact refusal reasons and
+state which canonical decoders/hash checks actually ran. Controls are not
+independent learning roots. Require the second actual same-ID production
+publication and age199 physical eligibility before accepting these as Gate B
+completion. The driver CLI was checked by Python, Ruff and formatting before
+execution. No control has yet been launched and B01 has no reported outcome.
