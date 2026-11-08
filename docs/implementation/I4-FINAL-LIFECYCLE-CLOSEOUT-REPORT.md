@@ -67,14 +67,20 @@ No fabricated replacement FORM identity is used to claim success.
 | H, identical across END | `c88e774afb0fd3e0ba7b9abe066e5075851d9bb81f4633e55dfef34e88212ac2` |
 | post-END R_COLD | `235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb` |
 
-Canonical cold recovery and six genuine same-lineage transaction/falsification
-controls are pending. Gate A is **ACTUAL_PUBLICATION_OBSERVED / SAFETY_PENDING**,
-not yet complete PRODUCTION_PASS. Controls were declared before execution.
+Gate A is **PRODUCTION_PASS**. Canonical cold recovery and all six genuine
+same-lineage transaction/falsification controls pass. Controls were declared
+before execution. Both repaired-score and repaired-lineage forgeries refuse
+with `INVALID_CLOSE_CHECKPOINT`; BEFORE/AFTER_COMMIT use actual exit73.
+ABORT restores exact H_BEGIN and publishes no archive or evidence. Canonical
+and independent publication-copy hashes match exactly. Subsequent genuine
+roots70–72 FORM ID5 after archival; original IDs0/1 remain archived, GEN14,
+births unchanged. That continuation also passes complete cold rederivation.
+The ten new saved-state/receipt regression tests pass in3.42s.
 
 ## Gate B — second post-cooldown operator
 
-NOT_RUN: waiting for Gate A safety completion, preserving the contract's
-sequential A-then-B execution order. Age200 alone will not count as success.
+NOT_RUN: Gate A completed before the Gate B declaration and experiment.
+Age200 alone will not count as success.
 An otherwise physically eligible age199 refusal and an actual second published
 same-ID MERGE/SPLIT at200 are both mandatory.
 

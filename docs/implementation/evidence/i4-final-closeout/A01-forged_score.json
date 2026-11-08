@@ -1,0 +1,155 @@
+{
+  "after": {
+    "H_sha256": "c88e774afb0fd3e0ba7b9abe066e5075851d9bb81f4633e55dfef34e88212ac2",
+    "R_sha256": "235c092696221c8aa82d3d19a597d211a54bffa07d15f74bdc3e1ca1f9396ddb",
+    "W_sha256": "7a22ee6ae80626ff93a3ebc039f05e9dc1cde07bd4056d9a928e4669ff16857c",
+    "completed_closes": 69,
+    "open_root": null
+  },
+  "before": {
+    "H_sha256": "c88e774afb0fd3e0ba7b9abe066e5075851d9bb81f4633e55dfef34e88212ac2",
+    "R_sha256": "6488befa9b2adb56716ae148b084d3975c60e974fcee3229dd4bc72039e22cdc",
+    "W_sha256": "5aa8342b5f36bfb0f064ba15851f716d5118a481256de1e10f8932a8d1bf0d73",
+    "completed_closes": 68,
+    "open_root": 69
+  },
+  "case": "forged_score",
+  "classification": "ACTUAL_LINEAGE_TRANSACTION_CONTROL_NOT_INDEPENDENT_LEARNING",
+  "database_bytes": 575901696,
+  "database_initial_revision": "6c869deb08e9797de60f87c7592fa89593149c90",
+  "duplicate_END_exact": true,
+  "exception_rollback_exact": false,
+  "historical_forgery_refused": "INVALID_CLOSE_CHECKPOINT",
+  "immutable_births_and_prior_credits_preserved": true,
+  "mutations": [
+    {
+      "after_generation": 14,
+      "after_members": [
+        10035,
+        10926
+      ],
+      "after_status": "ARCHIVED",
+      "after_w_hash": "a8e2c462219b65340163b41c0b8230638edabe4c266d9022b44cf39bc71f123b",
+      "assembly_id": 0,
+      "before_generation": 13,
+      "before_members": [
+        8200,
+        10035,
+        10926
+      ],
+      "before_status": "LIVE",
+      "before_w_hash": "ae12c24ca73bf1873ecf51193749d907915821d41341952a01a281e9cb733e7f",
+      "completed_close_serial": 69,
+      "event_id": 182,
+      "event_order": 2,
+      "event_pre_h_hash": "f737e88f26158f8e95999850673fdbb979bdaa7ed630a2784f494aeda1f913e2",
+      "event_pre_w_hash": "5aa8342b5f36bfb0f064ba15851f716d5118a481256de1e10f8932a8d1bf0d73",
+      "exposure_id": 69,
+      "inverse_added": [],
+      "inverse_removed": [
+        8200,
+        10035,
+        10926
+      ],
+      "observation_digest": "ba53e14c92f53511ab0202293f98b29104e3a0efa50cc9c63e26e6693c7b7087",
+      "ordinal": 23,
+      "rank_support": 0.0,
+      "schema_version": 1,
+      "scores": [
+        {
+          "cell_id": 8200,
+          "degree": 2,
+          "denominator": 4.2,
+          "density": 1.0,
+          "numerator": 0.8,
+          "specificity": 0.19047619047619047
+        },
+        {
+          "cell_id": 10035,
+          "degree": 2,
+          "denominator": 2.4000000000000004,
+          "density": 1.0,
+          "numerator": 0.8,
+          "specificity": 0.3333333333333333
+        },
+        {
+          "cell_id": 10926,
+          "degree": 2,
+          "denominator": 2.4000000000000004,
+          "density": 1.0,
+          "numerator": 0.8,
+          "specificity": 0.3333333333333333
+        }
+      ],
+      "stage": "ARCHIVE",
+      "witness_graph_hash": "8cee1eacd81be23f747628fcb13e42a5b5bab3f6930a8a47aaa4bb845e10c10a"
+    },
+    {
+      "after_generation": 14,
+      "after_members": [
+        10035,
+        10926
+      ],
+      "after_status": "ARCHIVED",
+      "after_w_hash": "f6480e39173c703e07a97e1ecaa40ab56ef113d5688f9f85a0e56e136ad067e8",
+      "assembly_id": 1,
+      "before_generation": 13,
+      "before_members": [
+        8200,
+        10035,
+        10926
+      ],
+      "before_status": "LIVE",
+      "before_w_hash": "3d46e3271206ed557a1678145f28ef3c69b4082cb76dbe650c2963fc93c40913",
+      "completed_close_serial": 69,
+      "event_id": 182,
+      "event_order": 2,
+      "event_pre_h_hash": "f737e88f26158f8e95999850673fdbb979bdaa7ed630a2784f494aeda1f913e2",
+      "event_pre_w_hash": "5aa8342b5f36bfb0f064ba15851f716d5118a481256de1e10f8932a8d1bf0d73",
+      "exposure_id": 69,
+      "inverse_added": [],
+      "inverse_removed": [
+        8200,
+        10035,
+        10926
+      ],
+      "observation_digest": "ba53e14c92f53511ab0202293f98b29104e3a0efa50cc9c63e26e6693c7b7087",
+      "ordinal": 24,
+      "rank_support": 0.0,
+      "schema_version": 1,
+      "scores": [
+        {
+          "cell_id": 8200,
+          "degree": 2,
+          "denominator": 4.2,
+          "density": 1.0,
+          "numerator": 0.8,
+          "specificity": 0.19047619047619047
+        },
+        {
+          "cell_id": 10035,
+          "degree": 2,
+          "denominator": 2.4000000000000004,
+          "density": 1.0,
+          "numerator": 0.8,
+          "specificity": 0.3333333333333333
+        },
+        {
+          "cell_id": 10926,
+          "degree": 2,
+          "denominator": 2.4000000000000004,
+          "density": 1.0,
+          "numerator": 0.8,
+          "specificity": 0.3333333333333333
+        }
+      ],
+      "stage": "ARCHIVE",
+      "witness_graph_hash": "8cee1eacd81be23f747628fcb13e42a5b5bab3f6930a8a47aaa4bb845e10c10a"
+    }
+  ],
+  "repaired_checksum_verified": true,
+  "root_id": 69,
+  "seconds": 1799.708400100004,
+  "source_sha256": "1448014aa6430b83708f8b792263cf38508f7c1e96280ba51e044fc13009b8e3",
+  "verification_revision": "57eaae5d30a27df6d7e91446675d33a64a563e3a"
+}

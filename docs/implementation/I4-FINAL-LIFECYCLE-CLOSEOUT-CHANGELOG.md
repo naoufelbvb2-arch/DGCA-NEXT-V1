@@ -123,3 +123,33 @@ from root61 supply actual receivers, not fixtures. The total A-family inputs
 remain within the original40-root/112-event ceiling. This is a SAME-lineage
 identity/recovery control, not extra confirmations of root69's archive. Full
 cold replay remains mandatory. Gate B is still not started.
+
+## C05 — Gate A PRODUCTION_PASS before Gate B
+
+All six actual same-lineage safety controls completed successfully at driver
+checkpoint `57eaae5`: publish/exception rollback/duplicate END1825.1993451s;
+ABORT1754.3759781s; BEFORE_COMMIT exit73/cold recovery1766.4872769s;
+AFTER_COMMIT exit73/cold recovery1789.8899721s; repaired-score1799.7084001s
+and repaired-lineage1805.5529938s. Both forgeries have independently verified
+repaired checkpoint hashes and fail full RootStore rederivation with
+`INVALID_CLOSE_CHECKPOINT`. Original sources remain unchanged. Canonical and
+publication-control W/H/R match exactly; ABORT restores H_BEGIN SHA256
+`d63d9b9bc84611f093a9371e2abf4b7b71564be3abba57b6f237307ba7c55818`.
+
+The additional identity control at `3e06869` genuinely completes roots70–72,
+nine events, and FORMs ID5 at root72, above prior high-watermark4. Archived0/1
+and immutable births remain unchanged. Full cold replay passes; database
+626847744 bytes, SHA256
+`1c4b62105b3e0cf9a588986e7f38497adb6b39ee93ec76a9c3c6972385c6f756`.
+Its recorded elapsed14986.9374344s is raw wall time, not CPU/performance data;
+the session elapsed across a later user continuation. No efficiency claim.
+Total A-family new input is13 roots/31 events across explicitly separated
+canonical and same-lineage identity-control continuations, within the ceiling.
+
+New saved-genuine-state and receipt tests: **10 PASS in3.42s**, command
+`.venv/Scripts/python.exe -m pytest -q tests/test_i4_final_lifecycle_closeout.py --basetemp=.pytest-tmp/closeout-a-tests`.
+These are component/receipt regressions; genuine full-history RootStore
+experiments and process controls above are distinct evidence. Gate A now
+PRODUCTION_PASS. No B trial has executed. No production code correction.
+The initial new-driver Ruff check found three E501 style errors; formatting
+corrected them before the experiment-source commit. Final checks pass.
