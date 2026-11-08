@@ -153,3 +153,44 @@ experiments and process controls above are distinct evidence. Gate A now
 PRODUCTION_PASS. No B trial has executed. No production code correction.
 The initial new-driver Ruff check found three E501 style errors; formatting
 corrected them before the experiment-source commit. Final checks pass.
+
+## C06 — Gate B family B01-r1, declared after Gate A passed
+
+Gate A was committed as `84bdb1c` before this declaration. Reuse the byte-verified
+ORIGINAL R04 F05-r3-publish database as a new chronological continuation of
+that SAME lineage, not A01's archived state and not pooled A01 confirmations.
+Target the same previously SPLIT-ed live AssemblyID0, first stamp close59,
+completed external prefix161, birth4. No new feature search or execution mode.
+
+Use these eight existing accepted F06 feature names in order:
+`r04-merge-149`, `r04-merge-293`, `r04-merge-5965`, `r04-merge-6364`,
+`r04-merge-820`, `r04-merge-1746`, `r04-merge-2233`, `r04-merge-2430`.
+Each bundle contains feature `f617` support1 and the selected feature support1.
+First frontload one genuine boundary-first EVENT per bundle in eight roots.
+Then train the first two bundles for three independent roots each, three
+events/root; train the other six for nine independent roots each, three
+events/root. Only the first event of each root has HARD_BOUNDARY. Total68
+completed training roots/188 events. Hypothesis: capture the current active
+original triplet in legal new latent neighborhoods, GROW two weakly learned
+three-cell cohorts, then genuine positive external neighborhoods reduce the
+original connectors' relative specificity. Lawful MAINTAIN may leave a real
+six-member zero-cross structure for a second SPLIT. This is a hypothesis;
+no weight, membership, q or expected outcome is supplied to the runtime.
+
+Then log three genuine empty external EVENTs in one ABORTED root; verify no
+age and exact H_BEGIN restoration. Complete eleven genuine empty external
+events in the next root to reach age199. Require actual mathematical/physical
+eligibility plus cooldown refusal and unchanged W/identity at that END.
+Finally submit one genuine empty event, inspect prospective age200, preserve
+the actual OPEN checkpoint, and END. Only an actually published second
+MERGE/SPLIT involving original ID0 counts as the production-positive.
+Current OPEN/ABORTED events and read-only inspection never count as completed
+age. Empty events have no positive q. Original records/births must survive.
+
+Maximum200 new completed external events plus3 aborted events. Stop on a
+named engine failure or loss of the selected identity. Save every actual
+root/event input, frozen observation, structural evaluation, candidate check,
+accepted/refused credit and published identity. If eligibility fails at199
+or200, report EMPIRICAL_NOT_PROVEN, not a synthetic success or CLOCK_PASS
+upgrade. Further families/revisions require a prior logged declaration.
+Genuine second-operator transaction/crash/proof controls run only if observed.
