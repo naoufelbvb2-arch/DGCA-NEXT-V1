@@ -194,3 +194,16 @@ accepted/refused credit and published identity. If eligibility fails at199
 or200, report EMPIRICAL_NOT_PROVEN, not a synthetic success or CLOCK_PASS
 upgrade. Further families/revisions require a prior logged declaration.
 Genuine second-operator transaction/crash/proof controls run only if observed.
+
+## C07 — B driver preflight correction, no external event consumed
+
+Ruff accepted the first draft but Python `--help` refused a walrus expression
+inside a comprehension iterable. The initial launch at `496bb0a` therefore
+also exited before opening/copying any database or presenting an external
+event. Preserve this failed engineering preflight; it is not a failed physical
+curriculum or a source of evidence. Replace the expression with an explicit
+decode/filter loop and verify the actual interpreter before launch. Also
+removed an unused optional helper path and use the existing Enum JSON adapter.
+The driver evaluates serialized mathematical `reasons`/`best` fields, rather
+than assuming a Python property is stored by dataclasses.asdict. No production
+law, source or curriculum changed. The prior A gate remains passed.

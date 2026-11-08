@@ -44,11 +44,12 @@ def observe(e):
 
 
 def target_checks(close):
-    return [
-        doc
-        for raw in close.operator_checks
-        if any(subject[0] == 0 for subject in (doc := decode_operator_check(raw))["subjects"])
-    ]
+    selected = []
+    for raw in close.operator_checks:
+        doc = decode_operator_check(raw)
+        if any(subject[0] == 0 for subject in doc["subjects"]):
+            selected.append(doc)
+    return selected
 
 
 def completed_root(s, root, features, count):
